@@ -97,7 +97,7 @@ This is like the "where" clause in SQL.  You
 can either invoke it for standard comparison like 
 
  * `find({key: 'value'})`
- * `find('key', 'value')`)
+ * `find('key', 'value')`
 
 or you can have a conditional; which is pure magic.
 
