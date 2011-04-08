@@ -279,3 +279,24 @@ to my attention:
  * [TaffyDB](http://taffydb.com/)
  * [jLinq](http://www.hugoware.net/Projects/jLinq)
 
+# Doesn't HTML5 support this?
+Alan Chen pointed me to part of [HTML5](http://dev.w3.org/html5/webdatabase/#databases) that appears to claim that there will be full SQL support in the land of future browsers, maybe.
+
+There's two interfaces, "IndexedDB" and "WebSQL".  As always, the browser world seems to be split.
+
+ * [Webkit (Safari) has supported WebSQL](http://www.webkit.org/blog/126/webkit-does-html5-client-side-database-storage/) for a while and is working on [indexedDB](https://github.com/NielsLeenheer/html5test/pull/68) support. 
+ * [Chrome (Webkit based with some divergence)](http://www.infoq.com/news/2010/02/Web-SQL-Database) has had WebSQL since version 4, and used a [different interface](http://code.google.com/apis/gears/upcoming/api_database.html) prior to that.  IndexedDB support came in through [chromium](http://weblog.bocoup.com/javascript-indexeddb-in-chromium-8-0-552-5-dev)
+ * FF4 in early development [had various interfaces](http://hacks.mozilla.org/2010/06/comparing-indexeddb-and-webdatabase/) but apparently only [indexedDB](https://developer.mozilla.org/en/IndexedDB) is supported at this time
+ * Opera added IndexedDB support [just recently](http://dev.opera.com/articles/view/taking-your-web-apps-offline-web-storage-appcache-websql/)
+ * Internet Explorer 9 has tentative support for [IndexedDB](http://msdn.microsoft.com/en-us/scriptjunkie/gg679063)
+
+## Making an argument then, for this library
+I must concede, I didn't know about this world prior to implementing this.  However, given this, there are still benefits in using an interface such as this:
+
+ * It's in vanilla JavaScript 1.5, without DOM; so it should work in any major browser made within the past 13 years whereas the stuff above appears experimental for most of the browsers
+ * It would not be difficult to reduce the interfacing down to SQL in order to interface the web storage systems out there.
+ * The library is more of a hybrid between a document store and a traditional RDBMS.  For instance:
+  * Schemas aren't required
+  * It's loosely typed
+
+As a result, it (the library) tries to address specific classes of problems more than be a strict accessor to an SQL sub-system.
