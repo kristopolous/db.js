@@ -1,6 +1,6 @@
 # A Generic Javascript Database
 
-### This will be painless, I assure you.
+## This will be painless, I assure you.
 
 Recently I had a very intricate and nuanced problem I had to solve.  I thought "gee, if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
 
@@ -52,7 +52,7 @@ The basic idea is that **you are using this API because you want life
 to be painless and easy**.  You certainly don't want to wade through
 a bunch of documentation or have to remember strange nuances of how
 to invoke something.  You should be able to take the cavalier approach and
-*Get Shit Done tm;*.
+*Get Shit Done(tm)*.
 
 Now without further ado, moving on:
 
