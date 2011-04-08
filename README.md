@@ -1,5 +1,7 @@
 # A Generic Javascript Database
 
+### This will be painless, I assure you.
+
 Inspired from TaffyDB, which I never got to work, this mimics the syntax
 generally while incorporating chaining to resolve some of the ambiguities
 I found in Taffy.
@@ -54,23 +56,23 @@ want to be working on, and then describe the operations that you want
 to do to them.
 
 # Creation and Insertion
-Lets start with a very simple example; we will create a database and then
-just add the object {key, value} into it.
+Lets start with a trivial example; we will create a database and then
+just add the object `{key: value}` into it.
 
 `var db = DB();
 db.insert({key: value});
 `
 
-That wasn't too hard.  Let's say we want to insert {one: 1, two: 2} into it
+Now let's say we want to insert `{one: 1, two: 2}` into it
 
 `db.insert({one: 1, two: 2})`
 
 Alright, let's say that we want to do this all over again and now insert
 both fields in.  We can do this a few ways:
 
-1. As two arguments: db.insert({key: value}, {one: 1, two: 2});
-2. As an array: db.insert([{key: value}, {one: 1, two: 2}]);
-3. Or even chained: db.insert({key: value}).insert({one: 1, two: 2});
+1. As two arguments: `db.insert({key: value}, {one: 1, two: 2});`
+2. As an array: `db.insert([{key: value}, {one: 1, two: 2}]);`
+3. Or even chained: `db.insert({key: value}).insert({one: 1, two: 2});`
 
 
 # Further SQL to DB Examples
