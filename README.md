@@ -230,7 +230,7 @@ The file "test.html" includes a synchronization function that logs to screen
 when it is run so you can see when this function would be called.  Basically
 it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
-run, once, once, and once.
+run, once, once, and once respectively.
 
 # Examples
 ## Creation and Insertion
@@ -262,9 +262,9 @@ both fields in.  We can do this a few ways:
 
 becomes:
 
-   people.find({ id: DB.isin(
-      addresses.find( DB.like('city', 'los angeles') ).select('id')
-   }).order('income').slice(1, 10)
+    people.find({ id: DB.isin(
+       addresses.find( DB.like('city', 'los angeles') ).select('id')
+    }).order('income').slice(1, 10)
 
 # Caveats
 
