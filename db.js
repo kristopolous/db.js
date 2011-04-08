@@ -2,21 +2,8 @@ var DB = function(){
   var 
     ixlast = 0,
     raw = {};
-    
-  // The ability to import a database from somewhere
-  if (arguments.length == 1) {
-    if (arguments[0].constructor == Array) {
-      raw = arguments[0];
-    } else if (arguments[0].constructor == Function) {
-      raw = arguments[0]();
-    } else if (arguments[0].constructor == Object) {
-      raw = [arguments[0]];
-    }
-  } else if(arguments.length > 1) {
-    raw = Array.prototype.slice.call(arguments);
-  }
 
-  function indexOf (which, searchElement /*, fromIndex */) {
+  function indexOf(which, searchElement /*, fromIndex */) {
     if (which === void 0 || which === null) {
       throw new TypeError();
     }
@@ -225,6 +212,63 @@ var DB = function(){
     } 
   }
 
+  ret.isin = function(param1, param2) {
+    var 
+      comparator,
+      obj = {};
+
+    if(arguments.length == 1) {
+      comparator = param1;
+    } else if(arguments.length == 2){
+      comparator = param2;
+    } else {
+      throw new TypeError();
+    }
+
+    if(comparator.constructor == Array) {
+      comparator = function(x) { return indexOf(x, comparator) > -1; };
+    } else if (comparator instanceof Function) {
+      comparator = function(x) { return indexOf(x, comparator()) > -1; };
+    } else {
+      throw new TypeError();
+    }
+
+    if(arguments.length == 2) {
+      obj = {};
+      obj[param1] = comparator;
+      return obj;
+    } else {
+      return comparator;
+    }
+  }
+
+  ret.ilike = ret.like = function(param1, param2) {
+    var 
+      comparator,
+      query,
+      obj = {};
+
+    if(arguments.length == 1) {
+      query = param1;
+    } else if(arguments.length == 2){
+      query = param2;
+    } else {
+      throw new TypeError();
+    }
+
+    query = query.toString().toLowerCase();
+
+    comparator = function(x) { return x.toString().toLowerCase().search(query) > -1; };
+
+    if(arguments.length == 2) {
+      obj = {};
+      obj[param1] = comparator;
+      return obj;
+    } else {
+      return comparator;
+    }
+  }
+
   function chain(list) {
     for(var func in ret) {
       list[func] = ret[func];
@@ -291,13 +335,17 @@ var DB = function(){
                   value(raw[which][key])
                 ) ||
 
-                // Trivial string comparison
-                (raw[which][key] == value) || (
+                // Trivial value comparison
+                (raw[which][key] == value)  ||
 
-                  // This supports the key: [1,2,3,4] format
-                  value instanceof Array &&
-                  typeof raw[which][key] == 'string' &&
-                  indexOf(value, raw[which][key]) > -1
+                // Less trivial value comparison
+                ( (
+                    value.toString &&
+                    raw[which][key].toString
+                  ) && (
+                    value.toString() ==
+                    raw[which][key].toString()
+                  )
                 )
               ) 
             ) {
@@ -323,10 +371,14 @@ var DB = function(){
   }
 
   ret.inverse = function(list) {
+    if(arguments.length == 0 && this instanceof Array) {
+      list = this;
+    }
+
     return chain(setdiff(keys(raw), list));
   }
 
-  ret.find = function() {
+  ret.where = ret.find = function() {
     return chain(list2data(find.apply(this, arguments)));
   }
 
@@ -447,34 +499,45 @@ var DB = function(){
   ret.order = function() {
     var 
       key, 
-      value, 
+      fnSort,
+      order,
       filter;
 
-    if(typeof arguments[0] == 'string') {
+    if(arguments.length == 0) {
+      throw new Error("order has to have a parameter");
+    }
+
+    if(typeof arguments[0] == 'function') {
+      fnSort = arguments[0];
+    } else if(typeof arguments[0] == 'string') {
       key = arguments[0];
 
       if(arguments.length == 1) {
-        value = 'x - y';
+        order = 'x - y';
       } else if(arguments.length == 2) {
 
         if(typeof arguments[1] == 'string') {
           if(arguments[1].toLowerCase() == 'asc') {
-            value = 'x - y';
+            order = 'x - y';
           } else if(arguments[1].toLowerCase() == 'desc') {
-            value = 'y - x';
+            order = 'y - x';
           } 
         } 
 
-        if (typeof value == 'undefined') {
-          value = arguments[1];
+        if (typeof order == 'undefined') {
+          order = arguments[1];
         }
+      }
+
+      if(typeof order == 'string') {
+        order = new Function('x,y', 'return ' + order);
+      }
+
+      fnSort = function(a, b) {
+        return order(a[key], b[key]);
       }
     }
 
-    if(typeof value == 'string') {
-      value = new Function('x,y', 'return ' + value);
-    }
-    
     if(this instanceof Array) {
       filter = this;
     } else {
@@ -484,9 +547,7 @@ var DB = function(){
     // Order doesn't change data
     //ret.sync(raw);
    
-    return filter.sort(function(a, b) {
-      return value(a[key], b[key]);
-    });
+    return filter.sort(fnSort);
   }
 
   ret.remove = function(constraint) {
@@ -512,6 +573,19 @@ var DB = function(){
   }
 
   ret.sync = function() {}
+
+  // The ability to import a database from somewhere
+  if (arguments.length == 1) {
+    if (arguments[0].constructor == Array) {
+      ret.insert(arguments[0]);
+    } else if (arguments[0].constructor == Function) {
+      ret.insert(arguments[0]());
+    } else if (arguments[0].constructor == Object) {
+      ret.insert(arguments[0]);
+    }
+  } else if(arguments.length > 1) {
+    ret.insert(Array.prototype.slice.call(arguments));
+  }
 
   return ret;
 }
