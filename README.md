@@ -7,7 +7,7 @@ I found in Taffy.
 Also, there is a slightly different syntax for conditionals just so
 there is no value collisions ( or at least as little as possible )
 
-<h1> It's basically SQL, but for the browser.</h1>
+# It's basically SQL, but for the browser.
 
 Lets start by doing an SQL query and show you how you can do it here:
 
@@ -17,7 +17,7 @@ Pretty straightforward, right?  In this library, you have to rearrange
 your thinking a little bit, but not by much.  We can get the same ends
 by doing the following:
 
-`people.find(db('age' '> 30')).order('age', 'desc').select('firstname','age')`
+`people.find(db('age', '> 30')).order('age', 'desc').select('firstname','age')`
 
 The proper way to think about this is
 
