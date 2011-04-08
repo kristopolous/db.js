@@ -2,6 +2,19 @@ var DB = function(){
   var 
     ixlast = 0,
     raw = {};
+    
+  // The ability to import a database from somewhere
+  if (arguments.length == 1) {
+    if (arguments[0].constructor == Array) {
+      raw = arguments[0];
+    } else if (arguments[0].constructor == Function) {
+      raw = arguments[0]();
+    } else if (arguments[0].constructor == Object) {
+      raw = [arguments[0]];
+    }
+  } else if(arguments.length > 1) {
+    raw = Array.prototype.slice.call(arguments);
+  }
 
   function indexOf (which, searchElement /*, fromIndex */) {
     if (which === void 0 || which === null) {
@@ -44,21 +57,93 @@ var DB = function(){
     return -1;
   };
 
-  function shallowcopy(from) {
-    var shallow = {};
+  // Jacked from Resig's jquery 1.5.2
+  // The code has been modified to not rely on jquery
+  function extend() {
+    var 
+      options, name, src, copy, copyIsArray, clone,
+      target = arguments[0] || {},
+      i = 1,
+      length = arguments.length,
+      deep = false;
 
-    for(var key in from) {
-      shallow[key] = from[key];
+    // Handle a deep copy situation
+    if ( typeof target === "boolean" ) {
+      deep = target;
+      target = arguments[1] || {};
+      // skip the boolean and the target
+      i = 2;
     }
+ 
+    // Handle case when target is a string or something (possible in deep copy)
+    if ( typeof target !== "object" && typeof target !== 'function') {
+      target = {};
+    }
+ 
+    // extend jQuery itself if only one argument is passed
+    if ( length === i ) {
+      target = this;
+      --i;
+    }
+ 
+    for ( ; i < length; i++ ) {
+      // Only deal with non-null/undefined values
+      if ( (options = arguments[ i ]) != null ) {
+        // Extend the base object
+        for ( name in options ) {
+          src = target[ name ];
+          copy = options[ name ];
+ 
+          // Prevent never-ending loop
+          if ( target === copy ) {
+             continue;
+          }
+ 
+          // Recurse if we're merging plain objects or arrays
+          if ( deep && copy && ( copy.constructor == Object || (copyIsArray = (copy.constructor == Array)) ) ) {
+            if ( copyIsArray ) {
+              copyIsArray = false;
+              clone = src && (src.constructor == Array) ? src : [];
+            } else {
+              clone = src && (src.constructor == Object) ? src : {};
+            }
+ 
+            // Never move original objects, clone them
+            target[ name ] = extend( deep, clone, copy );
+ 
+          // Don't bring in undefined values
+          } else if ( copy !== undefined ) {
+            target[ name ] = copy;
+          }
+        }
+      }
+    }
+ 
+    // Return the modified object
+    return target;
+  };
 
-    return shallow;
+  function deepcopy(from) {
+    //@http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
+    return extend(true, {}, from);
   }
+
 
   function list2obj(list) {
     var ret = {};
     each(list, function(which) {
       ret[which] = true;
     });
+
+    return ret;
+  }
+
+  function values(obj) {
+    var ret = [];
+
+    for(var key in obj) {
+      ret.push(obj[key]);
+    }
 
     return ret;
   }
@@ -126,7 +211,6 @@ var DB = function(){
     return ret;
   }
 
-
   function ret(){
     if(typeof arguments[0] == 'string') {
       if(arguments.length == 1) {
@@ -138,47 +222,15 @@ var DB = function(){
         obj[arguments[0]] = new Function("$$x$$", "return $$x$$ " + arguments[1]);
         return obj;
       }
-    }
-
-    var resultant = raw;
-
-    each(Array.prototype.slice.call(arguments), function(which) {
-      for(var directive in which);
-
-      resultant = ret[directive](which[directive], resultant);
-    });
-
-    return resultant;
+    } 
   }
 
   function chain(list) {
     for(var func in ret) {
       list[func] = ret[func];
     }
+
     return list;
-  }
-
-  ret.insert = function(param) {
-    if(arguments.length > 1) {
-      return arguments.callee.call(this, Array.prototype.slice.call(arguments));
-    }
-
-    if(param instanceof Array) {
-      var ixList = [];
-
-      each(param, function(which) {
-        ixList.push(ret.insert(which));
-      });
-
-      return ixList;
-    } 
-
-    var ix = ixlast++;
-
-    raw[ix] = param;
-    raw[ix].$$__ix__$$ = ix;
-
-    return ix;
   }
 
   function find() {
@@ -210,7 +262,7 @@ var DB = function(){
       ) {
         which = {};
         which[filterList[0]] = filterList[1];
-        filterList = [shallowcopy(which)];
+        filterList = [deepcopy(which)];
     }
 
     // We can either do find({}) or find({},{},{})
@@ -300,13 +352,47 @@ var DB = function(){
       result = [];
 
       each(field, function (column) {
-        result.push(row[column]);
+        if(column == '*') {
+          result = result.concat(values(row));
+        } else {
+          result.push(row[column]);
+        }
       });
 
       resultList.push(result);
     });
       
+    // select doesn't change data
+    //ret.sync(raw);
+    
     return chain(resultList);
+  }
+
+  ret.insert = function(param) {
+    var 
+      toInsert = [],
+      ixList = [];
+
+    if(arguments.length > 1) {
+      toInsert = Array.prototype.slice.call(arguments);
+    } else if (param.constructor == Array) {
+      toInsert = param;
+    } else if (param.constructor == Object) {
+      toInsert = [param];
+    } else {
+      throw new Error('Tried to insert data of an unsupported type.');
+    }
+
+    each(toInsert, function(which) {
+      var ix = ixlast++;
+      raw[ix] = which;
+      raw[ix].$$__ix__$$ = ix;
+
+      ixList.push(ix);
+    });
+
+    ret.sync(raw);
+    return ixList;
   }
 
   // Update allows you to set newvalue to all
@@ -354,6 +440,7 @@ var DB = function(){
       }
     });
 
+    ret.sync(raw);
     return chain(list2data(list));
   }
 
@@ -394,6 +481,9 @@ var DB = function(){
       filter = ret.find();
     }
 
+    // Order doesn't change data
+    //ret.sync(raw);
+   
     return filter.sort(function(a, b) {
       return value(a[key], b[key]);
     });
@@ -413,12 +503,15 @@ var DB = function(){
     }
 
     each(list, function(index) {
-      save.push(shallowcopy(raw[index]));
+      save.push(deepcopy(raw[index]));
       delete raw[index];
     });
 
+    ret.sync(raw);
     return chain(save);
   }
+
+  ret.sync = function() {}
 
   return ret;
 }

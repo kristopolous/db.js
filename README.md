@@ -65,7 +65,10 @@ This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
 which is relevant for the query.
 
-## db.update(fields)
+You can also do db.select(' * ') to retrieve all fields, although the 
+key values of these fields aren't currently being returned.
+
+## db.update(field)
 In regular SQL you may find yourself doing something like this:
 
 `update employees set fired = true where tardydays > 40`
@@ -97,6 +100,26 @@ both fields in.  We can do this a few ways:
 2. As an array: `db.insert([{key: value}, {one: 1, two: 2}]);`
 3. Or even chained: `db.insert({key: value}).insert({one: 1, two: 2});`
 
+# Persistance and synchronization
+What if you have an existing database from somewhere and you want to import
+your data when you load the page.  You can supply the data to be imported
+as an initialization variable.  For instance, say you are using [jstorage](http://www.jstorage.info/)
+you could initialize the database as follows:
+
+`var db = DB($.jStorage.get('government-secrets'));`
+
+## Synchronization
+To store the data when it is updated, you define a "sync" function.  Using our
+jStorage example from above, we would 'sync' back to by doing the following:
+
+`db.sync = function(data) { $.jStorage.set('government-secrets', data); }`
+
+The file "test.html" includes a synchronization function that logs to screen
+when it is run so you can see when this function would be called.  Basically
+it is done at the END of a function call, regardless of invocation.  That is
+to say, that if you update 10 records, or insert 20, or remove 50, it would be
+run, once, once, and once.
+
 
 # Further SQL to DB Examples
 `remove from users where lastlogin = false`
@@ -106,7 +129,7 @@ becomes:
 `users.find({lastlogin: false}).remove();`
 
 # Caveats
-There's no notion of joining although it probably wouldn't be that hard.
+ * There's no notion of joining although it probably wouldn't be that hard.
 
 # Similar Projects
 Since starting this project, people have brought other, similar products

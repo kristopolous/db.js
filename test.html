@@ -1,13 +1,24 @@
 <!doctype html>
 <style>
-body{font-family:monospace}
+body{font-family:monospace;margin:10px}
+h4{margin-top:0}
+.log{
+  border-radius: 6px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  background:#ddd;padding:10px;margin:17px 5px 3px 0;max-width:500px}
 </style>
 <body onload=test()>
 </body>
 <script src=db.js></script>
 <script>
+  function info(txt) {
+    document.body.innerHTML += '<div class=info>' +
+      '<i>Notice: ' + arguments[0] + '</i>' + 
+      '</div>';
+  }
   function log(txt) {
-    document.body.innerHTML += '<div>' +
+    document.body.innerHTML += '<div class=log>' +
       '<h4>' + arguments[0] + '</h4>' + 
       '<span>' + arguments[1] + '</span>' +
       '</div>';
@@ -15,9 +26,8 @@ body{font-family:monospace}
 
   function test() {
     var 
-      db = DB(),
       res,
-      data = [{
+      db = DB([{
         first: "Peter",
         last: "Griffin",
         age: 41,
@@ -29,7 +39,9 @@ body{font-family:monospace}
         age: 40,
         hometown: "Newport",
         job: "Piano Teacher"
-      }, {
+      }]),
+
+      toInsert = [{
         first: "Joseph",
         last: "Swanson",
         age: 39,
@@ -43,21 +55,30 @@ body{font-family:monospace}
         job: "Pilot"
       }];
 
-    res = db.insert(data);
-    log('inserted the data, got the following ids back', res.join('<br>'));
+    res = db.find().select('*');
+    log('Initialized the database with the following data:', res.join('<br>'));
+
+    db.sync = function(raw) {
+      info('Running the synchronization function');
+    }
+
+    log('Registered a synchronization function to be run when the database changes', '');
+
+    res = db.insert(toInsert);
+    log('Inserted more data, got the following ids back', res.join('<br>'));
 
     res = db.select('job');
-    log('showing the types of jobs', res.join('<br>'));
+    log('Showing the types of jobs', res.join('<br>'));
 
     res = db.find(db('age', '> 40')).select('first');
-    log('listing people over 40', res.join('<br>')); 
+    log('Listing people with age over 40', res.join('<br>')); 
 
     res = db
       .order('age', 'asc')
       .select('first', 'age')
       .each(function(res) { return res[0] + ' is ' + res[1] });
 
-    log('ordering people by age ascending, and emitting output in a formatted way', res.join('<br>'));
+    log('Ordering people by age ascending, and emitting output in a formatted way', res.join('<br>'));
 
     db.update('description', function(param) {
       return [ 
@@ -73,14 +94,14 @@ body{font-family:monospace}
     });
 
     res = db.select('description');
-    log('created a new field, named description:', res.join('<br>'));
+    log('Created a new field, named description:', res.join('<br>'));
 
     var removed = db.find('last', 'Griffin').remove();
     res = db.find('last', 'Griffin');
-    log('removed people with the last name griffin.  Searched for this parameter:', res.length);
+    log('Removed people with the last name griffin.  Searched for this parameter:', res.length);
 
     db.insert(removed);
     res = db.find('last', 'Griffin');
-    log('reinserted the results previously removed.  Searched for the same parameter:', res.length);
+    log('Reinserted the results previously removed.  Searched for the same parameter:', res.length);
   }
 </script>
