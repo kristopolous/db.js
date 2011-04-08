@@ -29,16 +29,41 @@ are interested in. You can do this in a chained way, such as this:
 2. Now you have a subset of data that you can work with.  You can run
 a number of familiar commands on it. 
 
+# But wait, first a note about the parameters
+I believe in expressive freedom.  Really.  That means that you can invoke
+this library in many ways.  For instance, if you wanted to update 'key'
+to be 'value', you could do it like
+
+`update('key', 'value')` 
+
+or
+
+`update({key: 'value'})`
+
+You can chain this under a find like
+
+`db.find().update(blah blah)`
+
+or drop it all together
+
+`db.update(blah blah)`
+
+The basic idea is that **you are using this API because you want life
+to be painless and easy**.  You certainly don't want to wade through
+a bunch of documentation or have to remember strange nuances of how
+to invoke something.  You should be able to take the cavalier approach and
+*Get Shit Done tm;*.
+
+Now without further ado, moving on:
+
 ## db.remove()
 This will remove the entries from the database but also return them if
 you want to manipulate them.
 
-## db.select(fieldlist)
+## db.select(field)
 This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
-which is relevant for the query
-
-You can also do an update
+which is relevant for the query.
 
 ## db.update(fields)
 In regular SQL you may find yourself doing something like this:
