@@ -93,19 +93,23 @@ good, no problems then.
 # API
 
 ## db.find( constraint )
-This is like the "where" clause in SQL and is really important.  You
+This is like the "where" clause in SQL.  You
 can either invoke it for standard comparison like 
+
  * `find({key: 'value'})`
  * `find('key', 'value')`)
 
 or you can have a conditional; which is pure magic.
+
  * `find({key: function(value) { return value < 10; })`
 
 Since that syntax is a bit tedious, there is a shorthand form:
+
  * `find({key: db('< 10')})`
 
 This creates the above function for you.  You can also be even more
 terse with the library, if you are in an inexplicable hurry:
+
  * `find(db('key', '< 10'))`
 
 However, the one thing that you cannot do (yet) is this:
@@ -150,6 +154,7 @@ You can also do db.select(' * ') to retrieve all fields, although the
 key values of these fields aren't currently being returned.
 
 You can do 
+
  * select('one', 'two') 
  * select(['one', 'two'])
 
@@ -261,6 +266,7 @@ becomes:
    }).order('income').slice(1, 10)
 
 # Caveats
+
  * There's no notion of joining although it probably wouldn't be that hard.
  * Values CANNOT BE functions ... I don't see this changing unless people whine
  * The rows get decorated with an id variable, currently `$$__x__$$`.  This is certainly not ideal and it would be much better if accounting could be done more transparently, but I have yet to find a way to do this which isn't crazy expensive.
