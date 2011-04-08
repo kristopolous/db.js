@@ -2,14 +2,12 @@
 
 ### This will be painless, I assure you.
 
-Inspired from TaffyDB, which I never got to work, this mimics the syntax
-generally while incorporating chaining to resolve some of the ambiguities
-I found in Taffy.
+Recently I had a very intricate and nuanced problem I had to solve.  I thought "gee, if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
 
-Also, there is a slightly different syntax for conditionals just so
-there is no value collisions ( or at least as little as possible )
+Much to my delight, this wasn't that hard.  The purpose of this project
+is to make something that can be described as:
 
-# It's basically SQL, but for the browser.
+# It's basically SQL, but in the browser.
 
 Lets start by doing an SQL query and show you how you can do it here:
 
