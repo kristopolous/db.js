@@ -1,12 +1,13 @@
 <!doctype html>
 <style>
 body{font-family:monospace;margin:10px}
-h4{margin-top:0}
+h4{margin:0.25em 0}
 .log{
   border-radius: 6px;
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
-  background:#ddd;padding:10px;margin:17px 5px 3px 0;max-width:500px}
+  background:#ddd;padding:10px;margin:0px 5px 17px 0;max-width:600px}
+div span{margin:0 0.5em;display:block}
 </style>
 <body onload=test()>
 </body>
@@ -19,7 +20,7 @@ h4{margin-top:0}
   }
   function log(txt) {
     document.body.innerHTML += '<div class=log>' +
-      '<h4>' + arguments[0] + '</h4>' + 
+      '<h4>' + arguments[0] + ':</h4>' + 
       '<span>' + arguments[1] + '</span>' +
       '</div>';
   }
@@ -56,13 +57,13 @@ h4{margin-top:0}
       }];
 
     res = db.find().select('*');
-    log('Initialized the database with the following data:', res.join('<br>'));
+    log('Initialized the database with the following data', res.join('<br>'));
 
     db.sync = function(raw) {
       info('Running the synchronization function');
     }
 
-    log('Registered a synchronization function to be run when the database changes', '');
+    info('Registered a synchronization function to be run when the database changes');
 
     res = db.insert(toInsert);
     log('Inserted more data, got the following ids back', res.join('<br>'));
@@ -94,14 +95,14 @@ h4{margin-top:0}
     });
 
     res = db.select('description');
-    log('Created a new field, named description:', res.join('<br>'));
+    log('Created a new field, named description', res.join('<br>'));
 
     var removed = db.find('last', 'Griffin').remove();
     res = db.find('last', 'Griffin');
-    log('Removed people with the last name griffin.  Searched for this parameter:', res.length);
+    log('Removed people with the last name griffin.  Searched for this parameter', res.length);
 
     db.insert(removed);
     res = db.find('last', 'Griffin');
-    log('Reinserted the results previously removed.  Searched for the same parameter:', res.length);
+    log('Reinserted the results previously removed.  Searched for the same parameter', res.length);
   }
 </script>

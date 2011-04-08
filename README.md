@@ -16,7 +16,7 @@ Take a familiar SQL query like this:
 And with a little bit of javascripty magic, we can do this:
 
     people
-      .find(db('age', '> 30'))
+      .find(DB.expr('age', '> 30'))
       .order('age', 'desc')
       .select('firstname','age')
 
@@ -105,15 +105,16 @@ or you can have a conditional; which is pure magic.
 
 Since that syntax is a bit tedious, there is a shorthand form:
 
- * `find({key: db('< 10')})`
+ * `db.find({key: db('< 10')})`
 
 This creates the above function for you.  You can also be even more
 terse with the library, if you are in an inexplicable hurry:
 
- * `find(db('key', '< 10'))`
+ * `db.find(db('key', '< 10'))`
 
 However, the one thing that you cannot do (yet) is this:
- * `find(db('key < 10'))`
+
+ * `db.find(db('key < 10'))`
 
 I really want this to be possible in a magical safe way and see it
 as one of the primary objectives going forward.
@@ -137,7 +138,7 @@ A usage scenario may be as follows:
 `db.find({months: db.isin(['jan', 'feb', 'march']));`   
 
 ### But dude, why do I have to do this db() crap?
-That's because 'key < 10' is actually a valid string, of course. It
+That's because `key < 10` is actually a valid string, of course. It
 gives rise to the ambiguity, "is that an expression?".  Wrapping it
 in the db() removes this ambiguity so that you don't have collisions.
 
@@ -201,7 +202,7 @@ In regular SQL you may find yourself doing something like this:
 
 Here's how you pull that off here:
 
-`employees.find(db('tardydays', '> 40')).update({fired: true})`
+`employees.find(employees('tardydays', '> 40')).update({fired: true})`
 
 See again, how you do the noun first, that is, describe the data you
 want to be working on, and then describe the operations that you want
@@ -261,8 +262,8 @@ both fields in.  We can do this a few ways:
 
 becomes:
 
-   people.find({ id: db.isin(
-      addresses.find( db.like('city', 'los angeles') ).select('id')
+   people.find({ id: DB.isin(
+      addresses.find( DB.like('city', 'los angeles') ).select('id')
    }).order('income').slice(1, 10)
 
 # Caveats
