@@ -121,7 +121,7 @@ This is like SQL like command and it takes the value and does
 
 which is a mouthful.
 
-### db.isin()
+### db.isin( multi )
 This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
