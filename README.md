@@ -22,12 +22,8 @@ by doing the following:
 The proper way to think about this is
 
 1. You first filter your search results to the entries you 
-are interested in. You can do this in a chained way, such as this:
-
-`db.find({key: value, key1: value}).find({key: db('!== undefined')})`
-
-2. Now you have a subset of data that you can work with.  You can run
-a number of familiar commands on it. 
+are interested in. 
+2. Run various operations on those filtered results.  For instance, you can remove them, or update them, or show some records of them.
 
 # But wait, first a note about the parameters
 I believe in expressive freedom.  Really.  That means that you can invoke
@@ -54,7 +50,22 @@ a bunch of documentation or have to remember strange nuances of how
 to invoke something.  You should be able to take the cavalier approach and
 *Get Shit Done(tm)*.
 
-Now without further ado, moving on:
+
+Also, please note:
+### Every command is not only chainable, but also returns a standard javascript array of results.
+
+What I mean by this is that you can do 
+    var result = db.find({processed: true});
+    alert([ 
+      result.length,
+      result[result.length - 1],
+      result.pop(),
+      result.shift()
+    ].join('\n'));
+
+    result.find({hasError: true}).remove();
+    
+etc.  Note that I **do not overload Array.prototype to achieve this** so this means that *traditional arrays will still work in traditional ways*.
 
 ## db.remove()
 This will remove the entries from the database but also return them if
