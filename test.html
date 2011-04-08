@@ -1,0 +1,79 @@
+<!doctype html>
+<head>
+<style>
+body{font-family:monospace}
+</style>
+<body onload=test()>
+</body>
+<script src=db.js></script>
+<script>
+  function log(txt) {
+    document.body.innerHTML += '<div><span>' + 
+      Array.prototype.slice.call(arguments).join('</span> &gt;&gt; <span>') +
+      '</span></div>';
+  }
+
+  function test() {
+    var 
+      db = DB(),
+      res,
+      data = [{
+        first: "Peter",
+        last: "Griffin",
+        age: 41,
+        hometown: "Quahog",
+        job: "Brewer"
+      }, {
+        first: "Lois",
+        last: "Griffin",
+        age: 40,
+        hometown: "Newport",
+        job: "Piano Teacher"
+      }, {
+        first: "Joseph",
+        last: "Swanson",
+        age: 39,
+        hometown: "Quahog",
+        job: "Police Officer"
+      }, {
+        first: "Glenn",
+        last: "Quagmire",
+        age: 41,
+        hometown: "Quahog",
+        job: "Pilot"
+      }];
+
+    res = db.insert(data);
+    log('insert IDs', res.join());
+
+    res = db.select('job');
+    log('select job', res.join());
+
+    res = db.find(db('age', '> 40')).select('first');
+    log('over 40', res.join()); 
+
+    db.update('description', function(param) {
+      return [ 
+        param.first, 
+        param.last, 
+        "is from", 
+        param.hometown, 
+        "and is a",
+        param.age, 
+        "year old",
+        param.job
+      ].join(' ');
+    });
+
+    res = db.select('description');
+    log('update', res.join('<br>'));
+
+    var removed = db.find('last', 'Griffin').remove();
+    res = db.find('last', 'Griffin');
+    log('removed', res.length);
+
+    db.insert(removed);
+    res = db.find('last', 'Griffin');
+    log('reinserted', res.length);
+  }
+</script>
