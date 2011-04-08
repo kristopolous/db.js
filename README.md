@@ -27,7 +27,7 @@ are interested in. You can do this in a chained way, such as this:
 `db.find({key: value, key1: value}).find({key: db('!== undefined')})`
 
 2. Now you have a subset of data that you can work with.  You can run
-a number of familiar commands on it.  for instance:
+a number of familiar commands on it. 
 
 ## db.remove()
 This will remove the entries from the database but also return them if
@@ -53,8 +53,29 @@ See again, how you do the noun first, that is, describe the data you
 want to be working on, and then describe the operations that you want
 to do to them.
 
-# Further Examples
+# Creation and Insertion
+Lets start with a very simple example; we will create a database and then
+just add the object {key, value} into it.
+
+`var db = DB();
+db.insert({key: value});
+`
+
+That wasn't too hard.  Let's say we want to insert {one: 1, two: 2} into it
+
+`db.insert({one: 1, two: 2})`
+
+Alright, let's say that we want to do this all over again and now insert
+both fields in.  We can do this a few ways:
+
+1. As two arguments: db.insert({key: value}, {one: 1, two: 2});
+2. As an array: db.insert([{key: value}, {one: 1, two: 2}]);
+3. Or even chained: db.insert({key: value}).insert({one: 1, two: 2});
+
+
+# Further SQL to DB Examples
 `remove from users where lastlogin = false`
+
 becomes:
 
 `users.find({lastlogin: false}).remove();`
