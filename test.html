@@ -1,5 +1,4 @@
 <!doctype html>
-<head>
 <style>
 body{font-family:monospace}
 </style>
@@ -8,9 +7,10 @@ body{font-family:monospace}
 <script src=db.js></script>
 <script>
   function log(txt) {
-    document.body.innerHTML += '<div><span>' + 
-      Array.prototype.slice.call(arguments).join('</span> &gt;&gt; <span>') +
-      '</span></div>';
+    document.body.innerHTML += '<div>' +
+      '<h4>' + arguments[0] + '</h4>' + 
+      '<span>' + arguments[1] + '</span>' +
+      '</div>';
   }
 
   function test() {
@@ -44,13 +44,20 @@ body{font-family:monospace}
       }];
 
     res = db.insert(data);
-    log('insert IDs', res.join());
+    log('inserted the data, got the following ids back', res.join('<br>'));
 
     res = db.select('job');
-    log('select job', res.join());
+    log('showing the types of jobs', res.join('<br>'));
 
     res = db.find(db('age', '> 40')).select('first');
-    log('over 40', res.join()); 
+    log('listing people over 40', res.join('<br>')); 
+
+    res = db
+      .order('age', 'asc')
+      .select('first', 'age')
+      .each(function(res) { return res[0] + ' is ' + res[1] });
+
+    log('ordering people by age ascending, and emitting output in a formatted way', res.join('<br>'));
 
     db.update('description', function(param) {
       return [ 
@@ -66,14 +73,14 @@ body{font-family:monospace}
     });
 
     res = db.select('description');
-    log('update', res.join('<br>'));
+    log('created a new field, named description:', res.join('<br>'));
 
     var removed = db.find('last', 'Griffin').remove();
     res = db.find('last', 'Griffin');
-    log('removed', res.length);
+    log('removed people with the last name griffin.  Searched for this parameter:', res.length);
 
     db.insert(removed);
     res = db.find('last', 'Griffin');
-    log('reinserted', res.length);
+    log('reinserted the results previously removed.  Searched for the same parameter:', res.length);
   }
 </script>

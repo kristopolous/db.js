@@ -262,6 +262,14 @@ var DB = function(){
     return chain(filtered);
   }
 
+  ret.each = function(callback) {
+    var ret = [];
+    each(this, function(){
+      ret.push(callback.apply(this, arguments));
+    });
+    return ret;
+  }
+
   ret.inverse = function(list) {
     return chain(setdiff(keys(raw), list));
   }
@@ -276,7 +284,9 @@ var DB = function(){
       filter,
       resultList = [];
 
-    if(typeof field == 'string') {
+    if(arguments.length > 1) {
+      field = Array.prototype.slice.call(arguments);
+    } else if (typeof field == 'string') {
       field = [field];
     }
 
@@ -296,7 +306,7 @@ var DB = function(){
       resultList.push(result);
     });
       
-    return resultList;
+    return chain(resultList);
   }
 
   // Update allows you to set newvalue to all
@@ -345,6 +355,48 @@ var DB = function(){
     });
 
     return chain(list2data(list));
+  }
+
+  ret.order = function() {
+    var 
+      key, 
+      value, 
+      filter;
+
+    if(typeof arguments[0] == 'string') {
+      key = arguments[0];
+
+      if(arguments.length == 1) {
+        value = 'x - y';
+      } else if(arguments.length == 2) {
+
+        if(typeof arguments[1] == 'string') {
+          if(arguments[1].toLowerCase() == 'asc') {
+            value = 'x - y';
+          } else if(arguments[1].toLowerCase() == 'desc') {
+            value = 'y - x';
+          } 
+        } 
+
+        if (typeof value == 'undefined') {
+          value = arguments[1];
+        }
+      }
+    }
+
+    if(typeof value == 'string') {
+      value = new Function('x,y', 'return ' + value);
+    }
+    
+    if(this instanceof Array) {
+      filter = this;
+    } else {
+      filter = ret.find();
+    }
+
+    return filter.sort(function(a, b) {
+      return value(a[key], b[key]);
+    });
   }
 
   ret.remove = function(constraint) {
