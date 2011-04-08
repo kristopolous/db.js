@@ -130,8 +130,8 @@ which is a mouthful.
 This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
- * db.isin('months', ['jan','feb','march']);
- * db.isin('months', function(){ ... });
+ * `db.isin('months', ['jan','feb','march'])`
+ * `db.isin('months', function(){ ... })`
 
 A usage scenario may be as follows:
 
@@ -140,7 +140,7 @@ A usage scenario may be as follows:
 ### But dude, why do I have to do this db() crap?
 That's because `key < 10` is actually a valid string, of course. It
 gives rise to the ambiguity, "is that an expression?".  Wrapping it
-in the db() removes this ambiguity so that you don't have collisions.
+removes this ambiguity so that you don't have collisions.
 
 ## db.remove( constraint )
 This will remove the entries from the database but also return them if
@@ -156,12 +156,12 @@ key values of these fields aren't currently being returned.
 
 You can do 
 
- * select('one', 'two') 
- * select(['one', 'two'])
+ * `select('one', 'two')`
+ * `select(['one', 'two'])`
 
 But not:
 
- * select('one,two')
+ * `select('one,two')`
 
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
