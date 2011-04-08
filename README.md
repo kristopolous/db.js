@@ -106,12 +106,11 @@ becomes:
 `users.find({lastlogin: false}).remove();`
 
 # Caveats
-There's no notion of joining although it probably wouldn't be that hard
+There's no notion of joining although it probably wouldn't be that hard.
 
 # Similar Projects
 Since starting this project, people have brought other, similar products
-to my attention. I really 'rolled my own' here because the existing 
-solution that I could find just plain didn't work.
+to my attention: 
 
  * [TaffyDB](http://taffydb.com/)
  * [jLinq](http://www.hugoware.net/Projects/jLinq)
