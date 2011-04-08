@@ -179,18 +179,18 @@ You can also supply a second parameter of a case insensitive "asc" and "desc" li
 
 Summary:
 
- * order('key')
- * order('key', 'asc')
- * order('key', 'desc')
+ * `order('key')`
+ * `order('key', 'asc')`
+ * `order('key', 'desc')`
 
 **Note that the invocation styles aboe don't work on String values by default as of now.**
 
 ### Callback based ordering
 You can also do callback based sorting like so:
 
- * order('key', function(x, y) { return x - y } )
- * order(function(a, b) { return a[key] - b[key] })
- * order('key', 'x - y') *see below*
+ * `order('key', function(x, y) { return x - y } )`
+ * `order(function(a, b) { return a[key] - b[key] })`
+ * `order('key', 'x - y')` *see below*
 
 It's worth noting that if you are using the last invocation style, the
 first parameter is going to be x and the second one, y.
