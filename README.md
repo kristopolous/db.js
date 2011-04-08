@@ -183,7 +183,7 @@ Summary:
  * `order('key', 'asc')`
  * `order('key', 'desc')`
 
-**Note that the invocation styles aboe don't work on String values by default as of now.**
+**Note that the invocation styles above don't work on String values by default as of now.**
 
 ### Callback based ordering
 You can also do callback based sorting like so:
