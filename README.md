@@ -313,11 +313,11 @@ Alan Chen pointed me to part of [HTML5](http://dev.w3.org/html5/webdatabase/#dat
 
 There's two interfaces, "IndexedDB" and "WebSQL".  As always, the browser world seems to be split.
 
- * [Webkit (Safari) has supported WebSQL](http://www.webkit.org/blog/126/webkit-does-html5-client-side-database-storage/) for a while and is working on [indexedDB](https://github.com/NielsLeenheer/html5test/pull/68) support. 
- * [Chrome (Webkit based with some divergence)](http://www.infoq.com/news/2010/02/Web-SQL-Database) has had WebSQL since version 4, and used a [different interface](http://code.google.com/apis/gears/upcoming/api_database.html) prior to that.  IndexedDB support came in through [chromium](http://weblog.bocoup.com/javascript-indexeddb-in-chromium-8-0-552-5-dev)
- * FF4 in early development [had various interfaces](http://hacks.mozilla.org/2010/06/comparing-indexeddb-and-webdatabase/) but apparently only [indexedDB](https://developer.mozilla.org/en/IndexedDB) is supported at this time
- * Opera added IndexedDB support [just recently](http://dev.opera.com/articles/view/taking-your-web-apps-offline-web-storage-appcache-websql/)
- * Internet Explorer 9 has tentative support for [IndexedDB](http://msdn.microsoft.com/en-us/scriptjunkie/gg679063)
+ * [Safari has supported WebSQL](http://www.webkit.org/blog/126/webkit-does-html5-client-side-database-storage/) for a while and is working on [indexedDB](https://github.com/NielsLeenheer/html5test/pull/68) support. 
+ * [Chrome has had WebSQL support since version 4](http://www.infoq.com/news/2010/02/Web-SQL-Database) and used a [different interface](http://code.google.com/apis/gears/upcoming/api_database.html) prior to that.  IndexedDB support came in through [chromium](http://weblog.bocoup.com/javascript-indexeddb-in-chromium-8-0-552-5-dev).
+ * [Firefox 4 had various interfaces](http://hacks.mozilla.org/2010/06/comparing-indexeddb-and-webdatabase/) but apparently only [indexedDB](https://developer.mozilla.org/en/IndexedDB) is supported at this time.
+ * [Opera 11 has IndexedDB support](http://dev.opera.com/articles/view/taking-your-web-apps-offline-web-storage-appcache-websql/).
+ * [Internet Explorer 9 has IndexedDB support](http://msdn.microsoft.com/en-us/scriptjunkie/gg679063) tentatively.
 
 ### Making an argument then, for this library
 I must concede, I didn't know about this world prior to implementing this.  However, given this, there are still benefits in using an interface such as this:
