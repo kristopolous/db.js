@@ -97,7 +97,7 @@ This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
 
 After you have inserted the data, you are returned references to
-the data you insert.  This allows you do have a function like:
+the data you insert.  This allows you to have a function like:
 
     function my_insert(data) {
     
