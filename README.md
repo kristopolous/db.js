@@ -24,7 +24,7 @@ And bam! There you go. Who said life wasn't easy?
 
 
 ### But wait dude, this looks kinda different from SQL
-Well yeah, that's because of how javscript processes things. I tried
+Well yeah, that's because of how javascript processes things. I tried
 my best to make it easy to wrap your head around (I'm pretty dumb and
 I get it).
 
@@ -91,6 +91,29 @@ order to be good; but you are doing that for arrays already right? Ok,
 good, no problems then.
 
 # API
+
+## db.insert( rows )
+This is to insert data into the database.  You can either insert
+data as a list of arguments, as an array, or as a single object.
+
+After you have inserted the data, you are returned references to
+the data you insert.  This allows you do have a function like:
+
+    function my_insert(data) {
+    
+       db.insert({
+          uid: ++my_uid,
+          ...
+          accounting: data
+       }).update( data );
+
+    }
+
+In the function above you have a generic function that inserts data
+and puts in some type of record keeping information and accounting.
+
+Instead of doing a JQuery $.extend or other magic, you can simply insert
+the data you want, then update it with more data.
 
 ## db.find( constraint )
 This is like the "where" clause in SQL.  You
@@ -211,11 +234,18 @@ to do to them.
 ## db.inverse(list)
 Invert a set of results.
 
+## db.constrain(type, value)
+This is to constrain the database.  Currently you can envorce a unique
+key value through something like `db.constrain('unique', `somekey')`.
+You should probably run this early, as unlike in RDBMSs, it doesn't do
+a historical check nor does it create a optimized hash to index by
+this key ... it just does a lookup every time as of now.
+
 # Persistance and Synchronization
 ## Loading
 What if you have an existing database from somewhere and you want to import
 your data when you load the page.  You can supply the data to be imported
-as an initialization variable.  For instance, say you are using [jstorage](http://www.jstorage.info/)
+as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
 you could initialize the database as follows:
 
 `var db = DB($.jStorage.get('government-secrets'));`
