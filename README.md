@@ -22,6 +22,14 @@ And with a little bit of javascripty magic, we can do this:
 
 And bam! There you go. Who said life wasn't easy?
 
+### Ok, but before we go on, does it work in IE 6?
+yes.
+
+### 5.5?
+sure.
+
+### Netscape 4?
+no. sorry. not that one.
 
 ### But wait dude, this looks kinda different from SQL
 Well yeah, that's because of how javascript processes things. I tried
@@ -42,14 +50,6 @@ Just remember these two simple rules:
 ## Dependencies
 zero.
 
-### Ok, but before we go on, does it work in IE 6?
-yes.
-
-### 5.5?
-sure.
-
-### Netscape 4?
-no. sorry. not that one.
 
 ## Removing all barriers to entry
 I have horrible memory and can never recall how to use an API.  So,
