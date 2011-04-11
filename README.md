@@ -48,10 +48,10 @@ Just remember these two simple rules:
 2. Everything else second.
 
 ## Do I need JQuery or mootools or something like that?
-Hah, no of course not.
+lolz, no! Of course not. Why would I do something like that?
 
-## Are you using one of those commie licenses that isn't compatible with the world of commercial software?
-Actually, I haven't thought of that, but no.  I don't care.  I really don't.  Sell my shit for profit, fine by me.  I built it for myself.  Do what you want ; so long as you don't try to assume all rights of course.
+## Are you using one of those GNU-esque liscenses that prevents me from using it at my place of employment?
+no. Do whatever you want with it; Sell it for profit, fine by me.  I built it for myself.  Do what you want ; so long as you don't try to assume all rights of course; let's call it BSD.
 
 ## Removing all barriers to entry
 I have horrible memory and can never recall how to use an API.  So,
