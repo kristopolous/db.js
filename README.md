@@ -270,7 +270,6 @@ becomes:
 
  * There's no notion of joining although it probably wouldn't be that hard.
  * Values CANNOT BE functions ... I don't see this changing unless people whine
- * The rows get decorated with an id variable, currently `$$__x__$$`.  This is certainly not ideal and it would be much better if accounting could be done more transparently, but I have yet to find a way to do this which isn't crazy expensive.
 
 # Similar Projects
 Since starting this project, people have brought other, similar products
