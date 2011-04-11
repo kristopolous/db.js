@@ -236,7 +236,7 @@ Invert a set of results.
 
 ## db.constrain(type, value)
 This is to constrain the database.  Currently you can enforce a unique
-key value through something like `db.constrain('unique', `somekey')`.
+key value through something like `db.constrain('unique', 'somekey')`.
 You should probably run this early, as unlike in RDBMSs, it doesn't do
 a historical check nor does it create a optimized hash to index by
 this key ... it just does a lookup every time as of now.
