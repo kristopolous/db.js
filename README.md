@@ -42,6 +42,15 @@ Just remember these two simple rules:
 ## Dependencies
 zero.
 
+### Ok, but before we go on, does it work in IE 6?
+yes.
+
+### 5.5?
+sure.
+
+### Netscape 4?
+no. sorry. not that one.
+
 ## Removing all barriers to entry
 I have horrible memory and can never recall how to use an API.  So,
 I think of every possible way that a slouch like me would ever attempt
