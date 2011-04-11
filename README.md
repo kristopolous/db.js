@@ -31,8 +31,9 @@ sure.
 ### Netscape 4?
 no. sorry. not that one.
 
-### But wait dude, this looks kinda different from SQL
-Well yeah, that's because of how javascript processes things. I tried
+### Ok, that last one was a joke.  But seriously, this looks kinda different from SQL; I'm totally confused already.
+
+Stop.  Breath slowly and relax.  It will all be ok. I tried
 my best to make it easy to wrap your head around (I'm pretty dumb and
 I get it).
 
