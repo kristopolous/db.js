@@ -1,4 +1,4 @@
-# A Generic Javascript Database
+# Javascript Database
 
 ## This will be painless, I assure you.
 
@@ -6,7 +6,7 @@ Have you ever thought "gee this problem is tough. if only I had an SQL database 
 
 Well, look no further comrade, the purpose of this project is to make something that can be described as:
 
-# It's basically SQL, but in the browser.
+## It's basically SQL, but in the browser.
 
 Let me show you how awesome this can be.
 Take a familiar SQL query like this:
@@ -39,10 +39,10 @@ Just remember these two simple rules:
 1. Do your "SQL where" stuff first.
 2. Everything else second.
 
-# Dependencies
+## Dependencies
 zero.
 
-# Removing all barriers to entry
+## Removing all barriers to entry
 I have horrible memory and can never recall how to use an API.  So,
 I think of every possible way that a slouch like me would ever attempt
 to use it, and I make sure I support all of them.
@@ -90,9 +90,9 @@ arbitrary functions to Array.prototype.  I mean, you should be doing
 order to be good; but you are doing that for arrays already right? Ok,
 good, no problems then.
 
-# API
+## API
 
-## db.insert( rows )
+### db.insert( rows )
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
 
@@ -115,7 +115,7 @@ and puts in some type of record keeping information and accounting.
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
 
-## db.find( constraint )
+### db.find( constraint )
 This is like the "where" clause in SQL.  You
 can either invoke it for standard comparison like 
 
@@ -142,14 +142,14 @@ However, the one thing that you cannot do (yet) is this:
 I really want this to be possible in a magical safe way and see it
 as one of the primary objectives going forward.
 
-### db.like( string )
+#### db.like( string )
 This is like SQL like command and it takes the value and does
 
  `value.toString().toLowerCase().search(query.toString().toLowerCase) > -1`
 
 which is a mouthful.
 
-### db.isin( multi )
+#### db.isin( multi )
 This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
@@ -160,16 +160,16 @@ A usage scenario may be as follows:
 
 `db.find({months: db.isin(['jan', 'feb', 'march']));`   
 
-### But dude, why do I have to do this db() crap?
+#### But dude, why do I have to do this db() crap?
 That's because `key < 10` is actually a valid string, of course. It
 gives rise to the ambiguity, "is that an expression?".  Wrapping it
 removes this ambiguity so that you don't have collisions.
 
-## db.remove( constraint )
+### db.remove( constraint )
 This will remove the entries from the database but also return them if
 you want to manipulate them.  You can invoke this with a constraint.
 
-## db.select( field(s) )
+### db.select( field(s) )
 This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
 which is relevant for the query.
@@ -189,12 +189,12 @@ But not:
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
 
-### db.each(function)
+#### db.each(function)
 This is more of a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example html file called
 test.html included in the git repo has a usage of this.
 
-## db.order(multi)
+### db.order(multi)
 This is like SQLs orderby function.  If you pass it just a field, then
 the results are returned in ascending order (x - y).  
 
@@ -208,7 +208,7 @@ Summary:
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 
-### Callback based ordering
+#### Callback based ordering
 You can also do callback based sorting like so:
 
  * `order('key', function(x, y) { return x - y } )`
@@ -218,7 +218,7 @@ You can also do callback based sorting like so:
 It's worth noting that if you are using the last invocation style, the
 first parameter is going to be x and the second one, y.
 
-## db.update(field)
+### db.update(field)
 In regular SQL you may find yourself doing something like this:
 
 `update employees set fired = true where tardydays > 40`
@@ -231,18 +231,18 @@ See again, how you do the noun first, that is, describe the data you
 want to be working on, and then describe the operations that you want
 to do to them.
 
-## db.inverse(list)
+### db.inverse(list)
 Invert a set of results.
 
-## db.constrain(type, value)
+### db.constrain(type, value)
 This is to constrain the database.  Currently you can enforce a unique
 key value through something like `db.constrain('unique', 'somekey')`.
 You should probably run this early, as unlike in RDBMSs, it doesn't do
 a historical check nor does it create a optimized hash to index by
 this key ... it just does a lookup every time as of now.
 
-# Persistance and Synchronization
-## Loading
+## Persistance and Synchronization
+### Loading
 What if you have an existing database from somewhere and you want to import
 your data when you load the page.  You can supply the data to be imported
 as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
@@ -250,7 +250,7 @@ you could initialize the database as follows:
 
 `var db = DB($.jStorage.get('government-secrets'));`
 
-## Storing
+### Storing
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 
@@ -262,8 +262,8 @@ it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
 run, once, once, and once respectively.
 
-# Examples
-## Creation and Insertion
+## Examples
+### Creation and Insertion
 Lets start with a trivial example; we will create a database and then
 just add the object `{key: value}` into it.
 
@@ -283,7 +283,7 @@ both fields in.  We can do this a few ways:
 
 
 
-# SQL => DB examples
+## SQL => DB examples
 `remove from users where lastlogin = false` => `users.find({lastlogin: false}).remove();`
 
     select * from people where id in (
@@ -296,19 +296,19 @@ becomes:
        addresses.find( DB.like('city', 'los angeles') ).select('id')
     }).order('income').slice(1, 10)
 
-# Caveats
+## Caveats
 
  * There's no notion of joining although it probably wouldn't be that hard.
  * Values CANNOT BE functions ... I don't see this changing unless people whine
 
-# Similar Projects
+## Similar Projects
 Since starting this project, people have brought other, similar products
 to my attention: 
 
  * [TaffyDB](http://taffydb.com/)
  * [jLinq](http://www.hugoware.net/Projects/jLinq)
 
-# Doesn't HTML5 support this?
+## Doesn't HTML5 support this?
 Alan Chen pointed me to part of [HTML5](http://dev.w3.org/html5/webdatabase/#databases) that appears to claim that there will be full SQL support in the land of future browsers, maybe.
 
 There's two interfaces, "IndexedDB" and "WebSQL".  As always, the browser world seems to be split.
@@ -319,7 +319,7 @@ There's two interfaces, "IndexedDB" and "WebSQL".  As always, the browser world 
  * Opera added IndexedDB support [just recently](http://dev.opera.com/articles/view/taking-your-web-apps-offline-web-storage-appcache-websql/)
  * Internet Explorer 9 has tentative support for [IndexedDB](http://msdn.microsoft.com/en-us/scriptjunkie/gg679063)
 
-## Making an argument then, for this library
+### Making an argument then, for this library
 I must concede, I didn't know about this world prior to implementing this.  However, given this, there are still benefits in using an interface such as this:
 
  * It's in vanilla JavaScript 1.5, without DOM; so it should work in any major browser made within the past 13 years whereas the stuff above appears experimental for most of the browsers
