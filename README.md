@@ -47,9 +47,11 @@ Just remember these two simple rules:
 1. Do your "SQL where" stuff first.
 2. Everything else second.
 
-## Dependencies
-zero.
+## Do I need JQuery or mootools or something like that?
+Hah, no of course not.
 
+## Are you using one of those commie licenses that isn't compatible with the world of commercial software?
+Actually, I haven't thought of that, but no.  I don't care.  I really don't.  Sell my shit for profit, fine by me.  I built it for myself.  Do what you want ; so long as you don't try to assume all rights of course.
 
 ## Removing all barriers to entry
 I have horrible memory and can never recall how to use an API.  So,
