@@ -72,6 +72,7 @@
 
   window.DB = function(){
     var 
+      constraints = {},
       ixlast = 0,
       raw = {};
 
@@ -237,8 +238,9 @@
 
     function res2list(res) {
       var list = [];
+
       each(res, function(which) {
-        list.push(which.$$__ix__$$);
+        list.push(which.constructor('ix'));
       });
 
       return list;
@@ -268,6 +270,27 @@
       }
 
       return ret;
+    }
+
+    function kvarg(which){
+      var ret = {};
+
+      if(which.length == 2) {
+        ret[which[0]] = which[1];
+        return ret;
+      }
+      if(which.length == 1) {
+        return which[0];
+      }
+    }
+
+    // An encapsulator for hiding internal variables
+    function secret() {
+      var cache = {};
+      return function(){
+        if (arguments.length == 1) { return cache[arguments[0]];}
+        if (arguments.length == 2) { cache[arguments[0]] = arguments[1]; }
+      };
     }
 
     ret = expression;
@@ -368,11 +391,26 @@
       return chain(filtered);
     }
 
+    ret.constrain = function() {
+      constraints = $.extend(true, constraints, kvarg(arguments)); 
+    }
+
     ret.each = function(callback) {
-      var ret = [];
-      each(this, function(){
+      var 
+	      ret = [],
+	      filter;
+
+      if(arguments.length == 2) {
+	      filter = arguments[0];
+	      callback = arguments[1];
+	    } else {
+        filter = this;
+      }
+
+      each(filter, function(){
         ret.push(callback.apply(this, arguments));
       });
+
       return ret;
     }
 
@@ -428,6 +466,7 @@
 
     ret.insert = function(param) {
       var 
+        block = [],
         toInsert = [],
         ixList = [];
 
@@ -441,16 +480,33 @@
         throw new Error('Tried to insert data of an unsupported type.');
       }
 
+      // If the user had opted for a certain field to be unique,
+      // then we find all the matches to that field and create
+      // a block list from them.
+      if(constraints.unique) {
+        block = db.find().select(constraints.unique);
+      }
+
       each(toInsert, function(which) {
+        // If the unique field has been set then we do
+        // a linear search through the constraints to 
+        // see if it's there.
+        if(constraints.unique) {
+          if(indexOf(block, which[constraints.unique]) != -1){
+            return;
+          }
+        }
+
         var ix = ixlast++;
-        raw[ix] = which;
-        raw[ix].$$__ix__$$ = ix;
+        raw[ix] = new (secret())();
+        extend(true, raw[ix], which);
+        raw[ix].constructor('ix', ix);
 
         ixList.push(ix);
       });
 
       ret.sync(raw);
-      return ixList;
+      return chain(list2data(ixList));
     }
 
     // Update allows you to set newvalue to all
