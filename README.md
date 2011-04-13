@@ -1,5 +1,7 @@
 # Javascript Database
 
+[Join the mailing list](http://groups.google.com/group/dbjs)
+
 ## This will be painless, I assure you.
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
@@ -341,3 +343,5 @@ I must concede, I didn't know about this world prior to implementing this.  Howe
   * It's loosely typed
 
 As a result, it (the library) tries to address specific classes of problems more than be a strict accessor to an SQL sub-system.
+
+[Join the mailing list](http://groups.google.com/group/dbjs)
