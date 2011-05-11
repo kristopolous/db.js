@@ -174,6 +174,16 @@ A usage scenario may be as follows:
 
 `db.find({months: db.isin(['jan', 'feb', 'march']));`   
 
+#### db.has( multi )
+This is the reverse of has.  If you do
+
+`db.insert({a: [1, 2, 3]})`
+
+You can do
+
+`db.find({a: db.has(1)})`
+
+
 #### But dude, why do I have to do this db() crap?
 That's because `key < 10` is actually a valid string, of course. It
 gives rise to the ambiguity, "is that an expression?".  Wrapping it

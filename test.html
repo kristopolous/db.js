@@ -13,6 +13,7 @@ div span{margin:0 0.5em;display:block}
 </body>
 <script src=db.js></script>
 <script>
+  var db;
   function info(txt) {
     document.body.innerHTML += '<div class=info>' +
       '<i>Notice: ' + arguments[0] + '</i>' + 
@@ -26,35 +27,35 @@ div span{margin:0 0.5em;display:block}
   }
 
   function test() {
-    var 
-      res,
-      db = DB([{
-        first: "Peter",
-        last: "Griffin",
-        age: 41,
-        hometown: "Quahog",
-        job: "Brewer"
-      }, {
-        first: "Lois",
-        last: "Griffin",
-        age: 40,
-        hometown: "Newport",
-        job: "Piano Teacher"
-      }]),
+    var res;
 
-      toInsert = [{
-        first: "Joseph",
-        last: "Swanson",
-        age: 39,
-        hometown: "Quahog",
-        job: "Police Officer"
-      }, {
-        first: "Glenn",
-        last: "Quagmire",
-        age: 41,
-        hometown: "Quahog",
-        job: "Pilot"
-      }];
+    db = DB([{
+      first: "Peter",
+      last: "Griffin",
+      age: 41,
+      hometown: "Quahog",
+      job: "Brewer"
+    }, {
+      first: "Lois",
+      last: "Griffin",
+      age: 40,
+      hometown: "Newport",
+      job: "Piano Teacher"
+    }]),
+
+    toInsert = [{
+      first: "Joseph",
+      last: "Swanson",
+      age: 39,
+      hometown: "Quahog",
+      job: "Police Officer"
+    }, {
+      first: "Glenn",
+      last: "Quagmire",
+      age: 41,
+      hometown: "Quahog",
+      job: "Pilot"
+    }];
 
     res = db.find().select('*');
     log('Initialized the database with the following data', res.join('<br>'));

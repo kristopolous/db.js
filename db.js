@@ -1,4 +1,17 @@
 (function(){
+  function indexOf(which, searchElement) {
+    for(var ix = which.length - 1; 
+        ix > -1 ;
+        ix--
+      ) { 
+      if (searchElement == which[ix]) {
+        break;
+      }
+    }
+
+    return ix;
+  }
+
   function expression(){
     if(typeof arguments[0] == 'string') {
       if(arguments.length == 1) {
@@ -13,6 +26,49 @@
     } 
   }
 
+  // The first parameter, if exists, is assumed to be the value in the database,
+  // which has a content of arrays, to search.
+  // The second parameter is the index to search
+  function has(param1, param2) {
+    var 
+      callback,
+      comparator,
+      obj = {};
+
+    if(arguments.length == 1) {
+      comparator = param1;
+    } else if(arguments.length == 2){
+      comparator = param2;
+    } 
+
+    if(comparator.constructor == Array) {
+      var len = comparator.length;
+
+      // This becomes O(N * M)
+      callback = function(key) {
+        for(ix = 0; ix < len; ix++) {
+          if (indexOf(key, comparator[ix]) > -1) {
+            return true;
+          }
+        }
+        return false;
+      }
+    } else {
+      // This is O(N)
+      callback = function(key) {
+        return indexOf(key, comparator) > -1;
+      }
+    }
+
+    if(arguments.length == 2) {
+      obj = {};
+      obj[param1] = callback;
+      return obj;
+    } else {
+      return callback;
+    }
+  }
+
   function isin(param1, param2) {
     var 
       comparator,
@@ -22,17 +78,15 @@
       comparator = param1;
     } else if(arguments.length == 2){
       comparator = param2;
-    } else {
-      throw new TypeError();
-    }
+    } 
 
+    // If the second argument is an array then we assume that we are looking
+    // to see if the value in the database is part of the user supplied funciton
     if(comparator.constructor == Array) {
       comparator = function(x) { return indexOf(x, comparator) > -1; };
     } else if (comparator instanceof Function) {
       comparator = function(x) { return indexOf(x, comparator()) > -1; };
-    } else {
-      throw new TypeError();
-    }
+    } 
 
     if(arguments.length == 2) {
       obj = {};
@@ -53,9 +107,7 @@
       query = param1;
     } else if(arguments.length == 2){
       query = param2;
-    } else {
-      throw new TypeError();
-    }
+    } 
 
     query = query.toString().toLowerCase();
 
@@ -76,46 +128,6 @@
       ixlast = 0,
       raw = {};
 
-    function indexOf(which, searchElement /*, fromIndex */) {
-      if (which === void 0 || which === null) {
-        throw new TypeError();
-      }
-
-      var 
-        t = Object(which),
-        len = t.length >>> 0;
-
-      if (len === 0) {
-        return -1;
-      }
-
-      var n = 0;
-      if (arguments.length > 0) {
-        n = Number(arguments[1]);
-
-        if (n !== n) { // shortcut for verifying if it's NaN
-          n = 0;
-        } else if (n !== 0 && n !== (1 / 0) && n !== -(1 / 0)) {
-          n = (n > 0 || -1) * Math.floor(Math.abs(n));
-        }
-      }
-
-      if (n >= len) {
-        return -1;
-      }
-
-      var k = n >= 0
-            ? n
-            : Math.max(len - Math.abs(n), 0);
-
-      for (; k < len; k++) {
-        if (k in t && t[k] === searchElement) {
-          return k;
-        }
-      }
-
-      return -1;
-    };
 
     // Jacked from Resig's jquery 1.5.2
     // The code has been modified to not rely on jquery
@@ -296,6 +308,7 @@
     ret = expression;
     ret.expr = expression;
     ret.isin = isin;
+    ret.has = has;
     ret.ilike = ret.like = like;
 
     function chain(list) {
@@ -392,7 +405,7 @@
     }
 
     ret.constrain = function() {
-      constraints = $.extend(true, constraints, kvarg(arguments)); 
+      constraints = extend(true, constraints, kvarg(arguments)); 
     }
 
     ret.each = function(callback) {
@@ -476,9 +489,7 @@
         toInsert = param;
       } else if (param.constructor == Object) {
         toInsert = [param];
-      } else {
-        throw new Error('Tried to insert data of an unsupported type.');
-      }
+      } 
 
       // If the user had opted for a certain field to be unique,
       // then we find all the matches to that field and create
@@ -564,10 +575,6 @@
         fnSort,
         order,
         filter;
-
-      if(arguments.length == 0) {
-        throw new Error("order has to have a parameter");
-      }
 
       if(typeof arguments[0] == 'function') {
         fnSort = arguments[0];
@@ -656,6 +663,7 @@
 
   window.DB.expr = expression;
   window.DB.isin = isin;
+  window.DB.has = has;
   window.DB.ilike = window.DB.like = like;
 
 })();
