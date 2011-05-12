@@ -12,20 +12,6 @@
     return ix;
   }
 
-  function expression(){
-    if(typeof arguments[0] == 'string') {
-      if(arguments.length == 1) {
-        return new Function("$$x$$", "return $$x$$ " + arguments[0]);
-      }
-
-      if(arguments.length == 2 && typeof arguments[1] == 'string') {
-        var obj = {};
-        obj[arguments[0]] = new Function("$$x$$", "return $$x$$ " + arguments[1]);
-        return obj;
-      }
-    } 
-  }
-
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
   // The second parameter is the index to search
@@ -128,6 +114,19 @@
       ixlast = 0,
       raw = {};
 
+    function expression(){
+      if(typeof arguments[0] == 'string') {
+        if(arguments.length == 1) {
+          return new Function("$$x$$", "return $$x$$ " + arguments[0]);
+        }
+
+        if(arguments.length == 2 && typeof arguments[1] == 'string') {
+          var obj = {};
+          obj[arguments[0]] = new Function("$$x$$", "return $$x$$ " + arguments[1]);
+          return obj;
+        }
+      } 
+    }
 
     // Jacked from Resig's jquery 1.5.2
     // The code has been modified to not rely on jquery
