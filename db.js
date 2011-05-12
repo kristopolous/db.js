@@ -660,7 +660,6 @@
     return ret;
   }
 
-  window.DB.expr = expression;
   window.DB.isin = isin;
   window.DB.has = has;
   window.DB.ilike = window.DB.like = like;
