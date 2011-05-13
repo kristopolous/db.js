@@ -304,7 +304,7 @@
       };
     }
 
-    ret = expression;
+    var ret = expression;
     ret.expr = expression;
     ret.isin = isin;
     ret.has = has;
