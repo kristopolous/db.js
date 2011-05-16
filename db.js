@@ -57,6 +57,7 @@
 
   function isin(param1, param2) {
     var 
+      callback,
       comparator,
       obj = {};
 
@@ -69,17 +70,19 @@
     // If the second argument is an array then we assume that we are looking
     // to see if the value in the database is part of the user supplied funciton
     if(comparator.constructor == Array) {
-      comparator = function(x) { return indexOf(comparator, x) > -1; };
+      callback = function(x) { return indexOf(comparator, x) > -1; };
     } else if (comparator instanceof Function) {
-      comparator = function(x) { return indexOf(comparator(), x) > -1; };
-    } 
+      callback = function(x) { return indexOf(comparator(), x) > -1; };
+    } else {
+      callback = comparator;
+    }
 
     if(arguments.length == 2) {
       obj = {};
-      obj[param1] = comparator;
+      obj[param1] = callback;
       return obj;
     } else {
-      return comparator;
+      return callback;
     }
   }
 
