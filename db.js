@@ -69,9 +69,9 @@
     // If the second argument is an array then we assume that we are looking
     // to see if the value in the database is part of the user supplied funciton
     if(comparator.constructor == Array) {
-      comparator = function(x) { return indexOf(x, comparator) > -1; };
+      comparator = function(x) { return indexOf(comparator, x) > -1; };
     } else if (comparator instanceof Function) {
-      comparator = function(x) { return indexOf(x, comparator()) > -1; };
+      comparator = function(x) { return indexOf(comparator(), x) > -1; };
     } 
 
     if(arguments.length == 2) {
