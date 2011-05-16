@@ -104,6 +104,31 @@ arbitrary functions to Array.prototype.  I mean, you should be doing
 order to be good; but you are doing that for arrays already right? Ok,
 good, no problems then.
 
+### Ok, but I have an existing system with lots of stuff I wrote before I read about this.  I don't want to retrofit your code on my existing stuff.
+
+**You Don't Have To!**
+
+All you need is an Array of Objects.  For instance, say I have an existing array like this:
+
+    var something_i_dont_have_time_to_rewrite = 
+      [{ 
+          node: $("<div />").blahblah
+          name: "something else"
+          other_legacy_stuff: "blah blah"
+        },
+        {
+        }
+       ...
+      ]
+
+And you are like "Well, this find and select thing is really neat.".  Great! Here you go:
+
+    DB(something_i_dont_have_time_to_rewrite)
+      .find({name: 'something else'})
+      .select('node')
+
+That's right.  The magic sauce will work on existing old fashioned objects with full force!
+
 ## API
 
 ### db.insert( rows )
