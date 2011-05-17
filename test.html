@@ -105,5 +105,16 @@ div span{margin:0 0.5em;display:block}
     db.insert(removed);
     res = db.find('last', 'Griffin');
     log('Reinserted the results previously removed.  Searched for the same parameter', res.length);
+
+    res = db.find({age: db.isin([41, 40])}).select('description');
+    log('Searching for people either 41 or 40', res.join('<br>'));
+
+    var somenumber = Math.floor(Math.random() * 1000 * 1000 * 1000).toString(16);
+    log('Using document.getElementsByTagName("*") with a find on the innerHTML value to turn the element below blue', somenumber);
+
+    DB.find(
+      document.getElementsByTagName('*'), 
+      {innerHTML: somenumber})[0].style.color = 'blue';
+
   }
 </script>
