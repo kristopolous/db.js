@@ -88,6 +88,7 @@ Also, please note:
 ### Every command is not only chainable, but also returns a standard javascript array of results.
 
 What I mean by this is that you can do 
+
     var result = db.find({processed: true});
     alert([ 
       result.length,
@@ -129,7 +130,8 @@ And you are like "Well, this find and select thing is really neat.".  Great! Her
 
 That's right.  The magic sauce will work on existing old fashioned objects with full force!
 
-*What about something like*
+**What about something like**
+
     DB.find(
       document.getElementsByTagName(' * '), 
       db.like('innerHTML', 'hello World')
