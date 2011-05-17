@@ -129,6 +129,14 @@ And you are like "Well, this find and select thing is really neat.".  Great! Her
 
 That's right.  The magic sauce will work on existing old fashioned objects with full force!
 
+*What about something like*
+    DB.find(
+      document.getElementsByTagName(' * '), 
+      db.like('innerHTML', 'hello World')
+    )
+
+Yes, that will work also. 
+
 ## API
 
 ### db.insert( rows )
