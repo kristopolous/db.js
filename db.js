@@ -77,15 +77,19 @@
 
       which,
 
+      internal,
+
       // The index list from the dataset to compare against
       nextRound = [];
 
     if(this instanceof Array) {
       // This permits a subfind
       set = simplecopy(this);
+      internal = true;
     } else {
       // The dataset to compare against
       set = simplecopy(filterList.shift());
+      internal = false;
     }
 
     if(filterList.length == 0) {
@@ -382,6 +386,25 @@
     }
   }
 
+  function eachApply(callback) {
+    var 
+      ret = [],
+      filter;
+
+    if(arguments.length == 2) {
+      filter = arguments[0];
+      callback = arguments[1];
+    } else {
+      filter = this;
+    }
+
+    each(filter, function(){
+      ret.push(callback.apply(this, arguments));
+    });
+
+    return ret;
+  }
+
 
   // --- START OF AN INSTANCE ----
   //
@@ -402,6 +425,8 @@
     ret.isin = isin;
     ret.has = has;
     ret.ilike = ret.like = like;
+    ret.each = eachApply;
+    ret.sync = function() {}
 
     function chain(list) {
       for(var func in ret) {
@@ -411,7 +436,7 @@
       return list;
     }
 
-    function order() {
+    ret.order = function () {
       var 
         key, 
         fnSort,
@@ -475,25 +500,6 @@
       constraints = extend(true, constraints, kvarg(arguments)); 
     }
 
-    ret.each = function(callback) {
-      var 
-	      ret = [],
-	      filter;
-
-      if(arguments.length == 2) {
-	      filter = arguments[0];
-	      callback = arguments[1];
-	    } else {
-        filter = this;
-      }
-
-      each(filter, function(){
-        ret.push(callback.apply(this, arguments));
-      });
-
-      return ret;
-    }
-
     ret.inverse = function(list) {
       if(arguments.length == 0 && this instanceof Array) {
         list = this;
@@ -503,7 +509,13 @@
     }
 
     ret.where = ret.find = function() {
-      return chain( find.apply(this, arguments.length ? [raw].concat(Array.prototype.slice.call(arguments)) : [raw]));
+      return chain( 
+          find.apply(this, 
+            arguments.length ? 
+              [raw].concat(Array.prototype.slice.call(arguments)) : 
+              [raw]
+            )
+          );
     }
 
     ret.select = function(field) {
@@ -650,8 +662,6 @@
       return chain(list);
     }
 
-    ret.order = order;
-
     ret.remove = function(constraint) {
       var 
         list,
@@ -674,7 +684,6 @@
       return chain(save);
     }
 
-    ret.sync = function() {}
 
     // The ability to import a database from somewhere
     if (arguments.length == 1) {
@@ -691,13 +700,13 @@
       ret.insert(Array.prototype.slice.call(arguments));
     }
 
-    ret.__raw__ = raw;
     return ret;
   }
 
   window.DB.isin = isin;
   window.DB.find = find;
   window.DB.has = has;
+  window.DB.values = values;
   window.DB.ilike = window.DB.like = like;
 
 })();

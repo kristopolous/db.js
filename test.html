@@ -27,7 +27,8 @@ div span{margin:0 0.5em;display:block}
   }
 
   function test() {
-    var res;
+    var res,
+      start = new Date();
 
     db = DB([{
       first: "Peter",
@@ -116,5 +117,7 @@ div span{margin:0 0.5em;display:block}
       document.getElementsByTagName('*'), 
       {innerHTML: somenumber})[0].style.color = 'blue';
 
+    var end = new Date();
+    document.body.innerHTML += "Runtime: " + (end.getTime() - start.getTime()) + 'ms';
   }
 </script>
