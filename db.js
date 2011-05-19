@@ -457,7 +457,6 @@
 
       if(this instanceof Array) {
         filter = this;
-        console.log(filter.length);
       } else {
         filter = ret.find();
       }
