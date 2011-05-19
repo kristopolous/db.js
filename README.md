@@ -1,6 +1,7 @@
 # Javascript Database
 
 [Join the mailing list](http://groups.google.com/group/dbjs)
+
 [See the Demo](http://qaa.ath.cx/db/test.html)
 
 ## This will be painless, I assure you.
