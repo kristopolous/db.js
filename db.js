@@ -103,47 +103,34 @@
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
       each(filterList[filterIx], function(key, value) {
+        var 
+          spliceix,
+          end = set.length,
+          which;
 
-        // If the directive is not, then we find everything
-        // that satisfies the query after the not
-        if(key == 'not' && typeof value == 'object') {
-          nextRound = setdiff(set, find(value));
-        } else {
-          var 
-            len = set.length,
-            ix = len - 1,
-            spliceix,
-            end = len,
-            compare,
-            which;
+        for(var ix = set.length - 1; ix >= 0; ix--) {
+          which = set[ix];
 
-          for(; ix >= 0; ix--) {
-            which = set[ix];
+          // Check for existence
+          if( key in which ) {
 
-            // Check for existence
-            if(! (key in which) ) { continue; }
+            if( typeof value == 'function' ) {
+              if (!value(which[key], which)) { 
+                continue; 
+              }
+            } else if (which[key] !== value) {
+              continue;
+            }
 
-            compare = which[key];
-
-            if( 
-                ( typeof value == 'function' && (value(compare)) ) ||
-                ( compare === value )  ||
-                // Less trivial value comparison
-                ( ( value.toString && compare.toString) && 
-                  ( value.toString() === compare.toString())
-                )
-              ) {
-
-              spliceix = ix + 1;
-              set.splice(spliceix,  end - spliceix);
-              end = ix;
-            } 
+            spliceix = ix + 1;
+            set.splice(spliceix, end - spliceix);
+            end = ix;
           }
+        }
 
-          spliceix = ix + 1;
-          if(end - spliceix > 0) {
-            set.splice(spliceix,  end - spliceix);
-          }
+        spliceix = ix + 1;
+        if(end - spliceix > 0) {
+          set.splice(spliceix,  end - spliceix);
         }
       });
     }
@@ -374,12 +361,12 @@
       var ret;
       if(typeof arguments[0] == 'string') {
         if(arguments.length == 1) {
-          ret = new Function("$$x$$", "return $$x$$ " + arguments[0]);
+          ret = new Function("x, record", "return x " + arguments[0]);
         }
 
         if(arguments.length == 2 && typeof arguments[1] == 'string') {
           ret = {};
-          ret[arguments[0]] = new Function("$$x$$", "return $$x$$ " + arguments[1]);
+          ret[arguments[0]] = new Function("x, record", "return x " + arguments[1]);
         }
         return ret;
       } 
@@ -398,13 +385,26 @@
       filter = this;
     }
 
-    each(filter, function(){
-      ret.push(callback.apply(this, arguments));
-    });
+    if(filter.constructor == Object) {
+      ret = {};
+
+      for(var key in filter) {
+        if(filter[key].constructor != Function) {
+          ret[key] = callback.call(this, filter[key]);
+        }
+      }
+    } else {
+      each(filter, function(){
+        ret.push(callback.apply(this, arguments));
+      });
+    }
 
     return ret;
   }
 
+
+  // the list of functions to chain
+  var chainList = list2obj('has isin map group remove update where select find order each like ilike'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -419,21 +419,61 @@
     var 
       constraints = {},
       ixlast = 0,
+      funcMap = {},
+      syncList = [],
       raw = {};
+
+    function sync() {
+      for(var ix = 0; ix < syncList.length; ix++) {
+        syncList[ix].call(ret, raw);
+      }
+    }
+
+    function chain(list) {
+      for(var func in chainList) {
+        list[func] = ret[func];
+      }
+
+      return list;
+    }
 
     var ret = expression();
     ret.isin = isin;
     ret.has = has;
     ret.ilike = ret.like = like;
     ret.each = eachApply;
-    ret.sync = function() {}
+    ret.map = list2obj;
 
-    function chain(list) {
-      for(var func in ret) {
-        list[func] = ret[func];
+    ret.setattrib = function(key, callback) {
+      funcMap[key] = callback;
+    }
+
+    ret.get = function(key) {
+      return funcMap[key].call(ret, raw);
+    }
+
+    ret.group = function(field) {
+      var groupMap = {};
+
+      if(this instanceof Array) {
+        filter = this;
+        console.log(filter.length);
+      } else {
+        filter = ret.find();
       }
 
-      return list;
+      each(filter, function(which) {
+        if(! groupMap[which[field]]) {
+          groupMap[which[field]] = [];
+        }
+        groupMap[which[field]].push(which);
+      });
+      
+      return chain(groupMap);
+    } 
+
+    ret.sync = function(callback) {
+      syncList.push(callback); 
     }
 
     ret.order = function () {
@@ -510,12 +550,12 @@
 
     ret.where = ret.find = function() {
       return chain( 
-          find.apply(this, 
-            arguments.length ? 
-              [raw].concat(Array.prototype.slice.call(arguments)) : 
-              [raw]
-            )
-          );
+        find.apply(this, 
+          arguments.length ? 
+            [raw].concat(Array.prototype.slice.call(arguments)) : 
+            [raw]
+          )
+        );
     }
 
     ret.select = function(field) {
@@ -609,7 +649,7 @@
         ixList.push(ix);
       });
 
-      ret.sync(raw);
+      sync();
       return chain(list2data(ixList));
     }
 
@@ -658,7 +698,7 @@
         }
       });
 
-      ret.sync(raw);
+      sync();
       return chain(list);
     }
 
@@ -680,7 +720,7 @@
         delete raw[index];
       });
 
-      ret.sync(raw);
+      sync();
       return chain(save);
     }
 
@@ -700,6 +740,8 @@
       ret.insert(Array.prototype.slice.call(arguments));
     }
 
+    ret.__raw__ = raw;
+
     return ret;
   }
 
@@ -708,5 +750,95 @@
   window.DB.has = has;
   window.DB.values = values;
   window.DB.ilike = window.DB.like = like;
+
+
+  window.DB.reduceLeft = function(initial, oper) {
+    var lambda = new Function("ref,x", "return ref " + oper);
+
+    return function(list) {
+      var 
+        len = list.length,
+        reduced = initial;
+
+      for(var ix = 0; ix < len; ix++) {
+        if(list[ix]) {
+          reduced = lambda(reduced, list[ix]);
+        }
+      }
+
+      return reduced;
+    }
+  }
+
+  window.DB.reduceRight = function(initial, oper) {
+    var lambda = new Function("ref,x", "return ref " + oper);
+
+    return function(list) {
+      var 
+        len = list.length,
+        reduced = initial;
+
+      for(var ix = len - 1; ix > 0; ix--) {
+        reduced = lambda(reduced, list[ix]);
+      }
+
+      return reduced;
+    }
+  }
+
+  window.DB.importCSV = function(url) {
+
+    function get(url) {
+      var req = new XMLHttpRequest();
+      req.open('GET', url, false);
+      req.send(null);
+      if(req.status == 200) {
+        return req.responseText;
+      } else {
+        return '';
+      }
+    }
+
+    var 
+      lineList = get(url).split('\n'),
+      db = DB(),
+      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
+      record,
+      match,
+      field = 0,
+      header = [],
+      line = lineList.shift(),
+      len = lineList.length;
+
+    if(len === 0) {
+      return;
+    }
+
+    while( ( match = re.exec(line) ) != null) {
+      header.push(match[0]);
+    }
+
+    for(var ix = 0; ix < len; ix++) {
+      record = {};
+      line = lineList[ix];
+
+      field = 0;
+
+      while( ( match = re.exec(line) ) != null) {
+        if(parseFloat(match[0]).toString() == match[0]) {
+          record[ header[field] ] = parseFloat(match[0]);
+        } else {
+          record[ header[field] ] = match[0];
+        }
+        field ++;
+      }
+
+      if(field > 0) {
+        db.insert(record);
+      }
+    }
+
+    return db;
+  }
 
 })();

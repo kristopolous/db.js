@@ -10,25 +10,83 @@ h4{margin:0.25em 0}
 div span{margin:0 0.5em;display:block}
 </style>
 <body onload=test()>
+<div id=main>
+</div>
+<p>
+In order to do the performance test, you need to 
+<ul>
+<li>Run this from a webserver, such as apache or nginx
+<li>Get the file  http://www.census.gov/popest/counties/files/CO-EST2009-ALLDATA.csv and
+<ul>
+<li>Rename it sample.csv
+<li>Put it in the same directory as the test file
+</ul>
+</ul>
+After all those steps are done, then you can click the button below:
+</p>
+<pre>
+<button onclick=performance()>Run Performance Test</button>
+</pre>
 </body>
 <script src=db.js></script>
 <script>
   var db;
+
+  function performance() {
+    function log(str) {
+      document.body.getElementsByTagName('pre')[0].innerHTML += "<div>" + str + "</div>";
+    }
+
+    log("Importing 500K records from 2000 census");
+    var db = DB.importCSV('sample.csv'),
+       middle;
+
+    function clock(name, callback) {
+      var ret;
+
+      start = new Date();
+      ret = callback();
+      end = new Date();
+
+      log((end.getTime() - start.getTime()) + "ms (" + name + ")");
+
+      return ret; 
+    }
+
+    middle = clock("Finding only the county and city records", function(){
+      return db.find(db('STNAME', ' != record.CTYNAME'));
+    });
+
+    middle = clock('Grouping the records by state', function(){
+      return middle.group('STNAME');
+    });
+
+    middle = clock('Accumulating the population per state', function(){
+      return middle.each(DB.reduceLeft(0, ' += x.POPESTIMATE2000'));
+    });
+
+    var table = "<table><tr><td>state</td><td>2000 pop</td></tr>";
+    for(var state in middle) {
+      table += "<tr><td>" + state + "</td><td>" + middle[state] + "</td></tr>";
+    }
+    table += "</table>";
+    log(table);  
+  }
+
   function info(txt) {
-    document.body.innerHTML += '<div class=info>' +
+    document.getElementById('main').innerHTML += '<div class=info>' +
       '<i>Notice: ' + arguments[0] + '</i>' + 
       '</div>';
   }
   function log(txt) {
-    document.body.innerHTML += '<div class=log>' +
+    document.getElementById('main').innerHTML += '<div class=log>' +
       '<h4>' + arguments[0] + ':</h4>' + 
       '<span>' + arguments[1] + '</span>' +
       '</div>';
   }
 
   function test() {
-    var res,
-      start = new Date();
+    var res;
 
     db = DB([{
       first: "Peter",
@@ -61,9 +119,9 @@ div span{margin:0 0.5em;display:block}
     res = db.find().select('*');
     log('Initialized the database with the following data', res.join('<br>'));
 
-    db.sync = function(raw) {
+    db.sync( function(raw) {
       info('Running the synchronization function');
-    }
+    });
 
     info('Registered a synchronization function to be run when the database changes');
 
@@ -110,14 +168,15 @@ div span{margin:0 0.5em;display:block}
     res = db.find({age: db.isin([41, 40])}).select('description');
     log('Searching for people either 41 or 40', res.join('<br>'));
 
-    var somenumber = Math.floor(Math.random() * 1000 * 1000 * 1000).toString(16);
-    log('Using document.getElementsByTagName("*") with a find on the innerHTML value to turn the element below blue', somenumber);
+    // Not in IE we don't.
+    if(!window.attachEvent) {
+      var somenumber = Math.floor(Math.random() * 1000 * 1000 * 1000).toString(16);
+      log('Using document.getElementsByTagName("*") with a find on the innerHTML value to turn the element below blue', somenumber);
 
-    DB.find(
-      document.getElementsByTagName('*'), 
-      {innerHTML: somenumber})[0].style.color = 'blue';
+      DB.find(
+        document.getElementsByTagName('*'), 
+        {innerHTML: somenumber})[0].style.color = 'blue';
+    }
 
-    var end = new Date();
-    document.body.innerHTML += "Runtime: " + (end.getTime() - start.getTime()) + 'ms';
   }
 </script>
