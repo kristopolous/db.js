@@ -1,10 +1,13 @@
 # Javascript Database
 
 [Join the mailing list](http://groups.google.com/group/dbjs)
+[See the Demo](http://qaa.ath.cx/db/test.html)
 
 ## This will be painless, I assure you.
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
+
+Sure, this may be available as a subsystem in fancy new-age browsers (see below) but what about the other 80% of the market? And what if you want to do things in a javascripty way?
 
 Well, look no further comrade, the purpose of this project is to make something that can be described as:
 
