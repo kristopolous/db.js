@@ -121,6 +121,15 @@
             } else if (which[key] !== value) {
               continue;
             }
+            /*
+              if( !(value.toString && which[key].toString) ) {
+                continue;
+              }
+              if(value.toString() != which[key].toString()) {
+                continue;
+              }
+            }
+              */
 
             spliceix = ix + 1;
             set.splice(spliceix, end - spliceix);
@@ -607,8 +616,8 @@
         toInsert = Array.prototype.slice.call(arguments);
       } else if (param.constructor == Array) {
         toInsert = param;
-      } else if (param.constructor == Object) {
-        toInsert = [param];
+      } else {
+        toInsert.push(param);
       } 
 
       // If the user had opted for a certain field to be unique,
@@ -641,8 +650,8 @@
           // properties aren't totally enumerable.  We
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
-          raw = which;
-          raw.constructor = secret();
+          raw[ix] = which;
+          raw[ix].constructor = secret();
         }
 
         ixList.push(ix);
