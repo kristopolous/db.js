@@ -756,6 +756,7 @@
   window.DB.isin = isin;
   window.DB.find = find;
   window.DB.has = has;
+  window.DB.each = eachApply;
   window.DB.values = values;
   window.DB.ilike = window.DB.like = like;
 
