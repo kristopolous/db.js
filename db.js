@@ -92,9 +92,7 @@
       internal = false;
     }
 
-    if(filterList.length == 0) {
-      filterList = [{}];
-    } else if( filterList.length == 2 && typeof filterList[0] == 'string') {
+    if( filterList.length == 2 && typeof filterList[0] == 'string') {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -102,35 +100,15 @@
     } 
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
-      each(filterList[filterIx], function(key, value) {
+      if(filterList[filterIx] && filterList[filterIx].constructor == Function) {
         var 
           spliceix,
           end = set.length,
-          which;
+          res,
+          callback = filterList[filterIx];
 
         for(var ix = set.length - 1; ix >= 0; ix--) {
-          which = set[ix];
-
-          // Check for existence
-          if( key in which ) {
-
-            if( typeof value == 'function' ) {
-              if (!value(which[key], which)) { 
-                continue; 
-              }
-            } else if (which[key] !== value) {
-              continue;
-            }
-            /*
-              if( !(value.toString && which[key].toString) ) {
-                continue;
-              }
-              if(value.toString() != which[key].toString()) {
-                continue;
-              }
-            }
-              */
-
+          if (callback.single(set[ix])) { 
             spliceix = ix + 1;
             set.splice(spliceix, end - spliceix);
             end = ix;
@@ -141,7 +119,39 @@
         if(end - spliceix > 0) {
           set.splice(spliceix,  end - spliceix);
         }
-      });
+      } else {
+        each(filterList[filterIx], function(key, value) {
+          var 
+            spliceix,
+            end = set.length,
+            which;
+
+          for(var ix = set.length - 1; ix >= 0; ix--) {
+            which = set[ix];
+
+            // Check for existence
+            if( key in which ) {
+
+              if( typeof value == 'function' ) {
+                if (!value(which[key], which)) { 
+                  continue; 
+                }
+              } else if (which[key] !== value) {
+                continue;
+              }
+
+              spliceix = ix + 1;
+              set.splice(spliceix, end - spliceix);
+              end = ix;
+            }
+          }
+
+          spliceix = ix + 1;
+          if(end - spliceix > 0) {
+            set.splice(spliceix,  end - spliceix);
+          }
+        });
+      }
     }
 
     return set;
@@ -368,15 +378,41 @@
   function expression(){
     return function() {
       var ret;
+
       if(typeof arguments[0] == 'string') {
+        // There are TWO types of lambda function here (I'm not using the
+        // term 'closure' because that means something else)
+        //
+        // We can have one that is sensitive to a specific record member and 
+        // one that is local to a record and not a specific member.  
+        //
+        // As it turns out, we can derive the kind of function intended simply
+        // because they won't ever syntactically both be valid in real use cases.
+        //
+        // I mean sure, the empty string, space, semicolon etc is valid for both, 
+        // alright sure, thanks smarty pants.  But is that what you are using? really?
+        //
+        // No? ok, me either. This seems practical then.
+        //
+        // The invocation wrapping will also make this work magically, with proper
+        // expreessive usage.
         if(arguments.length == 1) {
-          ret = new Function("x, record", "return x " + arguments[0]);
+          try {
+            ret = new Function("x, record", "return x " + arguments[0]);
+          } catch(ex) {
+            ret = {};
+          }
+
+          try {
+            ret.single = new Function("record", "return " + arguments[0]);
+          } catch(ex) {}
         }
 
         if(arguments.length == 2 && typeof arguments[1] == 'string') {
           ret = {};
           ret[arguments[0]] = new Function("x, record", "return x " + arguments[1]);
         }
+
         return ret;
       } 
     }
