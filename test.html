@@ -126,7 +126,7 @@ After all those steps are done, then you can click the button below:
     info('Registered a synchronization function to be run when the database changes');
 
     res = db.insert(toInsert);
-    log('Inserted more data, got the following ids back', res.join('<br>'));
+    log('Inserted more data, got references to the data inserted back', res.join('<br>'));
 
     res = db.select('job');
     log('Showing the types of jobs', res.join('<br>'));

@@ -1,4 +1,41 @@
 (function(){
+
+  var slice = Array.prototype.slice;
+
+  function each(obj, cb) {
+    if (obj instanceof Array) {
+      var 
+        ix = 0,
+        len = obj.length;
+
+      for(; ix < len; ix++) {
+        cb(obj[ix], ix);
+      }
+    } else {
+      for(var key in obj) {
+        cb(key, obj[key]);
+      }
+    }
+  }
+
+  var type;
+
+  if(!self.$ || !$.type) {
+
+    var 
+      typeMap = {},
+      toString = Object.prototype.toString;
+
+    each("Boolean,Number,String,Function,Array,Date,RegExp,Object".split(), function(which) {
+      typeMap[ "[object " + which + "]" ] = which.toLowerCase();
+    });
+
+    type = function( obj ) { return obj == null ? String( obj ) : typeMap[ toString.call(obj) ] || "object" }
+
+  } else {
+    type = $.type;
+  }
+
   function indexOf(which, searchElement) {
     for(var ix = which.length - 1; 
         ix > -1 ;
@@ -60,7 +97,7 @@
       if(obj.slice) {
         return obj.slice();
       } else {
-        return Array.prototype.slice.call(obj);
+        return slice.call(obj);
       }
     } else {
       return values(obj);
@@ -69,7 +106,7 @@
       
   function find() {
     var 
-      filterList = Array.prototype.slice.call(arguments),
+      filterList = slice.call(arguments),
       filterIx,
 
       // The dataset to compare against
@@ -116,6 +153,7 @@
         }
 
         spliceix = ix + 1;
+
         if(end - spliceix > 0) {
           set.splice(spliceix,  end - spliceix);
         }
@@ -171,9 +209,9 @@
 
     // If the second argument is an array then we assume that we are looking
     // to see if the value in the database is part of the user supplied funciton
-    if(comparator.constructor == Array) {
+    if(type(comparator) == 'array') {
       callback = function(x) { return indexOf(comparator, x) > -1; };
-    } else if (comparator instanceof Function) {
+    } else if (type(comparator) == 'function') {
       callback = function(x) { return indexOf(comparator(), x) > -1; };
     } else {
       callback = comparator;
@@ -258,22 +296,6 @@
 
   var obj2list = keys;
 
-  function each(obj, cb) {
-    if (obj instanceof Array) {
-      var 
-        ix = 0,
-        len = obj.length;
-
-      for(; ix < len; ix++) {
-        cb(obj[ix], ix);
-      }
-    } else {
-      for(var key in obj) {
-        cb(key, obj[key]);
-      }
-    }
-  }
-
   function res2list(res) {
     var list = [];
 
@@ -339,10 +361,10 @@
           }
  
           // Recurse if we're merging plain objects or arrays
-          if ( deep && copy && ( copy.constructor == Object || (copyIsArray = (copy.constructor == Array)) ) ) {
+          if ( deep && copy && ( copy.constructor == Object || (copyIsArray = (type(copy) == 'array')) ) ) {
             if ( copyIsArray ) {
               copyIsArray = false;
-              clone = src && (src.constructor == Array) ? src : [];
+              clone = src && (type(constructor) == 'array') ? src : [];
             } else {
               clone = src && (src.constructor == Object) ? src : {};
             }
@@ -596,7 +618,7 @@
       return chain( 
         find.apply(this, 
           arguments.length ? 
-            [raw].concat(Array.prototype.slice.call(arguments)) : 
+            [raw].concat(slice.call(arguments)) : 
             [raw]
           )
         );
@@ -609,7 +631,7 @@
         resultList = [];
 
       if(arguments.length > 1) {
-        field = Array.prototype.slice.call(arguments);
+        field = slice.call(arguments);
       } else if (typeof field == 'string') {
         field = [field];
       }
@@ -649,7 +671,7 @@
         ixList = [];
 
       if(arguments.length > 1) {
-        toInsert = Array.prototype.slice.call(arguments);
+        toInsert = slice.call(arguments);
       } else if (param.constructor == Array) {
         toInsert = param;
       } else {
@@ -781,7 +803,7 @@
         return ret.apply(this, arguments);
       }
     } else if(arguments.length > 1) {
-      ret.insert(Array.prototype.slice.call(arguments));
+      ret.insert(slice.call(arguments));
     }
 
     ret.__raw__ = raw;
