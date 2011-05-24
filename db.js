@@ -20,17 +20,21 @@
 
   var type;
 
-  if(!self.$ || !$.type) {
+  if(!self.$ || !self.$.type) {
 
     var 
       typeMap = {},
       toString = Object.prototype.toString;
 
-    each("Boolean,Number,String,Function,Array,Date,RegExp,Object".split(), function(which) {
+    each("Boolean Number String Function Array Date RegExp Object".split(' '), function(which) {
       typeMap[ "[object " + which + "]" ] = which.toLowerCase();
     });
 
-    type = function( obj ) { return obj == null ? String( obj ) : typeMap[ toString.call(obj) ] || "object" }
+    type = function( obj ) { 
+      return obj == null ? 
+        String( obj ) : 
+        typeMap[ toString.call(obj) ] || "object" ;
+    }
 
   } else {
     type = $.type;
@@ -814,6 +818,7 @@
   window.DB.isin = isin;
   window.DB.find = find;
   window.DB.has = has;
+  window.DB.type = type;
   window.DB.each = eachApply;
   window.DB.values = values;
   window.DB.ilike = window.DB.like = like;
