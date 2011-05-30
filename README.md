@@ -4,6 +4,8 @@
 
 [See the Demo](http://qaa.ath.cx/db/test.html)
 
+Before you go further, read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker.  My solution although better than Taffy and JLinq seems to not be as good as Mr. Stocker's Jorder.  Perhaps you will like my syntax, or perhaps you will like his speed.
+
 ## This will be painless, I assure you.
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
