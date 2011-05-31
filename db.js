@@ -1,16 +1,11 @@
 (function(){
 
-  var slice = Array.prototype.slice;
+  var slice = Array.prototype.slice,  
+    array = [];
 
   function each(obj, cb) {
     if (obj instanceof Array) {
-      var 
-        ix = 0,
-        len = obj.length;
-
-      for(; ix < len; ix++) {
-        cb(obj[ix], ix);
-      }
+      for ( var i = 0, len = obj.length; i < len; i++ ) cb(obj[i], i);
     } else {
       for(var key in obj) {
         cb(key, obj[key]);
@@ -40,18 +35,19 @@
     type = $.type;
   }
 
-  function indexOf(which, searchElement) {
-    for(var ix = which.length - 1; 
-        ix > -1 ;
-        ix--
-      ) { 
-      if (searchElement == which[ix]) {
-        break;
-      }
-    }
+  // native fallback inspired from underscore.js
+  var indexOf = array.indexOf ? 
+    function(array, item) { return array.indexOf(item) } :
+    function(array, item) {
+      if(array == null) return -1;
 
-    return ix;
-  }
+      for(var i = array.length - 1; 
+        (i != -1) && (item != array[i]);
+        i--
+      ) {}
+
+      return ix;
+    }
 
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
@@ -98,17 +94,13 @@
 
   function simplecopy(obj) {
     if(obj.length) {
-      if(obj.slice) {
-        return obj.slice();
-      } else {
-        return slice.call(obj);
-      }
+      return obj.slice ? obj.slice() : slice.call(obj);
     } else {
       return values(obj);
     }
   }
       
-  function find() {
+  function find(arg) {
     var 
       filterList = slice.call(arguments),
       filterIx,
@@ -288,15 +280,17 @@
     return ret;
   }
 
-  function keys(obj) {
-    var ret = [];
+  var keys = Object.keys ? 
+    Object.keys : 
+    function (obj) {
+      var ret = [];
 
-    for(var key in obj) {
-      ret.push(key);
+      for(var key in obj) {
+        ret.push(key);
+      }
+
+      return ret;
     }
-
-    return ret;
-  }
 
   var obj2list = keys;
 
@@ -324,7 +318,7 @@
   }
   // Jacked from Resig's jquery 1.5.2
   // The code has been modified to not rely on jquery
-  function extend() {
+  function extend(bool, o1, o2) {
     var 
       options, name, src, copy, copyIsArray, clone,
       target = arguments[0] || {},
@@ -858,59 +852,5 @@
     }
   }
 
-  window.DB.importCSV = function(url) {
-
-    function get(url) {
-      var req = new XMLHttpRequest();
-      req.open('GET', url, false);
-      req.send(null);
-      if(req.status == 200) {
-        return req.responseText;
-      } else {
-        return '';
-      }
-    }
-
-    var 
-      lineList = get(url).split('\n'),
-      db = DB(),
-      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
-      record,
-      match,
-      field = 0,
-      header = [],
-      line = lineList.shift(),
-      len = lineList.length;
-
-    if(len === 0) {
-      return;
-    }
-
-    while( ( match = re.exec(line) ) != null) {
-      header.push(match[0]);
-    }
-
-    for(var ix = 0; ix < len; ix++) {
-      record = {};
-      line = lineList[ix];
-
-      field = 0;
-
-      while( ( match = re.exec(line) ) != null) {
-        if(parseFloat(match[0]).toString() == match[0]) {
-          record[ header[field] ] = parseFloat(match[0]);
-        } else {
-          record[ header[field] ] = match[0];
-        }
-        field ++;
-      }
-
-      if(field > 0) {
-        db.insert(record);
-      }
-    }
-
-    return db;
-  }
 
 })();

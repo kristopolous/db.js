@@ -28,9 +28,64 @@ After all those steps are done, then you can click the button below:
 <button onclick=performance()>Run Performance Test</button>
 </pre>
 </body>
-<script src=db.js></script>
+<script src=db.min.js></script>
 <script>
   var db;
+
+  window.DB.importCSV = function(url) {
+
+    function get(url) {
+      var req = new XMLHttpRequest();
+      req.open('GET', url, false);
+      req.send(null);
+      if(req.status == 200) {
+        return req.responseText;
+      } else {
+        return '';
+      }
+    }
+
+    var 
+      lineList = get(url).split('\n'),
+      db = DB(),
+      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
+      record,
+      match,
+      field = 0,
+      header = [],
+      line = lineList.shift(),
+      len = lineList.length;
+
+    if(len === 0) {
+      return;
+    }
+
+    while( ( match = re.exec(line) ) != null) {
+      header.push(match[0]);
+    }
+
+    for(var ix = 0; ix < len; ix++) {
+      record = {};
+      line = lineList[ix];
+
+      field = 0;
+
+      while( ( match = re.exec(line) ) != null) {
+        if(parseFloat(match[0]).toString() == match[0]) {
+          record[ header[field] ] = parseFloat(match[0]);
+        } else {
+          record[ header[field] ] = match[0];
+        }
+        field ++;
+      }
+
+      if(field > 0) {
+        db.insert(record);
+      }
+    }
+
+    return db;
+  }
 
   function performance() {
     function log(str) {
