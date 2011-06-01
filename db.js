@@ -39,14 +39,12 @@
   var indexOf = array.indexOf ? 
     function(array, item) { return array.indexOf(item) } :
     function(array, item) {
-      if(array == null) return -1;
-
       for(var i = array.length - 1; 
         (i != -1) && (item != array[i]);
         i--
-      ) {}
+      );
 
-      return ix;
+      return i;
     }
 
   // The first parameter, if exists, is assumed to be the value in the database,
@@ -99,31 +97,20 @@
       return values(obj);
     }
   }
-      
-  function find(arg) {
+
+  function find() {
     var 
       filterList = slice.call(arguments),
+      filter,
       filterIx,
-
-      // The dataset to compare against
-      set,
 
       which,
 
-      internal,
+      internal = this instanceof Array;
 
-      // The index list from the dataset to compare against
-      nextRound = [];
-
-    if(this instanceof Array) {
-      // This permits a subfind
-      set = simplecopy(this);
-      internal = true;
-    } else {
-      // The dataset to compare against
-      set = simplecopy(filterList.shift());
-      internal = false;
-    }
+    var end, spliceix, ix;
+    // The dataset to compare against
+    var set = simplecopy(internal ? this : filterList.shift());
 
     if( filterList.length == 2 && typeof filterList[0] == 'string') {
       // This permits find(key, value)
@@ -133,56 +120,61 @@
     } 
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
-      if(filterList[filterIx] && filterList[filterIx].constructor == Function) {
-        var 
-          spliceix,
-          end = set.length,
-          res,
-          callback = filterList[filterIx];
+      filter = filterList[filterIx];
+      if(filter.constructor == Function) {
+        var callback = filter.single;
 
-        for(var ix = set.length - 1; ix >= 0; ix--) {
-          if (callback.single(set[ix])) { 
+        for(end = set.length, ix = end - 1; ix >= 0; ix--) {
+          if(!callback(set[ix])) continue;
+
+          if(end - ix + 1) {
             spliceix = ix + 1;
             set.splice(spliceix, end - spliceix);
-            end = ix;
           }
+          end = ix;
         }
 
         spliceix = ix + 1;
-
-        if(end - spliceix > 0) {
-          set.splice(spliceix,  end - spliceix);
+        if(end - spliceix) {
+          set.splice(spliceix, end - spliceix);
         }
       } else {
-        each(filterList[filterIx], function(key, value) {
-          var 
-            spliceix,
-            end = set.length,
-            which;
+        each(filter, function(key, value) {
 
-          for(var ix = set.length - 1; ix >= 0; ix--) {
-            which = set[ix];
+          if( typeof value == 'function' ) {
+            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
+              which = set[ix];
 
-            // Check for existence
-            if( key in which ) {
+              // Check for existence
+              if( key in which ) {
+                if( !value(which[key], which) ) { continue }
 
-              if( typeof value == 'function' ) {
-                if (!value(which[key], which)) { 
-                  continue; 
+                if(end - ix + 1) {
+                  spliceix = ix + 1;
+                  set.splice(spliceix, end - spliceix);
                 }
-              } else if (which[key] !== value) {
-                continue;
+                end = ix;
               }
+            }
 
-              spliceix = ix + 1;
-              set.splice(spliceix, end - spliceix);
+          } else {
+            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
+              which = set[ix];
+
+              // Check for existence
+              if( ! (key in which && which[key] === value ) ) continue;
+
+              if(end - ix + 1) {
+                spliceix = ix + 1;
+                set.splice(spliceix, end - spliceix);
+              }
               end = ix;
             }
           }
 
           spliceix = ix + 1;
-          if(end - spliceix > 0) {
-            set.splice(spliceix,  end - spliceix);
+          if(end - spliceix) {
+            set.splice(spliceix, end - spliceix);
           }
         });
       }
@@ -429,8 +421,8 @@
         }
 
         if(arguments.length == 2 && typeof arguments[1] == 'string') {
-          ret = {};
-          ret[arguments[0]] = new Function("x, record", "return x " + arguments[1]);
+          ret = function(){}
+          ret.single = new Function("r", "return r['" + arguments[0] + "']" + arguments[1]);
         }
 
         return ret;
@@ -486,7 +478,7 @@
       ixlast = 0,
       funcMap = {},
       syncList = [],
-      raw = {};
+      raw = [];
 
     function sync() {
       for(var ix = 0; ix < syncList.length; ix++) {
@@ -591,7 +583,7 @@
       var 
         ix = 0,
         len = list.length,
-        ret = new Array(len);
+        ret = [];
 
       for(; ix < len; ix++) {
         ret[ix] = raw[list[ix]];
@@ -609,7 +601,7 @@
         list = this;
       }
 
-      return chain(setdiff(keys(raw), list));
+      return chain(setdiff(raw, list));
     }
 
     ret.where = ret.find = function() {
@@ -624,9 +616,8 @@
 
     ret.select = function(field) {
       var 
-        result,
         filter,
-        resultList = [];
+        resultList = {};
 
       if(arguments.length > 1) {
         field = slice.call(arguments);
@@ -640,26 +631,28 @@
         filter = ret.find();
       }
 
-      each(filter, function (row) {
-        result = [];
+      for(var iy = 0, flen = field.length; iy < flen; iy++) {
+        column = field[iy];
 
-        each(field, function (column) {
+        for(var ix = 0, len = filter.length; ix < len; ix++) {
+          row = filter[ix];
+
           if(column == '*') {
-            result = result.concat(values(row));
-          } else {
-            result.push(row[column]);
+            resultList[ix] = values(row);
+          } else if(column in row){
+            if(flen > 1) {
+              if(!resultList[ix]) {
+                resultList[ix] = [];
+              }
+              resultList[ix][iy] = row[column];
+            } else {
+              resultList[ix] = row[column];
+            }
           }
-        });
-
-        if(result.length == 1) {
-          result = result[0];
         }
-
-        resultList.push(result);
-      });
-        
+      }
       
-      return chain(resultList);
+      return chain(values(resultList));
     }
 
     ret.insert = function(param) {
@@ -693,12 +686,13 @@
           }
         }
 
-        var ix = ixlast++;
+        var ix = ixlast++, data;
 
         try {
-          raw[ix] = new (secret())();
-          extend(true, raw[ix], which);
-          raw[ix].constructor('ix', ix);
+          data = new (secret())();
+          extend(true, data, which);
+          data.constructor('ix', ix);
+          raw.push(data);
         } catch(ex) {
 
           // Embedded objects, like flash controllers
@@ -706,8 +700,8 @@
           // properties aren't totally enumerable.  We
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
-          raw[ix] = which;
-          raw[ix].constructor = secret();
+          which.constructor = secret();
+          raw.push(which);
         }
 
         ixList.push(ix);
@@ -783,6 +777,17 @@
         save.push(deepcopy(raw[index]));
         delete raw[index];
       });
+      var end = raw.length;
+
+      for(var ix = raw.length - 1; ix > -1; ix--) {
+        if (raw[ix] === undefined) { continue }
+        raw.splice(ix + 1, end - (ix + 1));
+        end = ix + 1;
+      }
+
+      if(end - (ix + 1) > 0) {
+        raw.splice(0, end);
+      }
 
       sync();
       return chain(save);
