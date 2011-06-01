@@ -421,8 +421,8 @@
         }
 
         if(arguments.length == 2 && typeof arguments[1] == 'string') {
-          ret = function(){}
-          ret.single = new Function("r", "return r['" + arguments[0] + "']" + arguments[1]);
+          ret = {};
+          ret[arguments[0]] = new Function("x, record", "return x " + arguments[1]);
         }
 
         return ret;
