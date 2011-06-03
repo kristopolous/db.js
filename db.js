@@ -1,6 +1,7 @@
 (function(){
 
   var slice = Array.prototype.slice,  
+    uid = 0,
     array = [];
 
   function each(obj, cb) {
@@ -127,7 +128,7 @@
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
           if(!callback(set[ix])) continue;
 
-          if(end - ix + 1) {
+          if(end - (ix + 1)) {
             spliceix = ix + 1;
             set.splice(spliceix, end - spliceix);
           }
@@ -149,7 +150,7 @@
               if( key in which ) {
                 if( !value(which[key], which) ) { continue }
 
-                if(end - ix + 1) {
+                if(end - (ix + 1)) {
                   spliceix = ix + 1;
                   set.splice(spliceix, end - spliceix);
                 }
@@ -164,7 +165,7 @@
               // Check for existence
               if( ! (key in which && which[key] === value ) ) continue;
 
-              if(end - ix + 1) {
+              if(end - (ix + 1)) {
                 spliceix = ix + 1;
                 set.splice(spliceix, end - spliceix);
               }
@@ -286,15 +287,6 @@
 
   var obj2list = keys;
 
-  function res2list(res) {
-    var list = [];
-
-    each(res, function(which) {
-      list.push(which.constructor('ix'));
-    });
-
-    return list;
-  }
 
   function setdiff(larger, subset) {
     larger = list2obj(larger);
@@ -492,6 +484,16 @@
       }
 
       return list;
+    }
+    function stain(list) {
+      uid++;
+      for(var ix = 0, len = list.length; ix < len; ix++) {
+        list[ix].constructor('i', uid);
+      }
+      return uid;
+    }
+    function isStained(ix) {
+      return raw[ix].constructor('i') == uid;
     }
 
     var ret = expression();
@@ -691,7 +693,6 @@
         try {
           data = new (secret())();
           extend(true, data, which);
-          data.constructor('ix', ix);
           raw.push(data);
         } catch(ex) {
 
@@ -776,17 +777,17 @@
         list = ret.find();
       }
 
-      each(res2list(list), function(index) {
-        save.push(deepcopy(raw[index]));
-        delete raw[index];
-      });
+      var uid = stain(list);
 
       // Remove the undefined nodes from the raw table
       var end = raw.length;
 
       for(var ix = raw.length - 1; ix >= 0; ix--) {
-        if (raw[ix] === undefined) { continue }
-        if(end - ix + 1) {
+        if (isStained(ix)) { 
+          save.push(raw[ix]);
+          continue;
+        }
+        if(end - (ix + 1)) {
           spliceix = ix + 1;
           raw.splice(spliceix, end - spliceix);
         }

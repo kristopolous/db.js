@@ -1,13 +1,15 @@
 <!doctype html>
 <style>
+  body{font-family:sans-serif}
   table{
-    background:#aaf;
+    background:#aaa;
     border-spacing: 1
   }
   td{background: white;padding:5px;vertical-align:top}
   td span{display:block}
   td span b{margin-left:20px}
-  .fail > td{background:#faa}
+  .fail > td{background:#fcc}
+  b.fail{background:red;color:white;padding:5px}
 
 </style>
 <body onload=test()>
@@ -41,10 +43,10 @@
         which.description,
           ['<span>',
             which.fail.join('<b class=fail>Failed</b></span><span>'),
-            which.fail.length > 1 ? '<b class=fail>Failed</b>' : '',
+            which.fail.length ? '<b class=fail>Failed</b>' : '',
            '</span><span>',
             which.pass.join('<b class=pass>Passed</b></span><span>'),
-            which.pass.length > 1 ? '<b class=pass>Passed</b>' : '',
+            which.pass.length ? '<b class=pass>Passed</b>' : '',
            '</span>'
           ].join('')
       ];
@@ -82,8 +84,10 @@
 
       if(tallyMap[which].fail.length) {
         current.fail.push("skipped. required test " + which + " failed.");
+        return false;
       } else {
         tallyMap[which]();
+        current.pass = [];
       }
 
       return tallyMap[which].fail.length == 0;
@@ -113,6 +117,7 @@
       } catch(ex) {
         obj.fail.push(ex.toSource());
       }
+      obj.done = true;
     }
 
     showResults();
@@ -120,7 +125,7 @@
 
   function test() {
     doTest([
-      { name: 'insert-0', 
+      { name: 'insert-one', 
         description: 'insert {key: value}', 
         test: function() {
           db.insert({key: 'value'});
@@ -128,47 +133,107 @@
           assert('db.__raw__[0].key == "value"');
         }
       },
-      { name: 'insert-1', 
-        description: 'insert [{key1: value1}, {key2: value2}]',
+      { name: 'insert-three', 
+        description: 'insert [{key1: 0}, {key2: value2}, {key1: value3}]',
         test: function() {
-          db.insert({key1: 'value1'}, {key2: 'value2'});
-          assert('db.__raw__.length == 2');
-          assert('db.__raw__[0].key1 == "value1"');
+          db.insert({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+          assert('db.__raw__.length == 3');
+          assert('db.__raw__[0].key1 == 0');
           assert('db.__raw__[1].key2 == "value2"');
+          assert('db.__raw__[2].key1 == "value3"');
         }
       },
-      { name: 'remove-0',
-        description: 'insert-0 then remove all',
+      { name: 'remove-all',
+        description: 'insert-one then remove all',
         test: function() {
-          run('insert-0');
+          run('insert-one');
           db.remove();
           assert('db.__raw__.length == 0');
         }
       },
-      { name: 'remove-1',
-        description: 'insert-1 then remove {key1: value1}',
+      { name: 'remove-head',
+        description: 'insert-three then remove {key1: 0}, first element',
         test: function() {
-          run('insert-1');
-          db.remove({key1: 'value1'});
-          assert('db.__raw__.length == 1');
+          run('insert-three');
+          db.remove({key1: 0});
+          assert('db.__raw__.length == 2');
           assert('db.__raw__[0].key2 == "value2"');
         }
       },
-      { name: 'find-0',
-        description: 'insert-0 then find all',
+      { name: 'remove-middle',
+        description: 'insert-three then remove {key2: value2}, middle element',
         test: function() {
-          run('insert-0');
+          run('insert-three');
+          db.remove({key2: 'value2'});
+          assert('db.__raw__.length == 2');
+          assert('db.__raw__[1].key1 == "value3"');
+        }
+      },
+      { name: 'remove-tail',
+        description: 'insert-three then remove {key1: value3}, last element',
+        test: function() {
+          run('insert-three');
+          db.remove({key1: 'value3'});
+          assert('db.__raw__.length == 2');
+        }
+      },
+      { name: 'find-all',
+        description: 'insert-one then find all',
+        test: function() {
+          run('insert-one');
           assert.res = db.find();
           assert('assert.res.length == 1');
         }
       },
-      { name: 'find-1',
-        description: 'insert-1 then find {key1: value1}',
+      { name: 'find-one',
+        description: 'insert-three then find {key1: 0}',
         test: function() {
-          run('insert-1');
-          assert.res = db.find({key1: 'value1'});
+          run('insert-three');
+          assert.res = db.find({key1: 0});
           assert('assert.res.length == 1');
           assert('assert.res[0] == db.__raw__[0]');
+        }
+      },
+      { name: 'find-key1',
+        description: 'insert-three then find {key1: *}',
+        test: function() {
+          run('insert-three');
+          assert.res = db.find({key1: db('!== undefined')});
+          assert('assert.res.length == 2');
+        }
+      },
+      { name: 'update-key1',
+        description: 'find-key1, then update all key1 to be value4',
+        test: function() {
+          run('find-key1');
+          assert.res.update({key1: 'value4'});
+          assert('db.__raw__[0].key1 == "value4"');
+          assert('db.__raw__[2].key1 == "value4"');
+        }
+      },
+      { name: 'update-1',
+        description: 'insert-three, then update all records to have key9 = false',
+        test: function() {
+          run('insert-three');
+          db.update({key9: false});
+
+          for(var i = 0; i < 3; i++) {
+            assert('db.__raw__[' + i + '].key9 === false');
+          }
+        }
+      },
+      { name: 'remove-3',
+        description: 'update-1, then remove all records of key9===false and key1=0',
+        test: function() {
+          run('update-1');
+          db.find({
+            key9: false,
+            key1: 0
+          }).remove();
+
+          assert('db.__raw__.length == 2');
+          assert('db.__raw__[0].key2 == "value2"');
+          assert('db.__raw__[1].key1 == "value3"');
         }
       }
     ]);
