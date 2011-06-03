@@ -1,237 +1,176 @@
 <!doctype html>
 <style>
-body{font-family:monospace;margin:10px}
-h4{margin:0.25em 0}
-.log{
-  border-radius: 6px;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  background:#ddd;padding:10px;margin:0px 5px 17px 0;max-width:600px}
-div span{margin:0 0.5em;display:block}
+  table{
+    background:#aaf;
+    border-spacing: 1
+  }
+  td{background: white;padding:5px;vertical-align:top}
+  td span{display:block}
+  td span b{margin-left:20px}
+  .fail > td{background:#faa}
+
 </style>
 <body onload=test()>
 <div id=main>
 </div>
-<p>
-In order to do the performance test, you need to 
-<ul>
-<li>Run this from a webserver, such as apache or nginx
-<li>Get the file  http://www.census.gov/popest/counties/files/CO-EST2009-ALLDATA.csv and
-<ul>
-<li>Rename it sample.csv
-<li>Put it in the same directory as the test file
-</ul>
-</ul>
-After all those steps are done, then you can click the button below:
-</p>
-<pre>
-<button onclick=performance()>Run Performance Test</button>
-</pre>
 </body>
 <script src=db.js></script>
 <script>
-  var db;
+  var db,
+    current,
+    tallyMap = {};
 
-  window.DB.importCSV = function(url) {
-
-    function get(url) {
-      var req = new XMLHttpRequest();
-      req.open('GET', url, false);
-      req.send(null);
-      if(req.status == 200) {
-        return req.responseText;
-      } else {
-        return '';
-      }
-    }
-
+  function showResults() {
     var 
-      lineList = get(url).split('\n'),
-      db = DB(),
-      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
-      record,
-      match,
-      field = 0,
-      header = [],
-      line = lineList.shift(),
-      len = lineList.length;
+      tableHead = [ 
+      '<thead><tr>',
+          '<th>Test Name</th>',
+          '<th>Description</th>',
+          '<th>Result</th>',
+          '</tr></thead>' ].join(''),
 
-    if(len === 0) {
-      return;
+      which,
+      tableBody = [],
+      tableRow = [];
+
+    for(var test in tallyMap) {
+      which = tallyMap[test];
+
+      tableRow = [
+        test,
+        which.description,
+          ['<span>',
+            which.fail.join('<b class=fail>Failed</b></span><span>'),
+            which.fail.length > 1 ? '<b class=fail>Failed</b>' : '',
+           '</span><span>',
+            which.pass.join('<b class=pass>Passed</b></span><span>'),
+            which.pass.length > 1 ? '<b class=pass>Passed</b>' : '',
+           '</span>'
+          ].join('')
+      ];
+
+      tableBody.push([
+        '<tr class=' + (which.fail.length ? 'fail' : 'pass') + '>',
+          '<td>' + tableRow.join('</td><td>') + '</td>',
+        '</tr>'
+      ].join(''));
     }
 
-    while( ( match = re.exec(line) ) != null) {
-      header.push(match[0]);
-    }
+    document.getElementById('main').innerHTML += [
+      '<table>',
+      tableHead,
+      tableBody.join(''),
+      '</table>' 
+    ].join('');
+  }
 
-    for(var ix = 0; ix < len; ix++) {
-      record = {};
-      line = lineList[ix];
+  function assert(test) {
+    current[ eval(test) ? 'pass' : 'fail' ].push(test);
+  }
 
-      field = 0;
+  function run(list) {
+    if(list.constructor == Array) {
+      var ret = true;
 
-      while( ( match = re.exec(line) ) != null) {
-        if(parseFloat(match[0]).toString() == match[0]) {
-          record[ header[field] ] = parseFloat(match[0]);
-        } else {
-          record[ header[field] ] = match[0];
-        }
-        field ++;
+      for(var i = 0; i < list.length; i++) {
+        ret &= run(list[i]);
       }
 
-      if(field > 0) {
-        db.insert(record);
+      return ret;
+    } else {
+      var which = list;
+
+      if(tallyMap[which].fail.length) {
+        current.fail.push("skipped. required test " + which + " failed.");
+      } else {
+        tallyMap[which]();
+      }
+
+      return tallyMap[which].fail.length == 0;
+    }
+  }
+
+  function doTest(optList) {
+    var which, obj;
+
+    for (var ix=0; ix < optList.length; ix++) {
+      which = optList[ix];
+
+      if(!which.noreset) {
+        db = DB();
+      }
+
+      obj = which.test;
+      obj.pass = [];
+      obj.fail = [];
+      obj.description = which.description;
+      tallyMap[which.name] = obj;
+
+      current = obj;
+
+      try {
+        obj();
+      } catch(ex) {
+        obj.fail.push(ex.toSource());
       }
     }
 
-    return db;
-  }
-
-  function performance() {
-    function log(str) {
-      document.body.getElementsByTagName('pre')[0].innerHTML += "<div>" + str + "</div>";
-    }
-
-    log("Importing 500K records from 2000 census");
-    var db = DB.importCSV('sample.csv'),
-       middle;
-
-    function clock(name, callback) {
-      var ret;
-
-      start = new Date();
-      ret = callback();
-      end = new Date();
-
-      log((end.getTime() - start.getTime()) + "ms (" + name + ")");
-
-      return ret; 
-    }
-
-    middle = clock("Finding only the county and city records", function(){
-      return db.find(db('STNAME', ' != record.CTYNAME'));
-    });
-
-    middle = clock('Grouping the records by state', function(){
-      return middle.group('STNAME');
-    });
-
-    middle = clock('Accumulating the population per state', function(){
-      return middle.each(DB.reduceLeft(0, ' += x.POPESTIMATE2000'));
-    });
-
-    var table = "<table><tr><td>state</td><td>2000 pop</td></tr>";
-    for(var state in middle) {
-      table += "<tr><td>" + state + "</td><td>" + middle[state] + "</td></tr>";
-    }
-    table += "</table>";
-    log(table);  
-  }
-
-  function info(txt) {
-    document.getElementById('main').innerHTML += '<div class=info>' +
-      '<i>Notice: ' + arguments[0] + '</i>' + 
-      '</div>';
-  }
-  function log(txt) {
-    document.getElementById('main').innerHTML += '<div class=log>' +
-      '<h4>' + arguments[0] + ':</h4>' + 
-      '<span>' + arguments[1] + '</span>' +
-      '</div>';
+    showResults();
   }
 
   function test() {
-    var res;
-
-    db = DB([{
-      first: "Peter",
-      last: "Griffin",
-      age: 41,
-      hometown: "Quahog",
-      job: "Brewer"
-    }, {
-      first: "Lois",
-      last: "Griffin",
-      age: 40,
-      hometown: "Newport",
-      job: "Piano Teacher"
-    }]),
-
-    toInsert = [{
-      first: "Joseph",
-      last: "Swanson",
-      age: 39,
-      hometown: "Quahog",
-      job: "Police Officer"
-    }, {
-      first: "Glenn",
-      last: "Quagmire",
-      age: 41,
-      hometown: "Quahog",
-      job: "Pilot"
-    }];
-
-    res = db.find().select('*');
-    log('Initialized the database with the following data', res.join('<br>'));
-
-    db.sync( function(raw) {
-      info('Running the synchronization function');
-    });
-
-    info('Registered a synchronization function to be run when the database changes');
-
-    res = db.insert(toInsert);
-    log('Inserted more data, got references to the data inserted back', res.join('<br>'));
-
-    res = db.select('job');
-    log('Showing the types of jobs', res.join('<br>'));
-
-    res = db.find(db('age', '> 40')).select('first');
-    log('Listing people with age over 40', res.join('<br>')); 
-
-    res = db
-      .order('age', 'asc')
-      .select('first', 'age')
-      .each(function(res) { return res[0] + ' is ' + res[1] });
-
-    log('Ordering people by age ascending, and emitting output in a formatted way', res.join('<br>'));
-
-    db.update('description', function(param) {
-      return [ 
-        param.first, 
-        param.last, 
-        "is from", 
-        param.hometown, 
-        "and is a",
-        param.age, 
-        "year old",
-        param.job
-      ].join(' ');
-    });
-
-    res = db.select('description');
-    log('Created a new field, named description', res.join('<br>'));
-
-    var removed = db.find('last', 'Griffin').remove();
-    res = db.find('last', 'Griffin');
-    log('Removed people with the last name griffin.  Searched for this parameter', res.length);
-
-    db.insert(removed);
-    res = db.find('last', 'Griffin');
-    log('Reinserted the results previously removed.  Searched for the same parameter', res.length);
-
-    res = db.find({age: db.isin([41, 40])}).select('description');
-    log('Searching for people either 41 or 40', res.join('<br>'));
-
-    // Not in IE we don't.
-    if(!window.attachEvent) {
-      var somenumber = Math.floor(Math.random() * 1000 * 1000 * 1000).toString(16);
-      log('Using document.getElementsByTagName("*") with a find on the innerHTML value to turn the element below blue', somenumber);
-
-      DB.find(
-        document.getElementsByTagName('*'), 
-        {innerHTML: somenumber})[0].style.color = 'blue';
-    }
-
+    doTest([
+      { name: 'insert-0', 
+        description: 'insert {key: value}', 
+        test: function() {
+          db.insert({key: 'value'});
+          assert('db.__raw__.length == 1');
+          assert('db.__raw__[0].key == "value"');
+        }
+      },
+      { name: 'insert-1', 
+        description: 'insert [{key1: value1}, {key2: value2}]',
+        test: function() {
+          db.insert({key1: 'value1'}, {key2: 'value2'});
+          assert('db.__raw__.length == 2');
+          assert('db.__raw__[0].key1 == "value1"');
+          assert('db.__raw__[1].key2 == "value2"');
+        }
+      },
+      { name: 'remove-0',
+        description: 'insert-0 then remove all',
+        test: function() {
+          run('insert-0');
+          db.remove();
+          assert('db.__raw__.length == 0');
+        }
+      },
+      { name: 'remove-1',
+        description: 'insert-1 then remove {key1: value1}',
+        test: function() {
+          run('insert-1');
+          db.remove({key1: 'value1'});
+          assert('db.__raw__.length == 1');
+          assert('db.__raw__[0].key2 == "value2"');
+        }
+      },
+      { name: 'find-0',
+        description: 'insert-0 then find all',
+        test: function() {
+          run('insert-0');
+          assert.res = db.find();
+          assert('assert.res.length == 1');
+        }
+      },
+      { name: 'find-1',
+        description: 'insert-1 then find {key1: value1}',
+        test: function() {
+          run('insert-1');
+          assert.res = db.find({key1: 'value1'});
+          assert('assert.res.length == 1');
+          assert('assert.res[0] == db.__raw__[0]');
+        }
+      }
+    ]);
   }
 </script>

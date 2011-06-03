@@ -3,10 +3,121 @@
 </style>
 <body>
   <button onclick=dotest()>test</button>
-<pre></pre></body>
+<pre></pre>
+<pre>
+<p>
+In order to do the performance test, you need to 
+<ul>
+<li>Run this from a webserver, such as apache or nginx
+<li>Get the file  http://www.census.gov/popest/counties/files/CO-EST2009-ALLDATA.csv and
+<ul>
+<li>Rename it sample.csv
+<li>Put it in the same directory as the test file
+</ul>
+</ul>
+After all those steps are done, then you can click the button below:
+</p>
+<button onclick=performance()>Run Performance Test</button>
+</pre></body>
 <script src=db.min.js></script>
 <script>
 
+  window.DB.importCSV = function(url) {
+
+    function get(url) {
+      var req = new XMLHttpRequest();
+      req.open('GET', url, false);
+      req.send(null);
+      if(req.status == 200) {
+        return req.responseText;
+      } else {
+        return '';
+      }
+    }
+
+    var 
+      lineList = get(url).split('\n'),
+      db = DB(),
+      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
+      record,
+      match,
+      field = 0,
+      header = [],
+      line = lineList.shift(),
+      len = lineList.length;
+
+    if(len === 0) {
+      return;
+    }
+
+    while( ( match = re.exec(line) ) != null) {
+      header.push(match[0]);
+    }
+
+    for(var ix = 0; ix < len; ix++) {
+      record = {};
+      line = lineList[ix];
+
+      field = 0;
+
+      while( ( match = re.exec(line) ) != null) {
+        if(parseFloat(match[0]).toString() == match[0]) {
+          record[ header[field] ] = parseFloat(match[0]);
+        } else {
+          record[ header[field] ] = match[0];
+        }
+        field ++;
+      }
+
+      if(field > 0) {
+        db.insert(record);
+      }
+    }
+
+    return db;
+  }
+
+  function performance() {
+    function log(str) {
+      document.body.getElementsByTagName('pre')[0].innerHTML += "<div>" + str + "</div>";
+    }
+
+    log("Importing 500K records from US census");
+    var 
+      db = DB.importCSV('CO-EST2009-ALLDATA.csv'),
+      middle;
+
+    function clock(name, callback) {
+      var ret;
+
+      start = new Date();
+      ret = callback();
+      end = new Date();
+
+      log((end.getTime() - start.getTime()) + "ms (" + name + ")");
+
+      return ret; 
+    }
+
+    middle = clock("Finding only the county and city records", function(){
+      return db.find(db('STNAME', ' != record.CTYNAME'));
+    });
+
+    middle = clock('Grouping the records by state', function(){
+      return middle.group('STNAME');
+    });
+
+    middle = clock('Accumulating the population per state', function(){
+      return middle.each(DB.reduceLeft(0, ' += x.POPESTIMATE2000'));
+    });
+
+    var table = "<table><tr><td>state</td><td>2000 pop</td></tr>";
+    for(var state in middle) {
+      table += "<tr><td>" + state + "</td><td>" + middle[state] + "</td></tr>";
+    }
+    table += "</table>";
+    log(table);  
+  }
 var 
   maxval = 1000,
   recsize = 20, 

@@ -762,6 +762,7 @@
 
     ret.remove = function(constraint) {
       var 
+        end, spliceix,
         list,
         save = [];
 
@@ -769,24 +770,32 @@
         list = this;
       } else if(constraint instanceof Array) {
         list = constraint;
-      } else {
+      } else if(arguments.length > 0){
         list = ret.find(constraint);
+      } else {
+        list = ret.find();
       }
 
       each(res2list(list), function(index) {
         save.push(deepcopy(raw[index]));
         delete raw[index];
       });
+
+      // Remove the undefined nodes from the raw table
       var end = raw.length;
 
-      for(var ix = raw.length - 1; ix > -1; ix--) {
+      for(var ix = raw.length - 1; ix >= 0; ix--) {
         if (raw[ix] === undefined) { continue }
-        raw.splice(ix + 1, end - (ix + 1));
-        end = ix + 1;
+        if(end - ix + 1) {
+          spliceix = ix + 1;
+          raw.splice(spliceix, end - spliceix);
+        }
+        end = ix;
       }
 
-      if(end - (ix + 1) > 0) {
-        raw.splice(0, end);
+      spliceix = ix + 1;
+      if(end - spliceix) {
+        raw.splice(spliceix, end - spliceix);
       }
 
       sync();

@@ -24,9 +24,9 @@ Take a familiar SQL query like this:
 And with a little bit of javascripty magic, we can do this:
 
     people
-      .find(DB.expr('age', '> 30'))
+      .find(DB('age', '> 30'))
       .order('age', 'desc')
-      .select('firstname','age')
+      .select('firstname', 'age')
 
 And bam! There you go. Who said life wasn't easy?
 
@@ -67,21 +67,20 @@ I have horrible memory and can never recall how to use an API.  So,
 I think of every possible way that a slouch like me would ever attempt
 to use it, and I make sure I support all of them.
 
-For instance, if you wanted to update 'key' to be 'value', you could do it like
+For instance, if you wanted to update 'key' to be 'value' for all records
+in the database, you could do it like
 
-`update('key', 'value')` 
+`db.update('key', 'value')` 
 
 or
 
-`update({key: 'value'})`
+`db.update({key: 'value'})`
 
-You can chain this under a find like
+or you can chain this under a find if you want to only update some records
 
-`db.find().update(blah blah)`
+`db.find({key: 'value'}).update({key: 'somethingelse'})`
 
-or drop it all together
-
-`db.update(blah blah)`
+etc...
 
 The basic idea is that **you are using this API because you want life
 to be painless and easy**.  You certainly don't want to wade through
@@ -257,7 +256,7 @@ it's the way it is. Sorry.
 #### db.each(function)
 This is more of a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example html file called
-test.html included in the git repo has a usage of this.
+example.html included in the git repo has a usage of this.
 
 ### db.order(multi)
 This is like SQLs orderby function.  If you pass it just a field, then
@@ -319,9 +318,9 @@ you could initialize the database as follows:
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 
-`db.sync = function(data) { $.jStorage.set('government-secrets', data); }`
+`db.sync( function(data) { $.jStorage.set('government-secrets', data); } )`
 
-The file "test.html" includes a synchronization function that logs to screen
+The file "example.html" includes a synchronization function that logs to screen
 when it is run so you can see when this function would be called.  Basically
 it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
