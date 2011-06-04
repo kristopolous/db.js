@@ -56,7 +56,8 @@ In order to do the performance test, you need to
 <li>Run this from a webserver, such as apache or nginx
 <li>Get the file  http://www.census.gov/popest/counties/files/CO-EST2009-ALLDATA.csv and put it in the same directory as the test file
 </ul>
-After all those steps are done, then you can <button onclick=performance>try</button> it out
+After all those steps are done, then you can <button onclick=performance()>try</button> it out
+<pre id=stress></pre>
 </div>
 </body>
 <script src=db.js></script>
@@ -338,7 +339,7 @@ After all those steps are done, then you can <button onclick=performance>try</bu
 
   function performance() {
     function log(str) {
-      document.body.getElementsByTagName('pre')[0].innerHTML += "<div>" + str + "</div>";
+      document.getElementById('stress').innerHTML += "<div>" + str + "</div>";
     }
 
     log("Importing 500K records from US census");
