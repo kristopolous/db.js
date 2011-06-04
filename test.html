@@ -1,6 +1,30 @@
 <!doctype html>
 <style>
+  body{background:rgb(180,180,190)}
+  body > div{background:rgb(240,240,255);margin:20px;padding:20px;border:8px solid rgb(150,150,180)}
+  h1{margin:-20px -20px 20px -20px;
+
+    color:white;
+    padding:5px 20px;display:block;
+    -moz-box-shadow: 0 0 5px 5px rgb(80,80,100);
+    text-shadow: 0 2px 5px rgb(80,80,100);
+background-image: -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.25, rgb(165,165,165)),
+    color-stop(0.63, rgb(198,198,230))
+);
+background-image: -moz-linear-gradient(
+    center bottom,
+    rgb(165,165,164) 25%,
+    rgb(190,190,210) 63%
+);
+
+  }
+  p{margin:12px 2px}
   body{font-family:sans-serif}
+  h2{margin-top:30px;color:#223}
   table{
     background:#aaa;
     border-spacing: 1
@@ -13,7 +37,26 @@
 
 </style>
 <body onload=test()>
-<div id=main>
+  <div class=test>
+  <h1>Basic Tests</h1>
+  <p>This is a sanity check to make sure that the library passes basic data manipulation.  It is run automatically.</p>
+  <div id=main>
+  </div>
+</div>
+<div>
+<h1>Performance Test</h1>
+<h2>General Performance</h2>
+<p>
+This <button onclick=doperftest()>Test</button> creates some large evenly distributed data and does a number of standardized tests on it
+</p>
+<pre></pre>
+<h2>Stress Test</h2>
+In order to do the performance test, you need to 
+<ul>
+<li>Run this from a webserver, such as apache or nginx
+<li>Get the file  http://www.census.gov/popest/counties/files/CO-EST2009-ALLDATA.csv and put it in the same directory as the test file
+</ul>
+After all those steps are done, then you can <button onclick=performance>try</button> it out
 </div>
 </body>
 <script src=db.js></script>
@@ -238,4 +281,287 @@
       }
     ]);
   }
+  window.DB.importCSV = function(url) {
+
+    function get(url) {
+      var req = new XMLHttpRequest();
+      req.open('GET', url, false);
+      req.send(null);
+      if(req.status == 200) {
+        return req.responseText;
+      } else {
+        return '';
+      }
+    }
+
+    var 
+      lineList = get(url).split('\n'),
+      db = DB(),
+      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
+      record,
+      match,
+      field = 0,
+      header = [],
+      line = lineList.shift(),
+      len = lineList.length;
+
+    if(len === 0) {
+      return;
+    }
+
+    while( ( match = re.exec(line) ) != null) {
+      header.push(match[0]);
+    }
+
+    for(var ix = 0; ix < len; ix++) {
+      record = {};
+      line = lineList[ix];
+
+      field = 0;
+
+      while( ( match = re.exec(line) ) != null) {
+        if(parseFloat(match[0]).toString() == match[0]) {
+          record[ header[field] ] = parseFloat(match[0]);
+        } else {
+          record[ header[field] ] = match[0];
+        }
+        field ++;
+      }
+
+      if(field > 0) {
+        db.insert(record);
+      }
+    }
+
+    return db;
+  }
+
+  function performance() {
+    function log(str) {
+      document.body.getElementsByTagName('pre')[0].innerHTML += "<div>" + str + "</div>";
+    }
+
+    log("Importing 500K records from US census");
+    var 
+      db = DB.importCSV('CO-EST2009-ALLDATA.csv'),
+      middle;
+
+    function clock(name, callback) {
+      var ret;
+
+      start = new Date();
+      ret = callback();
+      end = new Date();
+
+      log((end.getTime() - start.getTime()) + "ms (" + name + ")");
+
+      return ret; 
+    }
+
+    middle = clock("Finding only the county and city records", function(){
+      return db.find(db('STNAME', ' != record.CTYNAME'));
+    });
+
+    middle = clock('Grouping the records by state', function(){
+      return middle.group('STNAME');
+    });
+
+    middle = clock('Accumulating the population per state', function(){
+      return middle.each(DB.reduceLeft(0, ' += x.POPESTIMATE2000'));
+    });
+
+    var table = "<table><tr><td>state</td><td>2000 pop</td></tr>";
+    for(var state in middle) {
+      table += "<tr><td>" + state + "</td><td>" + middle[state] + "</td></tr>";
+    }
+    table += "</table>";
+    log(table);  
+  }
+(function(){
+var 
+  maxval = 1000,
+  recsize = 20, 
+  reccount = 5 * 1000, 
+  keylist = {}, key, 
+  toInsert = [], 
+  logged = [],
+  cutoff = maxval / 2;
+
+// We try to insert a large amount of evenly distributed schema-free data
+
+
+// poor programmers random number generator from primes is p1 * p2 * c % p3
+// We use this method to control the data to make sure that every test run
+// inserts the same data
+var rand = (function() {
+  var largePrimes = [
+      [99497, 72727, 61463, 24469,100747, 90059, 55903, 40351, 19447, 12553],
+      [12647, 40559, 35251, 27031, 38821, 65101, 51197, 84377, 21017, 19319],
+      [84811, 79777,100291,  1933, 15199, 24509, 31607, 48049, 55511, 65267]
+    ],
+    round = 0,
+    fallover = 500,
+    lastrand = 100,
+    p1,
+    p2;
+
+  return function(){
+    if(round++ % fallover == 0) {
+      p1 = largePrimes[0][Math.floor(round / fallover / 10) % 10]; 
+      p2 = largePrimes[1][Math.floor(round / fallover) % 10]; 
+      lastrand = largePrimes[2][Math.floor(round / fallover) % 10];
+    }
+
+    lastrand = (lastrand * p1 + round) % p2;
+    return lastrand / p2;
+  }
+})();
+
+function log(str) {
+  logged.push(str);
+}
+
+var perfCheck = (function(){
+  var timeList = [], roundTotal = 0, message;
+  var pub = function (callback) {
+    var ret, round;
+
+    start = new Date();
+    ret = callback() || '';
+    end = new Date();
+
+
+    round =  end.getTime() - start.getTime();
+    roundTotal += round;
+    timeList.push(round);
+
+    return ret; 
+  }
+  pub.compute = function(message){
+    var 
+      roundCount = timeList.length,
+      variance = 0,
+      stddiv,
+      mean = roundTotal / roundCount;
+  
+    variance = 0;
+    for(var ix = 0; ix < roundCount; ix++) {
+      variance += Math.pow(timeList[ix] - mean, 2);
+    }
+    variance /= roundCount;
+
+    stddiv = Math.sqrt(variance);
+
+
+    log([
+      '<b title="' + timeList.join(',') + '">' + message + '</b>',
+      '<span> ' + (roundTotal / roundCount) + '</span>',
+      '<span> ' + stddiv + '</span>'
+    ].join(''));
+
+    pub.total += roundTotal;
+    timeList = [];
+    roundTotal = 0;
+  }
+  pub.total = 0;
+  return pub;
+
+})();
+
+function makeKey(num) {
+  return ((num + 4) * 1000).toString(36);
+}
+
+var value;
+for(var ix = 0; ix < reccount; ix++) {
+  toInsert[ix] = {};
+  for(var iy = 0; iy < recsize; iy++) {
+    do { 
+      key = makeKey(Math.floor(rand() * (recsize * 4)));
+    } while(key in toInsert[ix]);
+
+    if(!keylist[key]) {
+      keylist[key] = {low:0, high:0};
+    }
+
+    value = Math.floor(rand() * maxval);
+    if(value < cutoff) {
+      keylist[key].low++;
+    } else {
+      keylist[key].high++;
+    }
+
+    toInsert[ix][key] = value;
+  }
+}
+
+function validate(t1, t2) {
+  if(t1 != t2) {
+    console.log (" fail (" + t1 + " != " + t2 + ")");
+  }
+}
+
+var db;
+self.doperftest = function() {
+  var res;
+
+  perfCheck.total = 0;
+
+  perfCheck(function(){ db = DB(); });
+  perfCheck.compute('initializing');
+
+  perfCheck(function(){ res = db.insert(toInsert); });
+  perfCheck.compute('inserting ' + reccount + ' records');
+
+  perfCheck(function(){ res = db.find(); });
+  perfCheck.compute('empty find');
+
+  perfCheck(function(){ res = db.find().select('*'); });
+  perfCheck.compute('empty find select of *');
+
+  for(var key in keylist) {
+    perfCheck(function(){ res = db.find().select(key); });
+  }
+  perfCheck.compute('empty find select of key');
+
+  for(var key in keylist) {
+    perfCheck(function(){ res = db.find(db(key, ' < ' + cutoff)); });
+  }
+  perfCheck.compute('find value < ' + cutoff);
+
+  for(var key in keylist) {
+    perfCheck(function(){ res = db.find(db.isin(key, [3, 9, 11, 12])); });
+  }
+  perfCheck.compute('indexof set find');
+
+  for(var key in keylist) {
+    perfCheck(function(){
+      var len = toInsert.length, res = toInsert.slice(), x,
+          spliceix,
+          end = len;
+
+      for(var ix = len - 1; ix > -1; ix--) {
+        x = res[ix][key];
+        if (x === 3 || x === 9 || x === 11 || x === 12) {
+          
+          spliceix = ix + 1;
+          res.splice(spliceix, end - spliceix);
+          end = ix;
+        }
+      }
+      spliceix = ix + 1;
+
+      if(end - spliceix > 0) {
+        res.splice(spliceix, end - spliceix);
+      }
+      return res.length;
+    });
+  }
+  perfCheck.compute('native set find ');
+
+
+  log("Total of all tests: " + perfCheck.total + 'ms');
+  document.body.getElementsByTagName('pre')[0].innerHTML = '<div>' + logged.join('</div><div>') + '</div>';
+}
+})();
 </script>

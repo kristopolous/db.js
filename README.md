@@ -255,8 +255,7 @@ it's the way it is. Sorry.
 
 #### db.each(function)
 This is more of a convenience on select for when you do select('one','two')
-and then you want to format those fields.  The example html file called
-example.html included in the git repo has a usage of this.
+and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
 ### db.order(multi)
 This is like SQLs orderby function.  If you pass it just a field, then
@@ -320,7 +319,7 @@ jStorage example from above, we would 'sync' back to by doing the following:
 
 `db.sync( function(data) { $.jStorage.set('government-secrets', data); } )`
 
-The file "example.html" includes a synchronization function that logs to screen
+The example file includes a synchronization function that logs to screen
 when it is run so you can see when this function would be called.  Basically
 it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
