@@ -1,7 +1,15 @@
 (function(){
 
-  var slice = Array.prototype.slice,  
-    uid = 0,
+  var 
+    seed = [
+      (Math.random() * Math.pow(2, 32)).toString(36),
+      (Math.random() * Math.pow(2, 32)).toString(36)
+    ].join(':'),
+
+    seedid = 0,
+    stainid,
+
+    slice = Array.prototype.slice,  
     array = [];
 
   function each(obj, cb) {
@@ -485,15 +493,22 @@
 
       return list;
     }
+
     function stain(list) {
-      uid++;
+      seedid++;
+      stainid = seed + seedid; 
+
       for(var ix = 0, len = list.length; ix < len; ix++) {
-        list[ix].constructor('i', uid);
+        list[ix][stainid] = true;
       }
-      return uid;
+      return stainid;
     }
     function isStained(ix) {
-      return raw[ix].constructor('i') == uid;
+      var ret = raw[ix][stainid];
+      if(ret) {
+        delete raw[ix][stainid];
+      }
+      return ret;
     }
 
     var ret = expression();
@@ -691,9 +706,7 @@
         var ix = ixlast++, data;
 
         try {
-          data = new (secret())();
-          extend(true, data, which);
-          raw.push(data);
+          raw.push(which);
         } catch(ex) {
 
           // Embedded objects, like flash controllers
@@ -701,7 +714,6 @@
           // properties aren't totally enumerable.  We
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
-          which.constructor = secret();
           raw.push(which);
         }
 
