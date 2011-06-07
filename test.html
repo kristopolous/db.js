@@ -8,19 +8,25 @@
     padding:5px 20px;display:block;
     -moz-box-shadow: 0 0 5px 5px rgb(80,80,100);
     text-shadow: 0 2px 5px rgb(80,80,100);
-background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    color-stop(0.25, rgb(165,165,165)),
-    color-stop(0.63, rgb(198,198,230))
-);
-background-image: -moz-linear-gradient(
-    center bottom,
-    rgb(165,165,164) 25%,
-    rgb(190,190,210) 63%
-);
+    background-color: rgb(165,165,165);
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.25, rgb(165,165,165)),
+        color-stop(0.63, rgb(198,198,230))
+    );
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(165,165,164) 25%,
+        rgb(190,190,210) 63%
+    );
 
+  }
+  button.toggle{
+    background-color: rgb(198,198,230);
+    padding:5px 10px;
+    margin-right:10px;
   }
   p{margin:12px 2px}
   body{font-family:sans-serif}
@@ -34,11 +40,19 @@ background-image: -moz-linear-gradient(
   td span b{margin-left:20px}
   .fail > td{background:#fcc}
   b.fail{background:red;color:white;padding:5px}
+  form{display:inline}
 
 </style>
 <body onload=test()>
   <div class=test>
   <h1>Basic Tests</h1>
+  <form>
+    <button id=none class=toggle>No Optimization</button>
+  </form>
+  <form>
+    <input type=hidden name=unsafe value=true>
+    <button id=unsafe class=toggle>Unsafe</button>
+  </form>
   <p>This is a sanity check to make sure that the library passes basic data manipulation.  It is run automatically.</p>
   <div id=main>
   </div>
@@ -168,6 +182,20 @@ After all those steps are done, then you can <button onclick=performance()>try</
   }
 
   function test() {
+    var hash = window.location.search.substr(1);
+    if(hash.length > 1) {
+      var which = hash.split('=')[0];
+      if(which == 'unsafe') {
+        DB.unsafe();
+      }
+    } else {
+      which = 'none';
+    }
+    document.getElementById(which).setAttribute('style', [
+      'border-style:solid',
+      'background:silver'
+    ].join(';')); 
+
     doTest([
       { name: 'insert-one', 
         description: 'insert {key: value}', 

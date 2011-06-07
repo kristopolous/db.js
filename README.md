@@ -144,6 +144,17 @@ That's right.  The magic sauce will work on existing old fashioned objects with 
 
 Yes, that will work also. 
 
+## Important note
+db.js works via references.  That is to say that if you do the following:
+
+     var obj = { a: 1 },
+      db = DB(a);
+
+     obj.a = 2;
+
+Then the record in the DB also now has a:2.  People familiar with ORMs should find this
+comforting.  But it may also lead to some unexpected operations.
+
 ## API
 
 ### db.insert( rows )
@@ -358,6 +369,13 @@ becomes:
     people.find({ id: DB.isin(
        addresses.find( DB.like('city', 'los angeles') ).select('id')
     }).order('income').slice(1, 10)
+
+
+
+### DB.unsafe()
+Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
+are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
+large keys for some internal operations.
 
 ## Caveats
 

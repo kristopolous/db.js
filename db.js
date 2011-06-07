@@ -1,15 +1,10 @@
 (function(){
 
   var 
-    seed = [
-      (Math.random() * Math.pow(2, 32)).toString(36),
-      (Math.random() * Math.pow(2, 32)).toString(36)
-    ].join(':'),
-
-    seedid = 0,
-    stainid,
-
     slice = Array.prototype.slice,  
+    _unsafe = false,
+    _speed = false,
+    _orderCache = {},
     array = [];
 
   function each(obj, cb) {
@@ -22,26 +17,19 @@
     }
   }
 
-  var type;
+  var 
+    type,
+    typeMap = {},
+    toString = Object.prototype.toString;
 
-  if(!self.$ || !self.$.type) {
+  each("Boolean Number String Function Array Date RegExp Object".split(' '), function(which) {
+    typeMap[ "[object " + which + "]" ] = which.toLowerCase().charAt(0);
+  });
 
-    var 
-      typeMap = {},
-      toString = Object.prototype.toString;
-
-    each("Boolean Number String Function Array Date RegExp Object".split(' '), function(which) {
-      typeMap[ "[object " + which + "]" ] = which.toLowerCase();
-    });
-
-    type = function( obj ) { 
-      return obj == null ? 
-        String( obj ) : 
-        typeMap[ toString.call(obj) ] || "object" ;
-    }
-
-  } else {
-    type = $.type;
+  type = function( obj ) { 
+    return obj == null ? 
+      String( obj ) : 
+      typeMap[ toString.call(obj) ] || "o" ;
   }
 
   // native fallback inspired from underscore.js
@@ -192,36 +180,51 @@
     return set;
   }
 
-  function isin(param1, param2) {
-    var 
-      callback,
-      comparator,
-      obj = {};
+  var isin = (function() {
+    var cache = {};
 
-    if(arguments.length == 1) {
-      comparator = param1;
-    } else if(arguments.length == 2){
-      comparator = param2;
-    } 
+    return function (param1, param2) {
+      var 
+        callback,
+        comparator = arguments.length == 1 ? param1 : param2,
+        obj = {};
 
-    // If the second argument is an array then we assume that we are looking
-    // to see if the value in the database is part of the user supplied funciton
-    if(type(comparator) == 'array') {
-      callback = function(x) { return indexOf(comparator, x) > -1; };
-    } else if (type(comparator) == 'function') {
-      callback = function(x) { return indexOf(comparator(), x) > -1; };
-    } else {
-      callback = comparator;
+      // If the second argument is an array then we assume that we are looking
+      // to see if the value in the database is part of the user supplied funciton
+      if(comparator.length){
+        if(_unsafe && comparator.length < 10) {
+          // This is totally unsafe
+          var regex = new RegExp('^(' + comparator.join('|') + ')$');
+          callback = function(x) { return regex.test(x); };
+        } else if(comparator.length < 20) {
+          var key = comparator.join(',');
+
+          // new Function is faster then eval but it's still slow, so we cache
+          // the output of them and then pass them down the pipe if we need them
+          // again
+          if(! cache[key]) {
+            callback = cache[key] = new Function('x', 'return x==' + comparator.join('||x=='));
+          } else {
+            callback = cache[key];
+          }
+        } else {
+          callback = function(x) { return indexOf(comparator, x) > -1; };
+        }
+      } else if (type(comparator) == 'f') {
+        callback = function(x) { return indexOf(comparator(), x) > -1; };
+      } else {
+        callback = comparator;
+      }
+
+      if(arguments.length == 2) {
+        obj = {};
+        obj[param1] = callback;
+        return obj;
+      } else {
+        return callback;
+      }
     }
-
-    if(arguments.length == 2) {
-      obj = {};
-      obj[param1] = callback;
-      return obj;
-    } else {
-      return callback;
-    }
-  }
+  })();
 
   function like(param1, param2) {
     var 
@@ -251,9 +254,9 @@
   // An encapsulator for hiding internal variables
   function secret() {
     var cache = {};
-    return function(){
-      if (arguments.length == 1) { return cache[arguments[0]];}
-      if (arguments.length == 2) { cache[arguments[0]] = arguments[1]; }
+    return function(arg0,arg1){
+      if (arguments.length == 1) { return cache[arg0];}
+      if (arguments.length == 2) { cache[arg0] = arg1; }
     };
   }
 
@@ -313,15 +316,15 @@
   function extend(bool, o1, o2) {
     var 
       options, name, src, copy, copyIsArray, clone,
-      target = arguments[0] || {},
+      target = bool || {},
       i = 1,
       length = arguments.length,
       deep = false;
 
     // Handle a deep copy situation
-    if ( typeof target === "boolean" ) {
+    if ( type(target) == 'b' ) {
       deep = target;
-      target = arguments[1] || {};
+      target = o1 || {};
       // skip the boolean and the target
       i = 2;
     }
@@ -351,10 +354,10 @@
           }
  
           // Recurse if we're merging plain objects or arrays
-          if ( deep && copy && ( copy.constructor == Object || (copyIsArray = (type(copy) == 'array')) ) ) {
+          if ( deep && copy && ( copy.constructor == Object || (copyIsArray = (type(copy) == 'a')) ) ) {
             if ( copyIsArray ) {
               copyIsArray = false;
-              clone = src && (type(constructor) == 'array') ? src : [];
+              clone = src && (type(constructor) == 'a') ? src : [];
             } else {
               clone = src && (src.constructor == Object) ? src : {};
             }
@@ -386,58 +389,73 @@
     }
   }
 
-  // A closure is needed here to avoid mangling pointers
-  function expression(){
-    return function() {
-      var ret;
+  var expression = (function(){
+    var cache = {};
 
-      if(typeof arguments[0] == 'string') {
-        // There are TWO types of lambda function here (I'm not using the
-        // term 'closure' because that means something else)
-        //
-        // We can have one that is sensitive to a specific record member and 
-        // one that is local to a record and not a specific member.  
-        //
-        // As it turns out, we can derive the kind of function intended simply
-        // because they won't ever syntactically both be valid in real use cases.
-        //
-        // I mean sure, the empty string, space, semicolon etc is valid for both, 
-        // alright sure, thanks smarty pants.  But is that what you are using? really?
-        //
-        // No? ok, me either. This seems practical then.
-        //
-        // The invocation wrapping will also make this work magically, with proper
-        // expreessive usage.
-        if(arguments.length == 1) {
-          try {
-            ret = new Function("x, record", "return x " + arguments[0]);
-          } catch(ex) {
-            ret = {};
+    // A closure is needed here to avoid mangling pointers
+    return function (){
+      return function(arg0, arg1) {
+        var ret, expr;
+
+        if(type( arg0 ) == 's') {
+          expr = arg0;
+          // There are TWO types of lambda function here (I'm not using the
+          // term 'closure' because that means something else)
+          //
+          // We can have one that is sensitive to a specific record member and 
+          // one that is local to a record and not a specific member.  
+          //
+          // As it turns out, we can derive the kind of function intended simply
+          // because they won't ever syntactically both be valid in real use cases.
+          //
+          // I mean sure, the empty string, space, semicolon etc is valid for both, 
+          // alright sure, thanks smarty pants.  But is that what you are using? really?
+          //
+          // No? ok, me either. This seems practical then.
+          //
+          // The invocation wrapping will also make this work magically, with proper
+          // expreessive usage.
+          if(arguments.length == 1) {
+            if(!cache[expr]) {
+              try {
+                ret = new Function("x, record", "return x " + expr);
+              } catch(ex) {
+                ret = {};
+              }
+
+              try {
+                ret.single = new Function("record", "return " + arg0);
+              } catch(ex) {}
+
+              cache[expr] = ret;
+            } else {
+              ret = cache[expr];
+            }
           }
 
-          try {
-            ret.single = new Function("record", "return " + arguments[0]);
-          } catch(ex) {}
-        }
+          if(arguments.length == 2 && type(arg1) == 's') {
+            ret = {};
+            expr = arg1;
+            if(!cache[expr]) {
+              cache[expr] = new Function("x, record", "return x " + expr);
+            }
+            ret[arg0] = cache[expr];
+          }
 
-        if(arguments.length == 2 && typeof arguments[1] == 'string') {
-          ret = {};
-          ret[arguments[0]] = new Function("x, record", "return x " + arguments[1]);
-        }
-
-        return ret;
-      } 
+          return ret;
+        } 
+      }
     }
-  }
+  })();
 
-  function eachApply(callback) {
+  function eachApply(callback, arg1) {
     var 
       ret = [],
       filter;
 
     if(arguments.length == 2) {
-      filter = arguments[0];
-      callback = arguments[1];
+      filter = callback;
+      callback = arg1;
     } else {
       filter = this;
     }
@@ -459,6 +477,57 @@
     return ret;
   }
 
+  var unsafe_stain = (function() {
+    var pub = {},
+      seed = [
+        (Math.random() * Math.pow(2, 32)).toString(36),
+        (Math.random() * Math.pow(2, 32)).toString(36)
+      ].join(':'),
+
+      seedid = 0,
+      stainid;
+
+    pub.stain = function(list) {
+      seedid++;
+      stainid = seed + seedid; 
+
+      for(var ix = 0, len = list.length; ix < len; ix++) {
+        list[ix][stainid] = true;
+      }
+      return stainid;
+    }
+
+    pub.isStained = function(obj) {
+      var ret = obj[stainid];
+      if(ret) {
+        delete obj[stainid];
+      }
+      return ret;
+    }
+    return pub;
+  })();
+
+
+  var safe_stain = (function() {
+    var pub = {},
+      stainid = 0;
+
+    pub.stain = function(list) {
+      stainid++;
+
+      for(var ix = 0, len = list.length; ix < len; ix++) {
+        list[ix].constructor('i', stainid);
+      }
+      return stainid;
+    }
+
+    pub.isStained = function(obj) {
+      return obj.constructor('i') == stainid;
+    }
+    return pub;
+  })();
+
+  stainer = safe_stain;
 
   // the list of functions to chain
   var chainList = list2obj('has isin map group remove update where select find order each like ilike'.split(' '));
@@ -472,12 +541,13 @@
   // in a language such as Java or C++ should
   // go above!!!!
   //
-  window.DB = function(){
+  window.DB = function(arg0, arg1){
     var 
       constraints = {},
       ixlast = 0,
       funcMap = {},
       syncList = [],
+      stainer = _unsafe ? unsafe_stain : safe_stain,
       raw = [];
 
     function sync() {
@@ -492,23 +562,6 @@
       }
 
       return list;
-    }
-
-    function stain(list) {
-      seedid++;
-      stainid = seed + seedid; 
-
-      for(var ix = 0, len = list.length; ix < len; ix++) {
-        list[ix][stainid] = true;
-      }
-      return stainid;
-    }
-    function isStained(ix) {
-      var ret = raw[ix][stainid];
-      if(ret) {
-        delete raw[ix][stainid];
-      }
-      return ret;
     }
 
     var ret = expression();
@@ -549,37 +602,42 @@
       syncList.push(callback); 
     }
 
-    ret.order = function () {
+    ret.order = function (arg0, arg1) {
       var 
         key, 
         fnSort,
+        len = arguments.length,
         order,
         filter;
 
-      if(typeof arguments[0] == 'function') {
-        fnSort = arguments[0];
-      } else if(typeof arguments[0] == 'string') {
-        key = arguments[0];
+      if(type(arg0) == 'f') {
+        fnSort = arg0;
+      } else if(type(arg0) == 's') {
+        key = arg0;
 
-        if(arguments.length == 1) {
+        if(len == 1) {
           order = 'x - y';
-        } else if(arguments.length == 2) {
+        } else if(len == 2) {
 
-          if(typeof arguments[1] == 'string') {
-            if(arguments[1].toLowerCase() == 'asc') {
+          if(type(arg1) == 's') {
+            if(arg1.toLowerCase() == 'asc') {
               order = 'x - y';
-            } else if(arguments[1].toLowerCase() == 'desc') {
+            } else if(arg1.toLowerCase() == 'desc') {
               order = 'y - x';
             } 
           } 
 
           if (typeof order == 'undefined') {
-            order = arguments[1];
+            order = arg1;
           }
         }
 
-        if(typeof order == 'string') {
-          order = new Function('x,y', 'return ' + order);
+        if(type(order) == 's') {
+          if(! _orderCache[order]) {
+            order = _orderCache[order] = new Function('x,y', 'return ' + order);
+          } else {
+            order = _orderCache[order];
+          }
         }
 
         fnSort = function(a, b) {
@@ -706,7 +764,13 @@
         var ix = ixlast++, data;
 
         try {
-          raw.push(which);
+          if(_unsafe) {
+            raw.push(which);
+          } else {
+            data = new (secret())();
+            extend(true, data, which);
+            raw.push(data);
+          }
         } catch(ex) {
 
           // Embedded objects, like flash controllers
@@ -714,6 +778,9 @@
           // properties aren't totally enumerable.  We
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
+          if(!unsafe) {
+            which.constructor = secret();
+          }
           raw.push(which);
         }
 
@@ -745,7 +812,7 @@
 
       // This permits update(key, value) on a chained find
       if( arguments.length == 2 && 
-          typeof arguments[0] == 'string'
+          type(newvalue) == 's'
         ) {
 
         // Store the key string
@@ -758,7 +825,7 @@
       }
 
       each(newvalue, function(key, value) {
-        if(typeof value == 'function') {
+        if(type( value ) == 'f') {
           each(list, function(which) {
             which[key] = value(which);
           });
@@ -789,13 +856,13 @@
         list = ret.find();
       }
 
-      var uid = stain(list);
+      var uid = stainer.stain(list);
 
       // Remove the undefined nodes from the raw table
       var end = raw.length;
 
       for(var ix = raw.length - 1; ix >= 0; ix--) {
-        if (isStained(ix)) { 
+        if (stainer.isStained(raw[ix])) { 
           save.push(raw[ix]);
           continue;
         }
@@ -818,14 +885,11 @@
 
     // The ability to import a database from somewhere
     if (arguments.length == 1) {
-      if (arguments[0].constructor == Array) {
-        ret.insert(arguments[0]);
-      } else if (arguments[0].constructor == Function) {
-        ret.insert(arguments[0]());
-      } else if (arguments[0].constructor == Object) {
-        ret.insert(arguments[0]);
-      } else if (arguments[0].constructor == String) {
-        return ret.apply(this, arguments);
+      switch(type(arg0)) {
+        case 'a': ret.insert(arg0); break;
+        case 'f': ret.insert(arg0()); break;
+        case 's': return ret.apply(this, arguments); break;
+        case 'o': ret.insert(arg0); break;
       }
     } else if(arguments.length > 1) {
       ret.insert(slice.call(arguments));
@@ -843,6 +907,7 @@
   window.DB.each = eachApply;
   window.DB.values = values;
   window.DB.ilike = window.DB.like = like;
+  window.DB.unsafe = function() { _unsafe = true; }
 
 
   window.DB.reduceLeft = function(initial, oper) {
