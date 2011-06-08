@@ -49,17 +49,18 @@
   // The second parameter is the index to search
   function has(param1, param2) {
     var 
+      len = arguments.length,
       callback,
       comparator,
       obj = {};
 
-    if(arguments.length == 1) {
+    if(len == 1) {
       comparator = param1;
-    } else if(arguments.length == 2){
+    } else if(len == 2){
       comparator = param2;
     } 
 
-    if(comparator.constructor == Array) {
+    if(type(comparator) == 'a') {
       var len = comparator.length;
 
       // This becomes O(N * M)
@@ -78,7 +79,7 @@
       }
     }
 
-    if(arguments.length == 2) {
+    if(len == 2) {
       obj = {};
       obj[param1] = callback;
       return obj;
@@ -109,7 +110,7 @@
     // The dataset to compare against
     var set = simplecopy(internal ? this : filterList.shift());
 
-    if( filterList.length == 2 && typeof filterList[0] == 'string') {
+    if( filterList.length == 2 && type( filterList[0] ) == 's') {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -118,7 +119,7 @@
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
       filter = filterList[filterIx];
-      if(filter.constructor == Function) {
+      if(type(filter) == 'f') {
         var callback = filter.single;
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
@@ -138,7 +139,7 @@
       } else {
         each(filter, function(key, value) {
 
-          if( typeof value == 'function' ) {
+          if( type(value) == 'f' ) {
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
@@ -186,7 +187,8 @@
     return function (param1, param2) {
       var 
         callback,
-        comparator = arguments.length == 1 ? param1 : param2,
+        len = arguments.length,
+        comparator = len == 1 ? param1 : param2,
         obj = {};
 
       // If the second argument is an array then we assume that we are looking
@@ -216,7 +218,7 @@
         callback = comparator;
       }
 
-      if(arguments.length == 2) {
+      if(len == 2) {
         obj = {};
         obj[param1] = callback;
         return obj;
@@ -229,12 +231,13 @@
   function like(param1, param2) {
     var 
       comparator,
+      len = arguments.length,
       query,
       obj = {};
 
-    if(arguments.length == 1) {
+    if(len == 1) {
       query = param1;
-    } else if(arguments.length == 2){
+    } else if(len == 2){
       query = param2;
     } 
 
@@ -242,7 +245,7 @@
 
     comparator = function(x) { return x.toString().toLowerCase().search(query) > -1; };
 
-    if(arguments.length == 2) {
+    if(len == 2) {
       obj = {};
       obj[param1] = comparator;
       return obj;
@@ -330,7 +333,7 @@
     }
  
     // Handle case when target is a string or something (possible in deep copy)
-    if ( typeof target !== "object" && typeof target !== 'function') {
+    if ( typeof target !== "object" && type( target ) !== 'f') {
       target = {};
     }
  
@@ -464,7 +467,7 @@
       ret = {};
 
       for(var key in filter) {
-        if(filter[key].constructor != Function) {
+        if(type(filter[key]) != 'f') {
           ret[key] = callback.call(this, filter[key]);
         }
       }
@@ -696,7 +699,7 @@
 
       if(arguments.length > 1) {
         field = slice.call(arguments);
-      } else if (typeof field == 'string') {
+      } else if (type(field) == 's') {
         field = [field];
       }
 
@@ -738,7 +741,7 @@
 
       if(arguments.length > 1) {
         toInsert = slice.call(arguments);
-      } else if (param.constructor == Array) {
+      } else if (type(param) == 'a') {
         toInsert = param;
       } else {
         toInsert.push(param);
