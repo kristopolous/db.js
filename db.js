@@ -1,15 +1,39 @@
 (function(){
 
   var 
+    // prototypes and short cuts
     slice = Array.prototype.slice,  
+    toString = Object.prototype.toString,
+    array = [],
+
+    // system variables
     _unsafe = false,
     _speed = false,
+
+    // system caches
     _orderCache = {},
-    array = [];
+
+    // type checking system
+    _ = {
+      // from underscore.js {
+      isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
+      isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
+      isArr: array.isArr ? Array.isArr : function(obj) { return toString.call(obj) === '[object Array]' },
+      // } end underscore.js
+      // from jquery 1.5.2's type
+      isObj: function( obj ){
+        return obj == null ? 
+          String( obj ) == 'object' : 
+          toString.call(obj) === '[object Object]' || true ;
+      }
+    };
+
 
   function each(obj, cb) {
-    if (obj instanceof Array) {
-      for ( var i = 0, len = obj.length; i < len; i++ ) cb(obj[i], i);
+    if (_.isArr(obj)) {
+      for ( var i = 0, len = obj.length; i < len; i++ ) { 
+        cb(obj[i], i);
+      }
     } else {
       for(var key in obj) {
         cb(key, obj[key]);
@@ -17,20 +41,16 @@
     }
   }
 
-  var 
-    type,
-    typeMap = {},
-    toString = Object.prototype.toString;
+  function values(obj) {
+    var ret = [];
 
-  each("Boolean Number String Function Array Date RegExp Object".split(' '), function(which) {
-    typeMap[ "[object " + which + "]" ] = which.toLowerCase().charAt(0);
-  });
+    for(var key in obj) {
+      ret.push(obj[key]);
+    }
 
-  type = function( obj ) { 
-    return obj == null ? 
-      String( obj ) : 
-      typeMap[ toString.call(obj) ] || "o" ;
+    return ret;
   }
+
 
   // native fallback inspired from underscore.js
   var indexOf = array.indexOf ? 
@@ -51,22 +71,22 @@
     var 
       len = arguments.length,
       callback,
-      comparator,
+      compare,
       obj = {};
 
     if(len == 1) {
-      comparator = param1;
+      compare = param1;
     } else if(len == 2){
-      comparator = param2;
+      compare = param2;
     } 
 
-    if(type(comparator) == 'a') {
-      var len = comparator.length;
+    if(_.isArr(compare)) {
+      var len = compare.length;
 
       // This becomes O(N * M)
       callback = function(key) {
         for(ix = 0; ix < len; ix++) {
-          if (indexOf(key, comparator[ix]) > -1) {
+          if (indexOf(key, compare[ix]) > -1) {
             return true;
           }
         }
@@ -75,7 +95,7 @@
     } else {
       // This is O(N)
       callback = function(key) {
-        return indexOf(key, comparator) > -1;
+        return indexOf(key, compare) > -1;
       }
     }
 
@@ -89,11 +109,7 @@
   }
 
   function simplecopy(obj) {
-    if(obj.length) {
-      return obj.slice ? obj.slice() : slice.call(obj);
-    } else {
-      return values(obj);
-    }
+    return _.isArr(obj) ? obj.slice() : values(obj);
   }
 
   function find() {
@@ -104,13 +120,13 @@
 
       which,
 
-      internal = this instanceof Array;
+      internal = _.isArr(this);
 
     var end, spliceix, ix;
     // The dataset to compare against
     var set = simplecopy(internal ? this : filterList.shift());
 
-    if( filterList.length == 2 && type( filterList[0] ) == 's') {
+    if( filterList.length == 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -119,11 +135,11 @@
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
       filter = filterList[filterIx];
-      if(type(filter) == 'f') {
+      if(_.isFun(filter)) {
         var callback = filter.single;
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
-          if(!callback(set[ix])) continue;
+          if(!callback(set[ix])) { continue }
 
           if(end - (ix + 1)) {
             spliceix = ix + 1;
@@ -139,7 +155,7 @@
       } else {
         each(filter, function(key, value) {
 
-          if( type(value) == 'f' ) {
+          if( _.isFun(value)) {
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
@@ -188,34 +204,34 @@
       var 
         callback,
         len = arguments.length,
-        comparator = len == 1 ? param1 : param2,
+        compare = len == 1 ? param1 : param2,
         obj = {};
 
       // If the second argument is an array then we assume that we are looking
       // to see if the value in the database is part of the user supplied funciton
-      if(comparator.length){
-        if(_unsafe && comparator.length < 10) {
+      if(compare.length){
+        if(_unsafe && compare.length < 10) {
           // This is totally unsafe
-          var regex = new RegExp('^(' + comparator.join('|') + ')$');
+          var regex = new RegExp('^(' + compare.join('|') + ')$');
           callback = function(x) { return regex.test(x); };
-        } else if(comparator.length < 20) {
-          var key = comparator.join(',');
+        } else if(compare.length < 20) {
+          var key = compare.join(',');
 
           // new Function is faster then eval but it's still slow, so we cache
           // the output of them and then pass them down the pipe if we need them
           // again
           if(! cache[key]) {
-            callback = cache[key] = new Function('x', 'return x==' + comparator.join('||x=='));
+            callback = cache[key] = new Function('x', 'return x==' + compare.join('||x=='));
           } else {
             callback = cache[key];
           }
         } else {
-          callback = function(x) { return indexOf(comparator, x) > -1; };
+          callback = function(x) { return indexOf(compare, x) > -1; };
         }
-      } else if (type(comparator) == 'f') {
-        callback = function(x) { return indexOf(comparator(), x) > -1; };
+      } else if (_.isFun(compare)) {
+        callback = function(x) { return indexOf(compare(), x) > -1; };
       } else {
-        callback = comparator;
+        callback = compare;
       }
 
       if(len == 2) {
@@ -230,7 +246,7 @@
 
   function like(param1, param2) {
     var 
-      comparator,
+      compare,
       len = arguments.length,
       query,
       obj = {};
@@ -243,14 +259,14 @@
 
     query = query.toString().toLowerCase();
 
-    comparator = function(x) { return x.toString().toLowerCase().search(query) > -1; };
+    compare = function(x) { return x.toString().toLowerCase().search(query) > -1; };
 
     if(len == 2) {
       obj = {};
-      obj[param1] = comparator;
+      obj[param1] = compare;
       return obj;
     } else {
-      return comparator;
+      return compare;
     }
   }
 
@@ -265,7 +281,7 @@
 
   function deepcopy(from) {
     //@http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
-    return extend(true, {}, from);
+    return extend({}, from);
   }
 
   function list2obj(list) {
@@ -273,16 +289,6 @@
     each(list, function(which) {
       ret[which] = true;
     });
-
-    return ret;
-  }
-
-  function values(obj) {
-    var ret = [];
-
-    for(var key in obj) {
-      ret.push(obj[key]);
-    }
 
     return ret;
   }
@@ -314,71 +320,52 @@
 
     return keys(larger);
   }
-  // Jacked from Resig's jquery 1.5.2
-  // The code has been modified to not rely on jquery
-  function extend(bool, o1, o2) {
-    var 
-      options, name, src, copy, copyIsArray, clone,
-      target = bool || {},
-      i = 1,
-      length = arguments.length,
-      deep = false;
 
-    // Handle a deep copy situation
-    if ( type(target) == 'b' ) {
-      deep = target;
-      target = o1 || {};
-      // skip the boolean and the target
-      i = 2;
-    }
- 
-    // Handle case when target is a string or something (possible in deep copy)
-    if ( typeof target !== "object" && type( target ) !== 'f') {
-      target = {};
-    }
- 
-    // extend jQuery itself if only one argument is passed
-    if ( length === i ) {
-      target = this;
-      --i;
-    }
- 
-    for ( ; i < length; i++ ) {
+  // Jacked from Resig's jquery 1.5.2
+  // The code has been modified to not rely on jquery and stripped
+  // to not be so safe and general
+  function extend(o1, o2) {
+    var 
+      options, src, copy, copyIsArray, clone,
+      target = o1,
+      len = arguments.length;
+
+    for (var i = 0 ; i < len; i++ ) {
       // Only deal with non-null/undefined values
-      if ( (options = arguments[ i ]) != null ) {
-        // Extend the base object
-        for ( name in options ) {
-          src = target[ name ];
-          copy = options[ name ];
- 
-          // Prevent never-ending loop
-          if ( target === copy ) {
-             continue;
+      options = arguments[ i ];
+
+      // Extend the base object
+      for (var name in options ) {
+        src = target[ name ];
+        copy = options[ name ];
+
+        // Prevent never-ending loop
+        if ( target === copy ) {
+           continue;
+        }
+
+        // Recurse if we're merging plain objects or arrays
+        if ( copy && ( copy.constructor == Object || (copyIsArray = (_.isArr(copy))) ) ) {
+          if ( copyIsArray ) {
+            copyIsArray = false;
+            clone = src && (_.isArr(constructor)) ? src : [];
+          } else {
+            clone = src && (src.constructor == Object) ? src : {};
           }
- 
-          // Recurse if we're merging plain objects or arrays
-          if ( deep && copy && ( copy.constructor == Object || (copyIsArray = (type(copy) == 'a')) ) ) {
-            if ( copyIsArray ) {
-              copyIsArray = false;
-              clone = src && (type(constructor) == 'a') ? src : [];
-            } else {
-              clone = src && (src.constructor == Object) ? src : {};
-            }
- 
-            // Never move original objects, clone them
-            target[ name ] = extend( deep, clone, copy );
- 
-          // Don't bring in undefined values
-          } else if ( copy !== undefined ) {
-            target[ name ] = copy;
-          }
+
+          // Never move original objects, clone them
+          target[ name ] = extend( clone, copy );
+
+        // Don't bring in undefined values
+        } else if ( copy !== undefined ) {
+          target[ name ] = copy;
         }
       }
     }
  
     // Return the modified object
     return target;
-  };
+  }
 
   function kvarg(which){
     var ret = {};
@@ -400,7 +387,7 @@
       return function(arg0, arg1) {
         var ret, expr;
 
-        if(type( arg0 ) == 's') {
+        if(_.isStr( arg0 )) {
           expr = arg0;
           // There are TWO types of lambda function here (I'm not using the
           // term 'closure' because that means something else)
@@ -436,7 +423,7 @@
             }
           }
 
-          if(arguments.length == 2 && type(arg1) == 's') {
+          if(arguments.length == 2 && _.isStr(arg1)) {
             ret = {};
             expr = arg1;
             if(!cache[expr]) {
@@ -463,11 +450,11 @@
       filter = this;
     }
 
-    if(filter.constructor == Object) {
+    if(_.isObj(filter)) {
       ret = {};
 
       for(var key in filter) {
-        if(type(filter[key]) != 'f') {
+        if(!_.isFun(filter[key])) {
           ret[key] = callback.call(this, filter[key]);
         }
       }
@@ -544,17 +531,16 @@
   // in a language such as Java or C++ should
   // go above!!!!
   //
-  window.DB = function(arg0, arg1){
+  self.DB = function(arg0, arg1){
     var 
       constraints = {},
       ixlast = 0,
-      funcMap = {},
       syncList = [],
       stainer = _unsafe ? unsafe_stain : safe_stain,
       raw = [];
 
     function sync() {
-      for(var ix = 0; ix < syncList.length; ix++) {
+      for(var i = 0, len = syncList.length; i < len; i++) {
         syncList[ix].call(ret, raw);
       }
     }
@@ -574,18 +560,10 @@
     ret.each = eachApply;
     ret.map = list2obj;
 
-    ret.setattrib = function(key, callback) {
-      funcMap[key] = callback;
-    }
-
-    ret.get = function(key) {
-      return funcMap[key].call(ret, raw);
-    }
-
     ret.group = function(field) {
       var groupMap = {};
 
-      if(this instanceof Array) {
+      if(_.isArr(this)) {
         filter = this;
       } else {
         filter = ret.find();
@@ -613,16 +591,16 @@
         order,
         filter;
 
-      if(type(arg0) == 'f') {
+      if(_.isFun(arg0)) {
         fnSort = arg0;
-      } else if(type(arg0) == 's') {
+      } else if(_.isStr(arg0)) {
         key = arg0;
 
         if(len == 1) {
           order = 'x - y';
         } else if(len == 2) {
 
-          if(type(arg1) == 's') {
+          if(_.isStr(arg1)) {
             if(arg1.toLowerCase() == 'asc') {
               order = 'x - y';
             } else if(arg1.toLowerCase() == 'desc') {
@@ -635,7 +613,7 @@
           }
         }
 
-        if(type(order) == 's') {
+        if(_.isStr(order)) {
           if(! _orderCache[order]) {
             order = _orderCache[order] = new Function('x,y', 'return ' + order);
           } else {
@@ -648,7 +626,7 @@
         }
       }
 
-      if(this instanceof Array) {
+      if(_.isArr(this)) {
         filter = this;
       } else {
         filter = ret.find();
@@ -671,11 +649,11 @@
     }
 
     ret.constrain = function() {
-      constraints = extend(true, constraints, kvarg(arguments)); 
+      constraints = extend(constraints, kvarg(arguments)); 
     }
 
     ret.inverse = function(list) {
-      if(arguments.length == 0 && this instanceof Array) {
+      if(arguments.length == 0 && _.isArr(this)) {
         list = this;
       }
 
@@ -695,22 +673,24 @@
     ret.select = function(field) {
       var 
         filter,
+        len,
         resultList = {};
 
       if(arguments.length > 1) {
         field = slice.call(arguments);
-      } else if (type(field) == 's') {
+      } else if (_.isStr(field)) {
         field = [field];
       }
 
-      if(this instanceof Array) {
+      if(_.isArr(this)) {
         filter = this;
       } else {
         filter = ret.find();
       }
 
-      for(var iy = 0, flen = field.length; iy < flen; iy++) {
-        column = field[iy];
+      len = field.length;
+      
+      each(field, function(column) {
 
         for(var ix = 0, len = filter.length; ix < len; ix++) {
           row = filter[ix];
@@ -718,7 +698,7 @@
           if(column == '*') {
             resultList[ix] = values(row);
           } else if(column in row){
-            if(flen > 1) {
+            if(len > 1) {
               if(!resultList[ix]) {
                 resultList[ix] = [];
               }
@@ -728,7 +708,7 @@
             }
           }
         }
-      }
+      });
       
       return chain(values(resultList));
     }
@@ -741,7 +721,7 @@
 
       if(arguments.length > 1) {
         toInsert = slice.call(arguments);
-      } else if (type(param) == 'a') {
+      } else if (_.isArr(param)) {
         toInsert = param;
       } else {
         toInsert.push(param);
@@ -771,7 +751,7 @@
             raw.push(which);
           } else {
             data = new (secret())();
-            extend(true, data, which);
+            extend(data, which);
             raw.push(data);
           }
         } catch(ex) {
@@ -807,7 +787,7 @@
         list,
         key;
 
-      if(this instanceof Array) {
+      if(_.isArr(this)) {
         list = simplecopy(this);
       } else {
         list = ret.find();
@@ -815,7 +795,7 @@
 
       // This permits update(key, value) on a chained find
       if( arguments.length == 2 && 
-          type(newvalue) == 's'
+          _.isStr(newvalue)
         ) {
 
         // Store the key string
@@ -828,7 +808,7 @@
       }
 
       each(newvalue, function(key, value) {
-        if(type( value ) == 'f') {
+        if(_.isFun( value )) {
           each(list, function(which) {
             which[key] = value(which);
           });
@@ -849,9 +829,9 @@
         list,
         save = [];
 
-      if(this instanceof Array) {
+      if(_.isArr(this)) {
         list = this;
-      } else if(constraint instanceof Array) {
+      } else if(_.isArr(constraint)) {
         list = constraint;
       } else if(arguments.length > 0){
         list = ret.find(constraint);
@@ -888,12 +868,10 @@
 
     // The ability to import a database from somewhere
     if (arguments.length == 1) {
-      switch(type(arg0)) {
-        case 'a': ret.insert(arg0); break;
-        case 'f': ret.insert(arg0()); break;
-        case 's': return ret.apply(this, arguments); break;
-        case 'o': ret.insert(arg0); break;
-      }
+      if(_.isArr(arg0)) { ret.insert(arg0) }
+      else if(_.isFun(arg0)) { ret.insert(arg0()) }
+      else if(_.isStr(arg0)) { return ret.apply(this, arguments) }
+      else if(_.isObj(arg0)) { ret.insert(arg0) }
     } else if(arguments.length > 1) {
       ret.insert(slice.call(arguments));
     }
@@ -903,17 +881,16 @@
     return ret;
   }
 
-  window.DB.isin = isin;
-  window.DB.find = find;
-  window.DB.has = has;
-  window.DB.type = type;
-  window.DB.each = eachApply;
-  window.DB.values = values;
-  window.DB.ilike = window.DB.like = like;
-  window.DB.unsafe = function() { _unsafe = true; }
+  self.DB.isin = isin;
+  self.DB.find = find;
+  self.DB.has = has;
+  self.DB.each = eachApply;
+  self.DB.values = values;
+  self.DB.ilike = self.DB.like = like;
+  self.DB.unsafe = function() { _unsafe = true; }
 
 
-  window.DB.reduceLeft = function(initial, oper) {
+  self.DB.reduceLeft = function(initial, oper) {
     var lambda = new Function("ref,x", "return ref " + oper);
 
     return function(list) {
@@ -931,7 +908,7 @@
     }
   }
 
-  window.DB.reduceRight = function(initial, oper) {
+  self.DB.reduceRight = function(initial, oper) {
     var lambda = new Function("ref,x", "return ref " + oper);
 
     return function(list) {
