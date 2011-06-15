@@ -1,35 +1,59 @@
 <!doctype html>
 <style>
   body{background:rgb(180,180,190)}
-  body > div{background:rgb(240,240,255);margin:20px;padding:20px;border:8px solid rgb(150,150,180)}
-h4{margin:0.25em 0}
-body{font-family:sans-serif}
-h1 a{color:white;text-decoration:none}
-.log{
-  border-radius: 6px;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  background:#ddd;padding:10px;margin:0px 5px 17px 0;max-width:600px}
-div span{margin:0 0.5em;display:block}
-  h1{margin:-20px -20px 20px -20px;
+
+  body > div{
+    background:rgb(240,240,255);
+    margin:20px;
+    padding:20px;
+    border:8px solid rgb(150,150,180)
+  }
+
+  h4{margin:0.25em 0}
+
+  body{font-family:sans-serif}
+
+  h1 a{
+    color:white;
+    text-decoration:none
+  }
+
+  .log{
+    border-radius: 6px;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    background:#ddd;
+    padding:10px;
+    margin:0px 5px 17px 0;
+    max-width:600px
+  }
+
+  div span{
+    margin:0 0.5em;
+    display:block
+  }
+
+  h1{
+    margin:-20px -20px 20px -20px;
 
     color:white;
     padding:5px 20px;display:block;
     -moz-box-shadow: 0 0 5px 5px rgb(80,80,100);
     text-shadow: 0 2px 5px rgb(80,80,100);
 
-background-image: -webkit-gradient(
-    linear,
-    left bottom,
-    left top,
-    color-stop(0.25, rgb(165,165,165)),
-    color-stop(0.63, rgb(198,198,230))
-);
-background-image: -moz-linear-gradient(
-    center bottom,
-    rgb(165,165,164) 25%,
-    rgb(190,190,210) 63%
-);
+    background-image: -webkit-gradient(
+        linear,
+        left bottom,
+        left top,
+        color-stop(0.25, rgb(165,165,165)),
+        color-stop(0.63, rgb(198,198,230))
+    );
+    background-image: -moz-linear-gradient(
+        center bottom,
+        rgb(165,165,164) 25%,
+        rgb(190,190,210) 63%
+    );
+  }
 </style>
 <body onload=test()>
 <div id=main>
@@ -110,6 +134,7 @@ background-image: -moz-linear-gradient(
       .order('age', 'asc')
       .select('first', 'age')
       .each(function(res) { return res[0] + ' is ' + res[1] });
+
 
     log('Ordering people by age ascending, and emitting output in a formatted way', res.join('<br>'));
 

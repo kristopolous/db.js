@@ -307,6 +307,25 @@ After all those steps are done, then you can <button onclick=performance()>try</
           assert('db.__raw__[0].key2 == "value2"');
           assert('db.__raw__[1].key1 == "value3"');
         }
+      },
+      { name: 'sync-1',
+        description: 'insert-3, register a sync, then remove-3',
+        test: function() {
+          run('update-1');
+          var ival = setTimeout(function(){
+            assert(false);
+          }, 1000);
+
+          db.sync(function(){
+            clearTimeout(ival);
+            assert(true);
+          });
+
+          db.find({
+            key9: false,
+            key1: 0
+          }).remove();
+        }
       }
     ]);
   }

@@ -4,11 +4,9 @@
     // prototypes and short cuts
     slice = Array.prototype.slice,  
     toString = Object.prototype.toString,
-    array = [],
 
     // system variables
     _unsafe = false,
-    _speed = false,
 
     // system caches
     _orderCache = {},
@@ -18,7 +16,7 @@
       // from underscore.js {
       isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
       isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
-      isArr: array.isArr ? Array.isArr : function(obj) { return toString.call(obj) === '[object Array]' },
+      isArr: Array.prototype.isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       // } end underscore.js
       // from jquery 1.5.2's type
       isObj: function( obj ){
@@ -26,43 +24,73 @@
           String( obj ) == 'object' : 
           toString.call(obj) === '[object Object]' || true ;
       }
-    };
+    },
 
+    // functions that may have native shortcuts
+    indexOf = Array.prototype.indexOf ? 
+      function(array, item) { 
+        return array.indexOf(item) 
+      } :
 
-  function each(obj, cb) {
-    if (_.isArr(obj)) {
-      for ( var i = 0, len = obj.length; i < len; i++ ) { 
-        cb(obj[i], i);
-      }
-    } else {
+      function(array, item) {
+        for(var i = array.length - 1; 
+          (i != -1) && (item != array[i]);
+          i--
+        );
+
+        return i;
+      },
+
+    keys = Object.prototype.keys || function (obj) {
+      var ret = [];
+
       for(var key in obj) {
-        cb(key, obj[key]);
+        ret.push(key);
       }
-    }
-  }
 
-  function values(obj) {
-    var ret = [];
+      return ret;
+    },
 
-    for(var key in obj) {
-      ret.push(obj[key]);
-    }
+    map = Array.prototype.map ?
+      function(array, cb) { 
+        return array.map(cb) 
+      } : 
 
-    return ret;
-  }
+      function(array, cb) {
+        var ret = [];
+
+        for ( var i = 0, len = obj.length; i < len; i++ ) { 
+          ret.push(cb(obj[i], i));
+        }
+
+        return ret;
+      },
+
+    // each is a complex one
+    each = Array.prototype.forEach ?
+      function (obj, cb) {
+        if (_.isArr(obj)) { 
+          obj.forEach(cb);
+        } else {
+          for( var key in obj ) {
+            cb(key, obj[key]);
+          }
+        }
+      } :
+
+      function (obj, cb) {
+        if (_.isArr(obj)) {
+          for ( var i = 0, len = obj.length; i < len; i++ ) { 
+            cb(obj[i], i);
+          }
+        } else {
+          for( var key in obj ) {
+            cb(key, obj[key]);
+          }
+        }
+     };
 
 
-  // native fallback inspired from underscore.js
-  var indexOf = array.indexOf ? 
-    function(array, item) { return array.indexOf(item) } :
-    function(array, item) {
-      for(var i = array.length - 1; 
-        (i != -1) && (item != array[i]);
-        i--
-      );
-
-      return i;
-    }
 
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
@@ -70,15 +98,9 @@
   function has(param1, param2) {
     var 
       len = arguments.length,
+      compare = len == 1 ? param1 : param2,
       callback,
-      compare,
       obj = {};
-
-    if(len == 1) {
-      compare = param1;
-    } else if(len == 2){
-      compare = param2;
-    } 
 
     if(_.isArr(compare)) {
       var len = compare.length;
@@ -109,7 +131,8 @@
   }
 
   function simplecopy(obj) {
-    return _.isArr(obj) ? obj.slice() : values(obj);
+    // we need to call slice for array-like objects, such as the dom
+    return obj.length ? slice.call(obj) : values(obj);
   }
 
   function find() {
@@ -120,11 +143,13 @@
 
       which,
 
-      internal = _.isArr(this);
+      // The indices
+      end,
+      sliceix,
+      ix,
 
-    var end, spliceix, ix;
-    // The dataset to compare against
-    var set = simplecopy(internal ? this : filterList.shift());
+      // The dataset to compare against
+      set = simplecopy(_.isArr(this) ? this : filterList.shift());
 
     if( filterList.length == 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
@@ -135,6 +160,7 @@
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
       filter = filterList[filterIx];
+
       if(_.isFun(filter)) {
         var callback = filter.single;
 
@@ -176,7 +202,9 @@
               which = set[ix];
 
               // Check for existence
-              if( ! (key in which && which[key] === value ) ) continue;
+              if( ! (key in which && which[key] === value ) ) {
+                continue;
+              }
 
               if(end - (ix + 1)) {
                 spliceix = ix + 1;
@@ -211,6 +239,7 @@
       // to see if the value in the database is part of the user supplied funciton
       if(compare.length){
         if(_unsafe && compare.length < 10) {
+
           // This is totally unsafe
           var regex = new RegExp('^(' + compare.join('|') + ')$');
           callback = function(x) { return regex.test(x); };
@@ -259,7 +288,9 @@
 
     query = query.toString().toLowerCase();
 
-    compare = function(x) { return x.toString().toLowerCase().search(query) > -1; };
+    compare = function(x) { 
+      return x.toString().toLowerCase().search(query) > -1; 
+    }
 
     if(len == 2) {
       obj = {};
@@ -273,8 +304,9 @@
   // An encapsulator for hiding internal variables
   function secret() {
     var cache = {};
-    return function(arg0,arg1){
-      if (arguments.length == 1) { return cache[arg0];}
+
+    return function(arg0, arg1){
+      if (arguments.length == 1) { return cache[arg0]; }
       if (arguments.length == 2) { cache[arg0] = arg1; }
     };
   }
@@ -286,6 +318,7 @@
 
   function list2obj(list) {
     var ret = {};
+
     each(list, function(which) {
       ret[which] = true;
     });
@@ -293,20 +326,15 @@
     return ret;
   }
 
-  var keys = Object.keys ? 
-    Object.keys : 
-    function (obj) {
-      var ret = [];
+  function values(obj) {
+    var ret = [];
 
-      for(var key in obj) {
-        ret.push(key);
-      }
-
-      return ret;
+    for(var key in obj) {
+      ret.push(obj[key]);
     }
 
-  var obj2list = keys;
-
+    return ret;
+  }
 
   function setdiff(larger, subset) {
     larger = list2obj(larger);
@@ -384,6 +412,7 @@
 
     // A closure is needed here to avoid mangling pointers
     return function (){
+
       return function(arg0, arg1) {
         var ret, expr;
 
@@ -450,7 +479,9 @@
       filter = this;
     }
 
-    if(_.isObj(filter)) {
+    if(_.isArr(filter)) {
+      ret = map(filter, callback);
+    } else {
       ret = {};
 
       for(var key in filter) {
@@ -458,11 +489,7 @@
           ret[key] = callback.call(this, filter[key]);
         }
       }
-    } else {
-      each(filter, function(){
-        ret.push(callback.apply(this, arguments));
-      });
-    }
+    } 
 
     return ret;
   }
@@ -489,9 +516,11 @@
 
     pub.isStained = function(obj) {
       var ret = obj[stainid];
+
       if(ret) {
         delete obj[stainid];
       }
+
       return ret;
     }
     return pub;
@@ -520,7 +549,7 @@
   stainer = safe_stain;
 
   // the list of functions to chain
-  var chainList = list2obj('has isin map group remove update where select find order each like ilike'.split(' '));
+  var chainList = list2obj('has isin group remove update where select find order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -541,7 +570,7 @@
 
     function sync() {
       for(var i = 0, len = syncList.length; i < len; i++) {
-        syncList[ix].call(ret, raw);
+        syncList[i].call(ret, raw);
       }
     }
 
@@ -556,9 +585,8 @@
     var ret = expression();
     ret.isin = isin;
     ret.has = has;
-    ret.ilike = ret.like = like;
+    ret.like = like;
     ret.each = eachApply;
-    ret.map = list2obj;
 
     ret.group = function(field) {
       var groupMap = {};
@@ -690,21 +718,22 @@
 
       len = field.length;
       
-      each(field, function(column) {
+      each(field, function(column, iy) {
+        if(column == '*') {
+          resultList = map(filter, values);
+        } else {
+          for(var ix = 0, len = filter.length; ix < len; ix++) {
+            row = filter[ix];
 
-        for(var ix = 0, len = filter.length; ix < len; ix++) {
-          row = filter[ix];
-
-          if(column == '*') {
-            resultList[ix] = values(row);
-          } else if(column in row){
-            if(len > 1) {
-              if(!resultList[ix]) {
-                resultList[ix] = [];
+            if(column in row){
+              if(len > 1) {
+                if(!resultList[ix]) {
+                  resultList[ix] = [];
+                }
+                resultList[ix][iy] = row[column];
+              } else {
+                resultList[ix] = row[column];
               }
-              resultList[ix][iy] = row[column];
-            } else {
-              resultList[ix] = row[column];
             }
           }
         }
@@ -886,12 +915,12 @@
   self.DB.has = has;
   self.DB.each = eachApply;
   self.DB.values = values;
-  self.DB.ilike = self.DB.like = like;
+  self.DB.like = like;
   self.DB.unsafe = function() { _unsafe = true; }
 
 
   self.DB.reduceLeft = function(initial, oper) {
-    var lambda = new Function("ref,x", "return ref " + oper);
+    var lambda = new Function("y,x", "return y " + oper);
 
     return function(list) {
       var 
@@ -909,7 +938,7 @@
   }
 
   self.DB.reduceRight = function(initial, oper) {
-    var lambda = new Function("ref,x", "return ref " + oper);
+    var lambda = new Function("y,x", "return y " + oper);
 
     return function(list) {
       var 
@@ -923,6 +952,4 @@
       return reduced;
     }
   }
-
-
 })();
