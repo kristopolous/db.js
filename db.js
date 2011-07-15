@@ -93,6 +93,7 @@
           }
         }
      };
+   
 
   // We create basic comparator prototypes to avoid evals
   each('< <= > >= == === != !=='.split(' '), function(which) {
@@ -152,11 +153,15 @@
       filterIx,
 
       which,
+      val,
 
       // The indices
       end,
       sliceix,
       ix,
+
+      // Cached result
+      cached = {},
 
       // The dataset to compare against
       set = simplecopy(_.isArr(this) ? this : filterList.shift());
@@ -173,9 +178,13 @@
 
       if(_.isFun(filter)) {
         var callback = filter.single;
+        cached = {};
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
-          if(!callback(set[ix])) { continue }
+          which = set[ix];
+          if(which in cached) {
+            if(!cached[which]) { continue }
+          } else if(!(cached[which] = callback(which))) { continue }
 
           if(end - (ix + 1)) {
             spliceix = ix + 1;
@@ -192,12 +201,20 @@
         each(filter, function(key, value) {
 
           if( _.isFun(value)) {
+            cached = {};
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
               // Check for existence
               if( key in which ) {
-                if( !value(which[key], which) ) { continue }
+                val = which[key];
+                if( ! value(val, which) ) { continue }
+                /*
+                if(cached[val] === false) { continue }
+                if(cached[val] === undefined) {
+                  if( !(cached[val] = value(val, which)) ) { continue }
+                }
+                */
 
                 if(end - (ix + 1)) {
                   spliceix = ix + 1;
@@ -944,15 +961,10 @@
         list,
         save = [];
 
-      if(_.isArr(this)) {
-        list = this;
-      } else if(_.isArr(constraint)) {
-        list = constraint;
-      } else if(arguments.length > 0){
-        list = ret.find(constraint);
-      } else {
-        list = ret.find();
-      }
+      if(_.isArr(this)) { list = this; } 
+      else if(_.isArr(constraint)) { list = constraint; } 
+      else if(arguments.length > 0){ list = ret.find(constraint); } 
+      else { list = ret.find(); }
 
       var uid = stainer.stain(list);
 
