@@ -5,11 +5,15 @@
     slice = Array.prototype.slice,  
     toString = Object.prototype.toString,
 
+    _DB,
+
     // system variables
     _unsafe = false,
 
     // system caches
     _orderCache = {},
+
+    _compProto = {},
 
     // type checking system
     _ = {
@@ -90,7 +94,13 @@
         }
      };
 
-
+  // We create basic comparator prototypes to avoid evals
+  each('< <= > >= == === != !=='.split(' '), function(which) {
+    _compProto[which] = Function(
+      'rhs',
+      'return function(x) { return x' + which + 'rhs }'
+    )
+  });
 
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
@@ -107,7 +117,7 @@
 
       // This becomes O(N * M)
       callback = function(key) {
-        for(ix = 0; ix < len; ix++) {
+        for(var ix = 0; ix < len; ix++) {
           if (indexOf(key, compare[ix]) > -1) {
             return true;
           }
@@ -302,12 +312,12 @@
   }
 
   // An encapsulator for hiding internal variables
-  function secret() {
-    var cache = {};
+  function secret(x) {
+    var cache = {x:x};
 
     return function(arg0, arg1){
-      if (arguments.length == 1) { return cache[arg0]; }
       if (arguments.length == 2) { cache[arg0] = arg1; }
+      return cache[arg0];
     };
   }
 
@@ -408,7 +418,10 @@
   }
 
   var expression = (function(){
-    var cache = {};
+    var 
+      regex = /^\s*([=<>!]+)['"]*(.*)$/,
+      canned,
+      cache = {};
 
     // A closure is needed here to avoid mangling pointers
     return function (){
@@ -436,6 +449,7 @@
           // expreessive usage.
           if(arguments.length == 1) {
             if(!cache[expr]) {
+
               try {
                 ret = new Function("x, record", "return x " + expr);
               } catch(ex) {
@@ -455,9 +469,18 @@
           if(arguments.length == 2 && _.isStr(arg1)) {
             ret = {};
             expr = arg1;
+
+            // See if we've seen this function before
             if(!cache[expr]) {
-              cache[expr] = new Function("x, record", "return x " + expr);
-            }
+
+              // If we haven't, see if we can avoid an eval
+              if((canned = expr.match(regex)) !== null) {
+                cache[expr] = _compProto[canned[1]](canned[2].replace(/['"]$/, ''));
+              } else {      
+                // if not, fall back on it 
+                cache[expr] = new Function("x, record", "return x " + expr);
+              }
+            } 
             ret[arg0] = cache[expr];
           }
 
@@ -560,13 +583,70 @@
   // in a language such as Java or C++ should
   // go above!!!!
   //
-  self.DB = function(arg0, arg1){
+  self.DB = _DB = function(arg0, arg1){
     var 
       constraints = {},
       ixlast = 0,
       syncList = [],
       stainer = _unsafe ? unsafe_stain : safe_stain,
+      _indexCache = {},
+      _indexLock = false,
+      _indexQueue = [],
       raw = [];
+
+    raw._indexCache = _indexCache;
+
+    function deindex(objList) {
+      return objList;
+      // not ready yet
+      _indexLock = true;
+      setTimeout(function(){
+        each(objList, function(record) {
+          var ix = record.constructor('x');
+          each(record, function(k, v) {
+            if(! _indexCache[k] ) { return }
+            if(! _indexCache[k][v] ) { return }
+            if( _indexCache[k][v][ix] ) {
+              delete _indexCache[k][v][ix]
+            }
+          });
+        });
+        _indexLock = false;
+
+        while(_indexQueue.length) { (_indexQueue.pop()); }
+      },0);
+      return objList;
+    }
+
+    function reindex(objList) {
+      return objList;
+      // not ready yet
+      setTimeout(function(){
+        function _reindex () {
+          each(objList, function(record) {
+            var ix = record.constructor('x');
+            each(record, function(k, v) {
+              if(! _indexCache[k] ) {
+                _indexCache[k] = {};
+              }
+              if (! _indexCache[k][v] ) {
+                _indexCache[k][v] = {};
+              }
+              if(! _indexCache[k][v][ix] ) {
+                _indexCache[k][v][ix] = true;
+              }
+            });
+          });
+        }
+        if(_indexLock) {
+          _indexQueue.push(_reindex);
+        } else {
+          _reindex();
+        }
+      },0);
+
+      return objList;
+    }
 
     function sync() {
       for(var i = 0, len = syncList.length; i < len; i++) {
@@ -664,12 +744,9 @@
     }
 
     function list2data(list) {
-      var 
-        ix = 0,
-        len = list.length,
-        ret = [];
+      var ret = [];
 
-      for(; ix < len; ix++) {
+      for(var ix = 0, len = list.length; ix < len; ix++) {
         ret[ix] = raw[list[ix]];
       }
 
@@ -779,7 +856,7 @@
           if(_unsafe) {
             raw.push(which);
           } else {
-            data = new (secret())();
+            data = new (secret(ix))();
             extend(data, which);
             raw.push(data);
           }
@@ -791,7 +868,7 @@
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
           if(!unsafe) {
-            which.constructor = secret();
+            which.constructor = secret(ix);
           }
           raw.push(which);
         }
@@ -800,7 +877,12 @@
       });
 
       sync();
-      return chain(list2data(ixList));
+
+      return chain(
+        reindex(
+          list2data(ixList)
+        )
+      );
     }
 
     // Update allows you to set newvalue to all
@@ -836,6 +918,8 @@
         newvalue[key] = param; 
       }
 
+      deindex(list);
+
       each(newvalue, function(key, value) {
         if(_.isFun( value )) {
           each(list, function(which) {
@@ -849,7 +933,9 @@
       });
 
       sync();
-      return chain(list);
+      return chain(
+        reindex(list)
+      );
     }
 
     ret.remove = function(constraint) {
@@ -891,7 +977,7 @@
       }
 
       sync();
-      return chain(save);
+      return chain(deindex(save));
     }
 
 
@@ -910,16 +996,16 @@
     return ret;
   }
 
-  self.DB.isin = isin;
-  self.DB.find = find;
-  self.DB.has = has;
-  self.DB.each = eachApply;
-  self.DB.values = values;
-  self.DB.like = like;
-  self.DB.unsafe = function() { _unsafe = true; }
+  _DB.isin = isin;
+  _DB.find = find;
+  _DB.has = has;
+  _DB.each = eachApply;
+  _DB.values = values;
+  _DB.like = like;
+  _DB.unsafe = function() { _unsafe = true; }
 
 
-  self.DB.reduceLeft = function(initial, oper) {
+  _DB.reduceLeft = function(initial, oper) {
     var lambda = new Function("y,x", "return y " + oper);
 
     return function(list) {
@@ -937,7 +1023,7 @@
     }
   }
 
-  self.DB.reduceRight = function(initial, oper) {
+  _DB.reduceRight = function(initial, oper) {
     var lambda = new Function("y,x", "return y " + oper);
 
     return function(list) {
@@ -952,4 +1038,5 @@
       return reduced;
     }
   }
+
 })();

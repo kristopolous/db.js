@@ -549,6 +549,7 @@ function validate(t1, t2) {
   }
 }
 
+
 var db;
 self.doperftest = function() {
   var res;
@@ -608,6 +609,7 @@ self.doperftest = function() {
   perfCheck.compute('native set find ');
 
 
+  self.dbBig = db;
   log("Total of all tests: " + perfCheck.total + 'ms');
   document.body.getElementsByTagName('pre')[0].innerHTML = '<div>' + logged.join('</div><div>') + '</div>';
 }

@@ -1,8 +1,6 @@
 # Javascript Database
 
-[Join the mailing list](http://groups.google.com/group/dbjs)
-
-[See the Demo](http://qaa.ath.cx/db/)
+[Join the mailing list](http://groups.google.com/group/dbjs) [See the Demo](http://qaa.ath.cx/db/)
 
 Before you go further, read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker.  My solution although better than Taffy and JLinq seems to not be as good as Mr. Stocker's Jorder.  Perhaps you will like my syntax, or perhaps you will like his speed.
 
