@@ -20,7 +20,7 @@
       // from underscore.js {
       isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
       isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
-      isArr: Array.prototype.isArray || function(obj) { return toString.call(obj) === '[object Array]' },
+      isArr: [].isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       // } end underscore.js
       // from jquery 1.5.2's type
       isObj: function( obj ){
@@ -31,7 +31,7 @@
     },
 
     // functions that may have native shortcuts
-    indexOf = Array.prototype.indexOf ? 
+    indexOf = [].indexOf ? 
       function(array, item) { 
         return array.indexOf(item) 
       } :
@@ -45,7 +45,7 @@
         return i;
       },
 
-    keys = Object.prototype.keys || function (obj) {
+    keys = ({}).keys || function (obj) {
       var ret = [];
 
       for(var key in obj) {
@@ -55,7 +55,7 @@
       return ret;
     },
 
-    map = Array.prototype.map ?
+    map = [].map ?
       function(array, cb) { 
         return array.map(cb) 
       } : 
@@ -71,7 +71,7 @@
       },
 
     // each is a complex one
-    each = Array.prototype.forEach ?
+    each = [].forEach ?
       function (obj, cb) {
         if (_.isArr(obj)) { 
           obj.forEach(cb);
@@ -99,7 +99,7 @@
   each('< <= > >= == === != !=='.split(' '), function(which) {
     _compProto[which] = Function(
       'rhs',
-      'return function(x) { return x' + which + 'rhs }'
+      'return function(x){return x' + which + 'rhs}'
     )
   });
 
@@ -157,7 +157,7 @@
 
       // The indices
       end,
-      sliceix,
+      spliceix,
       ix,
 
       // Cached result
@@ -468,13 +468,13 @@
             if(!cache[expr]) {
 
               try {
-                ret = new Function("x, record", "return x " + expr);
+                ret = new Function("x,rec", "return x " + expr);
               } catch(ex) {
                 ret = {};
               }
 
               try {
-                ret.single = new Function("record", "return " + arg0);
+                ret.single = new Function("rec", "return " + arg0);
               } catch(ex) {}
 
               cache[expr] = ret;
@@ -495,7 +495,7 @@
                 cache[expr] = _compProto[canned[1]](canned[2].replace(/['"]$/, ''));
               } else {      
                 // if not, fall back on it 
-                cache[expr] = new Function("x, record", "return x " + expr);
+                cache[expr] = new Function("x,rec", "return x " + expr);
               }
             } 
             ret[arg0] = cache[expr];
@@ -535,13 +535,10 @@
   }
 
   var unsafe_stain = (function() {
-    var pub = {},
-      seed = [
-        (Math.random() * Math.pow(2, 32)).toString(36),
-        (Math.random() * Math.pow(2, 32)).toString(36)
-      ].join(':'),
-
-      seedid = 0,
+    var 
+      pub = {},
+      seed = (Math.random() * Math.pow(2, 32)).toString(36),
+      seedid = 1,
       stainid;
 
     pub.stain = function(list) {
@@ -722,14 +719,14 @@
         key = arg0;
 
         if(len == 1) {
-          order = 'x - y';
+          order = 'x-y';
         } else if(len == 2) {
 
           if(_.isStr(arg1)) {
             if(arg1.toLowerCase() == 'asc') {
-              order = 'x - y';
+              order = 'x-y';
             } else if(arg1.toLowerCase() == 'desc') {
-              order = 'y - x';
+              order = 'y-x';
             } 
           } 
 
@@ -957,7 +954,7 @@
 
     ret.remove = function(constraint) {
       var 
-        end, spliceix,
+        end, start,
         list,
         save = [];
 
@@ -977,15 +974,15 @@
           continue;
         }
         if(end - (ix + 1)) {
-          spliceix = ix + 1;
-          raw.splice(spliceix, end - spliceix);
+          start = ix + 1;
+          raw.splice(start, end - start);
         }
         end = ix;
       }
 
-      spliceix = ix + 1;
-      if(end - spliceix) {
-        raw.splice(spliceix, end - spliceix);
+      start = ix + 1;
+      if(end - start) {
+        raw.splice(start, end - start);
       }
 
       sync();
