@@ -54,12 +54,6 @@ Just remember these two simple rules:
 1. Do your "SQL where" stuff first.
 2. Everything else second.
 
-## Do I need JQuery or mootools or something like that?
-lolz, no! Of course not. Why would I do something like that?
-
-## Are you using one of those GNU-esque liscenses that prevents me from using it at my place of employment?
-no. Do whatever you want with it; Sell it for profit, fine by me.  I built it for myself.  Do what you want ; so long as you don't try to assume all rights of course; let's call it BSD.
-
 ## Removing all barriers to entry
 I have horrible memory and can never recall how to use an API.  So,
 I think of every possible way that a slouch like me would ever attempt
@@ -224,7 +218,7 @@ with a static array or a callback like so:
 
 A usage scenario may be as follows:
 
-`db.find({months: db.isin(['jan', 'feb', 'march']));`   
+1db.find({months: db.isin(['jan', 'feb', 'march']));`   
 
 #### db.has( multi )
 This is the reverse of has.  If you do
@@ -309,16 +303,16 @@ to do to them.
 Update also can take a callback.  Say you wanted to decrease a reference
 count of some object that matches a set.  You can do
 
-`db
-  .find({ 
-    id: db.isin( set ) 
-  })
-  .update({
-    referenceCounter: function(number) {
-      return number - 1;
-    })
-  });
-'
+    `db
+      .find({ 
+        id: db.isin( set ) 
+      })
+      .update({
+        referenceCounter: function(number) {
+          return number - 1;
+        })
+      });
+    `
 
 ### db.inverse(list)
 Invert a set of results.
@@ -391,6 +385,14 @@ becomes:
 Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
 are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
 large keys for some internal operations.
+
+# NOTES
+
+## Do I need JQuery or mootools or something like that?
+lolz, no! Of course not. Why would I do something like that?
+
+## Are you using one of those GNU-esque liscenses that prevents me from using it at my place of employment?
+no. Do whatever you want with it; Sell it for profit, fine by me.  I built it for myself.  Do what you want ; so long as you don't try to assume all rights of course; let's call it BSD.
 
 ## Caveats
 
