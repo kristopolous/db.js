@@ -791,7 +791,13 @@
     }
 
     ret.findFirst = function(){
-      return find.call(this, slice.call(arguments))[0];
+      var res = ret.find.apply(this, slice.call(arguments));
+
+      if(res.length) { 
+        return res[0];
+      } else {
+        return {};
+      }
     }
 
     ret.select = function(field) {
@@ -840,7 +846,7 @@
 
     ret.insert = function(param) {
       var 
-        block = [],
+        constraintMap = {},
         toInsert = [],
         ixList = [];
 
@@ -856,15 +862,19 @@
       // then we find all the matches to that field and create
       // a block list from them.
       if(constraints.unique) {
-        block = db.find().select(constraints.unique);
+        each(raw, function(data, index){
+          constraintMap[data[constraints.unique]] = index;
+        });
       }
 
       each(toInsert, function(which) {
         // If the unique field has been set then we do
-        // a linear search through the constraints to 
+        // a hash search through the constraints to 
         // see if it's there.
         if(constraints.unique) {
-          if(indexOf(block, which[constraints.unique]) != -1){
+          if(which[constraints.unique] in constraintMap){
+            // put on the existing value
+            ixList.push(constraintMap[which[constraints.unique]]);
             return;
           }
         }
@@ -941,23 +951,28 @@
 
       deindex(list);
 
-      each(newvalue, function(key, value) {
-        if(_.isFun( value )) {
-          // take eacch item from the list (filtered results)
-          // and then apply the value function to it, storing
-          // back the results
-          each(list, function(which) {
-            which[key] = value(which);
-          });
-        } else {
-          // otherwise, assign the static 
-          each(list, function(which) {
-            which[key] = value;
-          });
-        }
-      });
+      if(_.isFun(newvalue)) {
+        each(list, newvalue);
+      } else {
+        each(newvalue, function(key, value) {
+          if(_.isFun( value )) {
+            // take eacch item from the list (filtered results)
+            // and then apply the value function to it, storing
+            // back the results
+            each(list, function(which) {
+              which[key] = value(which);
+            });
+          } else {
+            // otherwise, assign the static 
+            each(list, function(which) {
+              which[key] = value;
+            });
+          }
+        });
+      }
 
       sync();
+
       return chain(
         reindex(list)
       );
@@ -1019,10 +1034,11 @@
   _DB.isin = isin;
   _DB.find = find;
   _DB.has = has;
-  _DB.each = eachApply;
+  _DB.each = eachRun;
   _DB.values = values;
   _DB.like = like;
   _DB.unsafe = function() { _unsafe = true; }
+  _DB.deepcopy = deepcopy;
 
 
   _DB.reduceLeft = function(initial, oper) {
