@@ -507,7 +507,7 @@
     }
   })();
 
-  function eachApply(callback, arg1) {
+  function eachRun(callback, arg1) {
     var 
       ret = [],
       filter;
@@ -533,6 +533,7 @@
 
     return ret;
   }
+
 
   var unsafe_stain = (function() {
     var 
@@ -680,7 +681,7 @@
     ret.isin = isin;
     ret.has = has;
     ret.like = like;
-    ret.each = eachApply;
+    ret.each = eachRun;
 
     ret.group = function(field) {
       var groupMap = {};
@@ -908,6 +909,8 @@
     // is either a set of K/V pairs or a result
     // of find so that you can do something like
     //
+    // You can also run a function on it
+    //
     //   var result = db.find(constraint);
     //   result.update({a: b});
     //
@@ -940,10 +943,14 @@
 
       each(newvalue, function(key, value) {
         if(_.isFun( value )) {
+          // take eacch item from the list (filtered results)
+          // and then apply the value function to it, storing
+          // back the results
           each(list, function(which) {
             which[key] = value(which);
           });
         } else {
+          // otherwise, assign the static 
           each(list, function(which) {
             which[key] = value;
           });

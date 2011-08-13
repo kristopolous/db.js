@@ -205,6 +205,9 @@ However, the one thing that you cannot do (yet) is this:
 I really want this to be possible in a magical safe way and see it
 as one of the primary objectives going forward.
 
+#### db.findFirst( constraint )
+This is a shorthand to find for when you are only expecting one result.
+
 #### db.like( string )
 This is like SQL like command and it takes the value and does
 
@@ -302,6 +305,20 @@ Here's how you pull that off here:
 See again, how you do the noun first, that is, describe the data you
 want to be working on, and then describe the operations that you want
 to do to them.
+
+Update also can take a callback.  Say you wanted to decrease a reference
+count of some object that matches a set.  You can do
+
+`db
+  .find({ 
+    id: db.isin( set ) 
+  })
+  .update({
+    referenceCounter: function(number) {
+      return number - 1;
+    })
+  });
+'
 
 ### db.inverse(list)
 Invert a set of results.
