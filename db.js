@@ -20,6 +20,7 @@
       // from underscore.js {
       isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
       isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
+      isNum: function(obj) { return toString.call(obj) === '[object Number]' },
       isArr: [].isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       // } end underscore.js
       // from jquery 1.5.2's type
@@ -265,12 +266,12 @@
       // If the second argument is an array then we assume that we are looking
       // to see if the value in the database is part of the user supplied funciton
       if(compare.length){
-        if(_unsafe && compare.length < 10) {
+        if(_unsafe && compare.length < 10 ) {
 
           // This is totally unsafe
           var regex = new RegExp('^(' + compare.join('|') + ')$');
           callback = function(x) { return regex.test(x); };
-        } else if(compare.length < 20) {
+        } else if(compare.length < 20 && _.isNum(compare[0])) {
           var key = compare.join(',');
 
           // new Function is faster then eval but it's still slow, so we cache
