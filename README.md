@@ -265,7 +265,9 @@ it's the way it is. Sorry.
 This is more of a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-### db.order(multi)
+### db.order(multi) 
+ *Aliased to db.sort*
+
 This is like SQLs orderby function.  If you pass it just a field, then
 the results are returned in ascending order (x - y).  
 

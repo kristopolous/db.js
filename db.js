@@ -706,7 +706,7 @@
       syncList.push(callback); 
     }
 
-    ret.order = function (arg0, arg1) {
+    ret.order = ret.sort = function (arg0, arg1) {
       var 
         key, 
         fnSort,
