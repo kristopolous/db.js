@@ -789,6 +789,10 @@
         );
     }
 
+    ret.findFirst = function(){
+      return find.call(this, slice.call(arguments))[0];
+    }
+
     ret.select = function(field) {
       var 
         filter,
