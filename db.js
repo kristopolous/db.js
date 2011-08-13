@@ -259,7 +259,7 @@
       var 
         callback,
         len = arguments.length,
-        compare = len == 1 ? param1 : param2,
+        compare = len == 1 ? param1 : (param2 || []),
         obj = {};
 
       // If the second argument is an array then we assume that we are looking
