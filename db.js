@@ -602,7 +602,6 @@
   self.DB = _DB = function(arg0, arg1){
     var 
       constraints = {},
-      ixlast = 0,
       syncList = [],
       stainer = _unsafe ? unsafe_stain : safe_stain,
       _indexCache = {},
@@ -880,7 +879,7 @@
           }
         }
 
-        var ix = ixlast++, data;
+        var ix = raw.length, data;
 
         try {
           if(_unsafe) {
