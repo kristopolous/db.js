@@ -4,6 +4,252 @@
 
 Before you go further, read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker.  My solution although better than Taffy and JLinq seems to not be as good as Mr. Stocker's Jorder.  Perhaps you will like my syntax, or perhaps you will like his speed.
 
+Notice. More introductory detail has now been placed AFTER the API description.
+
+## API
+
+### db.insert( rows )
+This is to insert data into the database.  You can either insert
+data as a list of arguments, as an array, or as a single object.
+
+After you have inserted the data, you are returned references to
+the data you insert.  This allows you to have a function like:
+
+    function my_insert(data) {
+    
+       db.insert({
+          uid: ++my_uid,
+          ...
+          accounting: data
+       }).update( data );
+
+    }
+
+In the function above you have a generic function that inserts data
+and puts in some type of record keeping information and accounting.
+
+Instead of doing a JQuery $.extend or other magic, you can simply insert
+the data you want, then update it with more data.
+
+### db.find( constraint )
+This is like the "where" clause in SQL.  You
+can either invoke it for standard comparison like 
+
+ * `find({key: 'value'})`
+ * `find('key', 'value')`
+
+or you can have a conditional; which is pure magic.
+
+ * `find({key: function(value) { return value < 10; })`
+
+Since that syntax is a bit tedious, there is a shorthand form:
+
+ * `db.find({key: db('< 10')})`
+
+This creates the above function for you.  You can also be even more
+terse with the library, if you are in an inexplicable hurry:
+
+ * `db.find(db('key', '< 10'))`
+
+However, the one thing that you cannot do (yet) is this:
+
+ * `db.find(db('key < 10'))`
+
+I really want this to be possible in a magical safe way and see it
+as one of the primary objectives going forward.
+
+#### db.findFirst( constraint )
+This is a shorthand to find for when you are only expecting one result.
+**Please note that findFirst ALWAYS returns an object.  If there was no match
+then the returned object is empty.**
+
+#### db.like( string )
+This is like SQL like command and it takes the value and does
+
+ `value.toString().toLowerCase().search(query.toString().toLowerCase) > -1`
+
+which is a mouthful.
+
+#### db.isin( multi )
+This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
+with a static array or a callback like so:
+
+ * `db.isin('months', ['jan','feb','march'])`
+ * `db.isin('months', function(){ ... })`
+
+A usage scenario may be as follows:
+
+1db.find({months: db.isin(['jan', 'feb', 'march']));`   
+
+#### db.has( multi )
+This is the reverse of has.  If you do
+
+`db.insert({a: [1, 2, 3]})`
+
+You can do
+
+`db.find({a: db.has(1)})`
+
+### db.remove( constraint )
+This will remove the entries from the database but also return them if
+you want to manipulate them.  You can invoke this with a constraint.
+
+### db.select( field(s) )
+This will extract the values of a particular key from the filtered list
+and then return it as an array or an array of arrays, depending on
+which is relevant for the query.
+
+You can also do db.select(' * ') to retrieve all fields, although the 
+key values of these fields aren't currently being returned.
+
+You can do 
+
+ * `select('one', 'two')`
+ * `select(['one', 'two'])`
+
+But not:
+
+ * `select('one,two')`
+
+Since ',' is actually a valid character for keys in objects.  Yeah,
+it's the way it is. Sorry.
+
+#### db.each(function)
+This is more of a convenience on select for when you do select('one','two')
+and then you want to format those fields.  The example file included in the git repo has a usage of this.
+
+#### db.reduceLeft(list, function)
+This does a traditional list-reduction on a list
+as popular in list comprehension suites common in 
+functional programming.
+
+#### db.reduceRight(list, function)
+This does a traditional right-reduction on a list
+as popular in list comprehension suites common in 
+functional programming.
+
+### db.order(multi) 
+ *Aliased to db.sort*
+
+This is like SQLs orderby function.  If you pass it just a field, then
+the results are returned in ascending order (x - y).  
+
+You can also supply a second parameter of a case insensitive "asc" and "desc" like in SQL.
+
+Summary:
+
+ * `order('key')`
+ * `order('key', 'asc')`
+ * `order('key', 'desc')`
+
+**Note that the invocation styles above don't work on String values by default as of now.**
+
+#### Callback based ordering
+You can also do callback based sorting like so:
+
+ * `order('key', function(x, y) { return x - y } )`
+ * `order(function(a, b) { return a[key] - b[key] })`
+ * `order('key', 'x - y')` *see below*
+
+It's worth noting that if you are using the last invocation style, the
+first parameter is going to be x and the second one, y.
+
+### db.update(field)
+Update allows you to set newvalue to all
+parameters matching constraint where constraint
+is either a set of K/V pairs or a result
+of find so that you can do something like
+
+Update also can take a callback.  Say you wanted to decrease a reference
+count of some object that matches a set.  You can do
+
+    db
+      .find({ 
+        id: db.isin( set ) 
+      })
+      .update({
+        referenceCounter: function(number) {
+          return number - 1;
+        })
+      });
+
+### db.inverse(list)
+Invert a set of results.
+
+### db.constrain(type, value)
+This is to constrain the database.  Currently you can enforce a unique
+key value through something like `db.constrain('unique', 'somekey')`.
+You should probably run this early, as unlike in RDBMSs, it doesn't do
+a historical check nor does it create a optimized hash to index by
+this key ... it just does a lookup every time as of now.
+
+### db.sync(callback)
+To store the data when it is updated, you define a "sync" function.  Using our
+jStorage example from above, we would 'sync' back to by doing the following:
+
+`db.sync( function(data) { $.jStorage.set('government-secrets', data); } )`
+
+The example file includes a synchronization function that logs to screen
+when it is run so you can see when this function would be called.  Basically
+it is done at the END of a function call, regardless of invocation.  That is
+to say, that if you update 10 records, or insert 20, or remove 50, it would be
+run, once, once, and once respectively.
+
+## Persistance and Synchronization
+### Loading
+What if you have an existing database from somewhere and you want to import
+your data when you load the page.  You can supply the data to be imported
+as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
+you could initialize the database as follows:
+
+`var db = DB($.jStorage.get('government-secrets'));`
+
+## Storing
+See db.sync.
+
+## Examples
+### Creation and Insertion
+Lets start with a trivial example; we will create a database and then
+just add the object `{key: value}` into it.
+
+    var db = DB();
+    db.insert({key: value});
+
+Now let's say we want to insert `{one: 1, two: 2}` into it
+
+`db.insert({one: 1, two: 2})`
+
+Alright, let's say that we want to do this all over again and now insert
+both fields in.  We can do this a few ways:
+
+1. As two arguments: `db.insert({key: value}, {one: 1, two: 2});`
+2. As an array: `db.insert([{key: value}, {one: 1, two: 2}]);`
+3. Or even chained: `db.insert({key: value}).insert({one: 1, two: 2});`
+
+
+
+## SQL => DB examples
+`remove from users where lastlogin = false` => `users.find({lastlogin: false}).remove();`
+
+    select * from people where id in (
+       select id from addresses where city like 'los angeles'
+    ) order by income asc limit 10 offset 1
+
+becomes:
+
+    people.find({ id: DB.isin(
+       addresses.find( DB.like('city', 'los angeles') ).select('id')
+    }).order('income').slice(1, 10)
+
+
+
+### DB.unsafe()
+Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
+are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
+large keys for some internal operations.
+
+# NOTES
+
 ## This will be painless, I assure you.
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
@@ -146,251 +392,6 @@ db.js works via references.  That is to say that if you do the following:
 
 Then the record in the DB also now has a:2.  People familiar with ORMs should find this
 comforting.  But it may also lead to some unexpected operations.
-
-## API
-
-### db.insert( rows )
-This is to insert data into the database.  You can either insert
-data as a list of arguments, as an array, or as a single object.
-
-After you have inserted the data, you are returned references to
-the data you insert.  This allows you to have a function like:
-
-    function my_insert(data) {
-    
-       db.insert({
-          uid: ++my_uid,
-          ...
-          accounting: data
-       }).update( data );
-
-    }
-
-In the function above you have a generic function that inserts data
-and puts in some type of record keeping information and accounting.
-
-Instead of doing a JQuery $.extend or other magic, you can simply insert
-the data you want, then update it with more data.
-
-### db.find( constraint )
-This is like the "where" clause in SQL.  You
-can either invoke it for standard comparison like 
-
- * `find({key: 'value'})`
- * `find('key', 'value')`
-
-or you can have a conditional; which is pure magic.
-
- * `find({key: function(value) { return value < 10; })`
-
-Since that syntax is a bit tedious, there is a shorthand form:
-
- * `db.find({key: db('< 10')})`
-
-This creates the above function for you.  You can also be even more
-terse with the library, if you are in an inexplicable hurry:
-
- * `db.find(db('key', '< 10'))`
-
-However, the one thing that you cannot do (yet) is this:
-
- * `db.find(db('key < 10'))`
-
-I really want this to be possible in a magical safe way and see it
-as one of the primary objectives going forward.
-
-#### db.findFirst( constraint )
-This is a shorthand to find for when you are only expecting one result.
-**Please note that findFirst ALWAYS returns an object.  If there was no match
-then the returned object is empty.**
-
-#### db.like( string )
-This is like SQL like command and it takes the value and does
-
- `value.toString().toLowerCase().search(query.toString().toLowerCase) > -1`
-
-which is a mouthful.
-
-#### db.isin( multi )
-This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
-with a static array or a callback like so:
-
- * `db.isin('months', ['jan','feb','march'])`
- * `db.isin('months', function(){ ... })`
-
-A usage scenario may be as follows:
-
-1db.find({months: db.isin(['jan', 'feb', 'march']));`   
-
-#### db.has( multi )
-This is the reverse of has.  If you do
-
-`db.insert({a: [1, 2, 3]})`
-
-You can do
-
-`db.find({a: db.has(1)})`
-
-
-#### But dude, why do I have to do this db() crap?
-That's because `key < 10` is actually a valid string, of course. It
-gives rise to the ambiguity, "is that an expression?".  Wrapping it
-removes this ambiguity so that you don't have collisions.
-
-### db.remove( constraint )
-This will remove the entries from the database but also return them if
-you want to manipulate them.  You can invoke this with a constraint.
-
-### db.select( field(s) )
-This will extract the values of a particular key from the filtered list
-and then return it as an array or an array of arrays, depending on
-which is relevant for the query.
-
-You can also do db.select(' * ') to retrieve all fields, although the 
-key values of these fields aren't currently being returned.
-
-You can do 
-
- * `select('one', 'two')`
- * `select(['one', 'two'])`
-
-But not:
-
- * `select('one,two')`
-
-Since ',' is actually a valid character for keys in objects.  Yeah,
-it's the way it is. Sorry.
-
-#### db.each(function)
-This is more of a convenience on select for when you do select('one','two')
-and then you want to format those fields.  The example file included in the git repo has a usage of this.
-
-### db.order(multi) 
- *Aliased to db.sort*
-
-This is like SQLs orderby function.  If you pass it just a field, then
-the results are returned in ascending order (x - y).  
-
-You can also supply a second parameter of a case insensitive "asc" and "desc" like in SQL.
-
-Summary:
-
- * `order('key')`
- * `order('key', 'asc')`
- * `order('key', 'desc')`
-
-**Note that the invocation styles above don't work on String values by default as of now.**
-
-#### Callback based ordering
-You can also do callback based sorting like so:
-
- * `order('key', function(x, y) { return x - y } )`
- * `order(function(a, b) { return a[key] - b[key] })`
- * `order('key', 'x - y')` *see below*
-
-It's worth noting that if you are using the last invocation style, the
-first parameter is going to be x and the second one, y.
-
-### db.update(field)
-In regular SQL you may find yourself doing something like this:
-
-`update employees set fired = true where tardydays > 40`
-
-Here's how you pull that off here:
-
-`employees.find(employees('tardydays', '> 40')).update({fired: true})`
-
-See again, how you do the noun first, that is, describe the data you
-want to be working on, and then describe the operations that you want
-to do to them.
-
-Update also can take a callback.  Say you wanted to decrease a reference
-count of some object that matches a set.  You can do
-
-    db
-      .find({ 
-        id: db.isin( set ) 
-      })
-      .update({
-        referenceCounter: function(number) {
-          return number - 1;
-        })
-      });
-
-### db.inverse(list)
-Invert a set of results.
-
-### db.constrain(type, value)
-This is to constrain the database.  Currently you can enforce a unique
-key value through something like `db.constrain('unique', 'somekey')`.
-You should probably run this early, as unlike in RDBMSs, it doesn't do
-a historical check nor does it create a optimized hash to index by
-this key ... it just does a lookup every time as of now.
-
-## Persistance and Synchronization
-### Loading
-What if you have an existing database from somewhere and you want to import
-your data when you load the page.  You can supply the data to be imported
-as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
-you could initialize the database as follows:
-
-`var db = DB($.jStorage.get('government-secrets'));`
-
-### Storing
-To store the data when it is updated, you define a "sync" function.  Using our
-jStorage example from above, we would 'sync' back to by doing the following:
-
-`db.sync( function(data) { $.jStorage.set('government-secrets', data); } )`
-
-The example file includes a synchronization function that logs to screen
-when it is run so you can see when this function would be called.  Basically
-it is done at the END of a function call, regardless of invocation.  That is
-to say, that if you update 10 records, or insert 20, or remove 50, it would be
-run, once, once, and once respectively.
-
-## Examples
-### Creation and Insertion
-Lets start with a trivial example; we will create a database and then
-just add the object `{key: value}` into it.
-
-    var db = DB();
-    db.insert({key: value});
-
-Now let's say we want to insert `{one: 1, two: 2}` into it
-
-`db.insert({one: 1, two: 2})`
-
-Alright, let's say that we want to do this all over again and now insert
-both fields in.  We can do this a few ways:
-
-1. As two arguments: `db.insert({key: value}, {one: 1, two: 2});`
-2. As an array: `db.insert([{key: value}, {one: 1, two: 2}]);`
-3. Or even chained: `db.insert({key: value}).insert({one: 1, two: 2});`
-
-
-
-## SQL => DB examples
-`remove from users where lastlogin = false` => `users.find({lastlogin: false}).remove();`
-
-    select * from people where id in (
-       select id from addresses where city like 'los angeles'
-    ) order by income asc limit 10 offset 1
-
-becomes:
-
-    people.find({ id: DB.isin(
-       addresses.find( DB.like('city', 'los angeles') ).select('id')
-    }).order('income').slice(1, 10)
-
-
-
-### DB.unsafe()
-Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
-are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
-large keys for some internal operations.
-
-# NOTES
-
 ## Do I need JQuery or mootools or something like that?
 lolz, no! Of course not. Why would I do something like that?
 
