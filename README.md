@@ -144,6 +144,37 @@ Summary:
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 
+### db.group(field)
+This is like SQLs groupby function. It will take results from any other function and then
+return them as a hash where the keys are the field values and the results are an array
+of the rows that match that value.
+
+Example:
+
+  Pretend I had the following data:
+
+    { department: accounting, name: Alice }
+    { department: accounting, name: Bob }
+    { department: IT, name: Eve }
+
+  If I ran the following:
+
+    db.find().group('department')
+
+  I'd get the result:
+
+    {
+      accounting: [
+        { department: accounting, name: Alice }
+        { department: accounting, name: Bob }
+      ]
+      IT: [
+        { department: IT, name: Eve }
+      ]
+    }
+
+There's another example in the test.html file at around line 414
+
 #### Callback based ordering
 You can also do callback based sorting like so:
 

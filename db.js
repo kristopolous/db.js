@@ -702,6 +702,13 @@
     ret.like = like;
     ret.each = eachRun;
 
+    //
+    // group
+    //
+    // This is like SQLs groupby function. It will take results from any other function and then
+    // return them as a hash where the keys are the field values and the results are an array
+    // of the rows that match that value.
+    //
     ret.group = function(field) {
       var groupMap = {};
 
@@ -732,7 +739,9 @@
       syncList.push(callback); 
     }
 
+    //
     // sort
+    //
     // This is like SQLs orderby function.  If you pass it just a field, then
     // the results are returned in ascending order (x - y).  
     //
@@ -803,6 +812,11 @@
       constraints = extend(constraints, kvarg(arguments)); 
     }
 
+    //
+    // inverse
+    //
+    // Invert a set of results.
+    //
     ret.inverse = function(list) {
       if(arguments.length == 0 && _.isArr(this)) {
         list = this;
