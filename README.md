@@ -16,6 +16,7 @@
  * <a href=#initialization>Initialization</a> a new database
  * <a href=#transforming>Transforming</a> existing data
  * <a href=#insert>Insert</a> new records
+ * <a href=#template>Template</a> based insertion
  * <a href=#update>Update</a> exiting records
  * <a href=#remove>Remove</a> records and get a copy of them
  * <a href=#constrain>Constrain</a> insertion by a unique, primary key
@@ -108,6 +109,28 @@ and puts in some type of record keeping information and accounting.
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
 
+<h3><a name=template> Templates </a> [ <a href=#toc-inserting>top</a> ] </h3>
+Templates permit you to have a set of K/V pairs or K/lambda pairs that act as
+a baseline for record insertion.  You can create, update, get, and destroy templates.
+They are not retroactive and only affect insertions that are done after the template
+is created.
+
+The template itself is implicit and modal; applying to all insertions until it is
+modified or removed.
+
+<h5>Creation
+To create a template use template.create( fields )
+
+<h5>Update
+Updating overwrite previous values as specified whilst retaining the old values of
+those which are not.  To update a template use template.update( fields )
+
+<h5>Getting
+You can get the current template with template.get()
+
+<h5>Destroy
+You can destroy a template with template.destroy()
+
 <h3><a name=update> update( field )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all
 parameters matching constraint where constraint
@@ -144,11 +167,11 @@ this key ... it just does a lookup every time as of now.
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
- * `find({key: 'value'})`
- * `find('key', 'value')`
- * `find({key: function(value) { return value < 10; })`
- * `find({key: db('< 10')})`
- * `find(db('key', '< 10'))`
+ * find({key: 'value'})
+ * find('key', 'value')
+ * find({key: function(value) { return value < 10; })
+ * find({key: db('< 10')})
+ * find(db('key', '< 10'))
 
 
 <h4><a name=findFirst> findFirst( constraint )</a> [ <a href=#toc-finding>top</a> ] </h4>
@@ -167,8 +190,8 @@ which is a mouthful.
 This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
- * `db.isin('months', ['jan','feb','march'])`
- * `db.isin('months', function(){ ... })`
+ * db.isin('months', ['jan','feb','march'])
+ * db.isin('months', function(){ ... })
 
 A usage scenario may be as follows:
 
@@ -193,12 +216,12 @@ key values of these fields aren't currently being returned.
 
 You can do 
 
- * `select('one', 'two')`
- * `select(['one', 'two'])`
+ * select('one', 'two')
+ * select(['one', 'two'])
 
 But not:
 
- * `select('one,two')`
+`select('one,two')`
 
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
@@ -238,9 +261,9 @@ You can also supply a second parameter of a case insensitive "asc" and "desc" li
 
 Summary:
 
- * `order('key')`
- * `order('key', 'asc')`
- * `order('key', 'desc')`
+ * order('key')
+ * order('key', 'asc')
+ * order('key', 'desc')
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 
@@ -278,9 +301,9 @@ There's another example in the test.html file at around line 414
 #### Callback based ordering
 You can also do callback based sorting like so:
 
- * `order('key', function(x, y) { return x - y } )`
- * `order(function(a, b) { return a[key] - b[key] })`
- * `order('key', 'x - y')` *see below*
+ * order('key', function(x, y) { return x - y } )
+ * order(function(a, b) { return a[key] - b[key] })
+ * order('key', 'x - y') *see below*
 
 It's worth noting that if you are using the last invocation style, the
 first parameter is going to be x and the second one, y.
