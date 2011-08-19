@@ -260,7 +260,10 @@
     return set;
   }
 
+  // This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
+  // with a static array or a callback
   var isin = (function() {
+    // It has a cache for optimization
     var cache = {};
 
     return function (param1, param2) {
@@ -347,7 +350,7 @@
   }
 
   function deepcopy(from) {
-    //@http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
+    // @http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
     return extend({}, from);
   }
 
@@ -616,6 +619,7 @@
       _indexCache = {},
       _indexLock = false,
       _indexQueue = [],
+      _template = false,
       raw = [];
 
     raw._indexCache = _indexCache;
@@ -700,7 +704,14 @@
     ret.isin = isin;
     ret.has = has;
     ret.like = like;
-    ret.each = eachRun;
+    ret.each = ret.map = eachRun;
+
+    ret.template = {
+      create: function(opt) { _template = opt; },
+      update: function(opt) { extend(_template, opt); },
+      get: function() { return _template },
+      destroy: function() { _template = false }
+    }; 
 
     //
     // group
@@ -946,6 +957,25 @@
         }
 
         var ix = raw.length, data;
+
+        // insert from a template if available
+        if(_template) {
+          var instance = {};
+          
+          // create a template instance that's capable
+          // of holding evaluations
+          each(_template, function(key, value) {
+            if(_.isFun(value)) {
+              instance[ key ] = value();
+            } else {
+              instance[ key ] = value;
+            }
+          });
+
+          // map the values to be inserted upon
+          // the instance of this template
+          which = extend(instance, which);
+        }
 
         try {
           if(_unsafe) {
