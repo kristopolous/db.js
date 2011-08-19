@@ -1,6 +1,6 @@
 <h1><a name=toc> Javascript Database</a>
 
-## <a href=#introduction>Introduction</a>
+### <a href=#introduction>Introduction</a>
 
  * <a href=#syntax>Syntax notes</a>
  * <a href=#support>Supported Platforms</a>
@@ -11,52 +11,52 @@
  * <a href=#similar>Similar Projects</a>
  * <a href=#alt>Browser-based Alternatives</a>
 
-## API
+### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
-### <a href=#inserting>Inserting and Removing</a>
+ * <a href=#initialization>Initialization</a> a new database
+ * <a href=#transforming>Transforming</a> existing data
+ * <a href=#insert>Insert</a> new records
+ * <a href=#update>Update</a> exiting records
+ * <a href=#remove>Remove</a> records and get a copy of them
+ * <a href=#constrain>Constrain</a> insertion by a unique, primary key
 
- * <a href=#initialization>Initialization</a>
- * <a href=#transforming>Transforming</a>
- * <a href=#insert>insert</a>
- * <a href=#update>update</a>
- * <a href=#remove>remove</a>
- * <a href=#constrain>constrain</a>
+### <a name=toc-finding href=#finding>Finding</a> and searching for data
 
-### <a href=#finding>Finding</a>
+ * <a href=#find>Find</a> records through an expressive syntax
+ * <a href=#findFirst>findFirst</a> record through an easy syntax
+ * <a href=#like>like</a> to find records by substring
+ * <a href=#isin>isin</a> to find whether the records is in a group
+ * <a href=#has>has</a> to look inside a records stored as an array
+ * <a href=#select>select</a> one or more fields from a result
+ * <a href=#inverse>inverse</a> to find the unary inverse of a set of results
+ * <a href=#unsafe>unsafe</a> optimizations that may speed things up
 
- * <a href=#find>find</a>
- * <a href=#findFirst>findFirst</a>
- * <a href=#like>like</a>
- * <a href=#isin>isin</a>
- * <a href=#has>has</a>
- * <a href=#select>select</a>
- * <a href=#inverse>inverse</a>
+### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
 
-### <a href=#manipulating>Manipulating</a>
+ * <a href=#each>each</a> or <a href=#each>map</a> results to new values
+ * <a href=#reduceLeft>reduceLeft</a> results to aggregate values
+ * <a href=#reduceRight>reduceRight</a> results to aggregate values
+ * <a href=#order>order</a> or <a href=#order>sort</a> results given some function or expression
+ * <a href=#group>group</a> results by some key
 
- * <a href=#each>each</a>
- * <a href=#reduceLeft>reduceLeft</a>
- * <a href=#reduceRight>reduceRight</a>
- * <a href=#order>order</a>
- * <a href=#order>sort</a>
- * <a href=#group>group</a>
+### <a href=#storage>Storage</a> options to importing and expoting data
 
-### <a href=#storage>Storage</a>
-
- * <a href=#sync>sync</a>
+ * <a href=#sync>sync</a> the database when things are modified
 
 ### <a href=#example>Examples</a>
-
-<hr>
+ 
+ * <a href=#ex-creation>Creating and Inserting</a>
+ * <a href=#ex-sql>SQL to DB example</a>
+ * <a href=#ex-more>More</a>
 
 <h2><a name=inserting>Inserting and Removing</a> [ <a href=#toc>top</a> ] </h2>
 
-<h3><a name=initialization> DB() </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=initialization> DB() </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Create a new database and assign it to a variable.  The variable is
 a function and has properties associated with it. The rest of this
 document will use "db" as in an instance of DB().
 
-<h3><a name=transforming>Transforming</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=transforming>Transforming</a> [ <a href=#toc-inserting>top</a> ] </h3>
 You can take existing data that is represented by an array-like entity of
 objects and use it as the data to test against.
 
@@ -85,7 +85,7 @@ Along with this:
       db.like('innerHTML', 'hello World')
     )
 
-<h3><a name=insert> insert( rows ) </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=insert> insert( rows ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
 
@@ -108,7 +108,7 @@ and puts in some type of record keeping information and accounting.
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
 
-<h3><a name=update> update( field )</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=update> update( field )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all
 parameters matching constraint where constraint
 is either a set of K/V pairs or a result
@@ -127,11 +127,11 @@ count of some object that matches a set.  You can do
         })
       });
 
-<h3><a name=remove> remove( constraint )</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=remove> remove( constraint )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 This will remove the entries from the database but also return them if
 you want to manipulate them.  You can invoke this with a constraint.
 
-<h3><a name=constrain> constrain( type, value ) </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=constrain> constrain( type, value ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 This is to constrain the database.  Currently you can enforce a unique
 key value through something like `db.constrain('unique', 'somekey')`.
 You should probably run this early, as unlike in RDBMSs, it doesn't do
@@ -140,7 +140,7 @@ this key ... it just does a lookup every time as of now.
 
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
-<h3><a name=find> find( constraint )</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=find> find( constraint )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
@@ -151,19 +151,19 @@ can invoke it one of the following ways:
  * `find(db('key', '< 10'))`
 
 
-<h4><a name=findFirst> findFirst( constraint )</a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=findFirst> findFirst( constraint )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is a shorthand to find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
 
-<h4><a name=like> like( string )</a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=like> like( string )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is like SQL like command and it takes the value and does
 
  `value.toString().toLowerCase().search(query.toString().toLowerCase) > -1`
 
 which is a mouthful.
 
-<h4><a name=isin> isin( multi )</a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=isin> isin( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
@@ -174,7 +174,7 @@ A usage scenario may be as follows:
 
 `db.find({months: db.isin(['jan', 'feb', 'march']));`   
 
-<h4><a name=has> has( multi )</a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=has> has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is the reverse of has.  If you do
 
 `db.insert({a: [1, 2, 3]})`
@@ -183,7 +183,7 @@ You can do
 
 `db.find({a: db.has(1)})`
 
-<h3><a name=select> select( field(s) )</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=select> select( field(s) )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
 which is relevant for the query.
@@ -203,26 +203,32 @@ But not:
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
 
-<h3><a name=inverse> inverse( list )</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=inverse> inverse( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Invert a set of results.
+
+<h3><a name=unsafe> DB.unsafe </a> [ <a href=#toc-finding>top</a> ] </h3>
+Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
+are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
+large keys for some internal operations.
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
-<h4><a name=each> each( function ) </a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=each> each( function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+ *Aliased to map*
 This is more of a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-<h4><a name=reduceLeft> reduceLeft( list, function )</a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=reduceLeft> reduceLeft( list, function )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
 This does a traditional list-reduction on a list
 as popular in list comprehension suites common in 
 functional programming.
 
-<h4><a name=reduceRight> reduceRight( list, function ) </a> [ <a href=#toc>top</a> ] </h4>
+<h4><a name=reduceRight> reduceRight( list, function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
 This does a traditional right-reduction on a list
 as popular in list comprehension suites common in 
 functional programming.
 
-<h3><a name=order> order( multi ) </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=order> order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
  *Aliased to sort*
 
 This is like SQLs orderby function.  If you pass it just a field, then
@@ -238,7 +244,7 @@ Summary:
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 
-<h3><a name=group> group( field )</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=group> group( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is like SQLs groupby function. It will take results from any other function and then
 return them as a hash where the keys are the field values and the results are an array
 of the rows that match that value.
@@ -300,8 +306,9 @@ it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
 run, once, once, and once respectively.
 
-<h2><a name=examples> Examples</a> [ <a href=#toc>top</a> ] </h2>
-### Creation and Insertion
+<h2><a name=example> Examples</a> [ <a href=#toc>top</a> ] </h2>
+
+<h3><a name=ex-creation> Creation and Insertion</a> [ <a href=#toc>top</a> ] </h3>
 Lets start with a trivial example; we will create a database and then
 just add the object `{key: value}` into it.
 
@@ -320,8 +327,8 @@ both fields in.  We can do this a few ways:
 3. Or even chained: `db.insert({key: value}).insert({one: 1, two: 2});`
 
 
+<h3><a name=ex-sql> SQL => DB examples </a> [ <a href=#toc>top</a> ] </h3>
 
-## SQL => DB examples
 `remove from users where lastlogin = false` => `users.find({lastlogin: false}).remove();`
 
     select * from people where id in (
@@ -334,12 +341,10 @@ becomes:
        addresses.find( DB.like('city', 'los angeles') ).select('id')
     }).order('income').slice(1, 10)
 
+<h3><a name=ex-more> More </a> [ <a href=#toc>top</a> ] </h3>
 
+More examples can be found in the index.html in git repository.
 
-### DB.unsafe()
-Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
-are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
-large keys for some internal operations.
 
 <h2><a name=introduction>Introduction</a> [ <a href=#toc>top</a> ] </h2>
 
@@ -432,7 +437,7 @@ This has been tested and is known to work on
  * Safari 2+
  * Opera 7+
 
-<h3><a name=depenedencies>Dependencies</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=dependencies>Dependencies</a> [ <a href=#toc>top</a> ] </h3>
 none.
 
 <h3><a name=performance>Performance</a> [ <a href=#toc>top</a> ] </h3>
