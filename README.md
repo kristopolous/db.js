@@ -8,7 +8,14 @@ Notice. More introductory detail has now been placed AFTER the API description.
 
 ## API
 
-### db.insert( rows )
+<a href=#insert>insert</a>
+
+### DB()
+Create a new database and assign it to a variable.  The variable is
+a function and has properties associated with it. The rest of this
+document will use "db" as in an instance of DB().
+
+### <a name=insert> db.insert( rows ) </a>
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
 
@@ -33,30 +40,15 @@ the data you want, then update it with more data.
 
 ### db.find( constraint )
 This is like the "where" clause in SQL.  You
-can either invoke it for standard comparison like 
+can invoke it one of the following ways:
 
  * `find({key: 'value'})`
  * `find('key', 'value')`
-
-or you can have a conditional; which is pure magic.
-
  * `find({key: function(value) { return value < 10; })`
+ * `find({key: db('< 10')})`
+ * `find(db('key', '< 10'))`
 
-Since that syntax is a bit tedious, there is a shorthand form:
-
- * `db.find({key: db('< 10')})`
-
-This creates the above function for you.  You can also be even more
-terse with the library, if you are in an inexplicable hurry:
-
- * `db.find(db('key', '< 10'))`
-
-However, the one thing that you cannot do (yet) is this:
-
- * `db.find(db('key < 10'))`
-
-I really want this to be possible in a magical safe way and see it
-as one of the primary objectives going forward.
+Which supports the expressions below:
 
 #### db.findFirst( constraint )
 This is a shorthand to find for when you are only expecting one result.
