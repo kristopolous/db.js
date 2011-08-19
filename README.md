@@ -49,14 +49,14 @@
 
 <hr>
 
-<h2 style=display:inline-block><a name=inserting>Inserting and Removing</a></h2> [<a href=#toc>top</a>]<br>
+<h2><a name=inserting>Inserting and Removing</a> [ <a href=#toc>top</a> ] </h2>
 
-<h3 style=display:inline-block><a name=initialization> DB() </a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=initialization> DB() </a> [ <a href=#toc>top</a> ] </h3>
 Create a new database and assign it to a variable.  The variable is
 a function and has properties associated with it. The rest of this
 document will use "db" as in an instance of DB().
 
-<h3 style=display:inline-block><a name=transforming>Transforming</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=transforming>Transforming</a> [ <a href=#toc>top</a> ] </h3>
 You can take existing data that is represented by an array-like entity of
 objects and use it as the data to test against.
 
@@ -85,7 +85,7 @@ Along with this:
       db.like('innerHTML', 'hello World')
     )
 
-<h3 style=display:inline-block><a name=insert> insert( rows ) </a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=insert> insert( rows ) </a> [ <a href=#toc>top</a> ] </h3>
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
 
@@ -108,7 +108,7 @@ and puts in some type of record keeping information and accounting.
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
 
-<h3 style=display:inline-block><a name=update> update( field )</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=update> update( field )</a> [ <a href=#toc>top</a> ] </h3>
 Update allows you to set newvalue to all
 parameters matching constraint where constraint
 is either a set of K/V pairs or a result
@@ -127,20 +127,20 @@ count of some object that matches a set.  You can do
         })
       });
 
-<h3 style=display:inline-block><a name=remove> remove( constraint )</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=remove> remove( constraint )</a> [ <a href=#toc>top</a> ] </h3>
 This will remove the entries from the database but also return them if
 you want to manipulate them.  You can invoke this with a constraint.
 
-<h3 style=display:inline-block><a name=constrain> constrain( type, value ) </a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=constrain> constrain( type, value ) </a> [ <a href=#toc>top</a> ] </h3>
 This is to constrain the database.  Currently you can enforce a unique
 key value through something like `db.constrain('unique', 'somekey')`.
 You should probably run this early, as unlike in RDBMSs, it doesn't do
 a historical check nor does it create a optimized hash to index by
 this key ... it just does a lookup every time as of now.
 
-<h2 style=display:inline-block><a name=finding> Finding </a></h2> [<a href=#toc>top</a>]<br>
+<h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
-<h3 style=display:inline-block><a name=find> find( constraint )</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=find> find( constraint )</a> [ <a href=#toc>top</a> ] </h3>
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
@@ -151,19 +151,19 @@ can invoke it one of the following ways:
  * `find(db('key', '< 10'))`
 
 
-<h4 style=display:inline-block>><a name=findFirst> findFirst( constraint )</a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=findFirst> findFirst( constraint )</a> [ <a href=#toc>top</a> ] </h4>
 This is a shorthand to find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
 
-<h4 style=display:inline-block>><a name=like> like( string )</a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=like> like( string )</a> [ <a href=#toc>top</a> ] </h4>
 This is like SQL like command and it takes the value and does
 
  `value.toString().toLowerCase().search(query.toString().toLowerCase) > -1`
 
 which is a mouthful.
 
-<h4 style=display:inline-block>><a name=isin> isin( multi )</a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=isin> isin( multi )</a> [ <a href=#toc>top</a> ] </h4>
 This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
@@ -174,7 +174,7 @@ A usage scenario may be as follows:
 
 `db.find({months: db.isin(['jan', 'feb', 'march']));`   
 
-<h4 style=display:inline-block>><a name=has> has( multi )</a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=has> has( multi )</a> [ <a href=#toc>top</a> ] </h4>
 This is the reverse of has.  If you do
 
 `db.insert({a: [1, 2, 3]})`
@@ -183,7 +183,7 @@ You can do
 
 `db.find({a: db.has(1)})`
 
-<h3 style=display:inline-block><a name=select> select( field(s) )</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=select> select( field(s) )</a> [ <a href=#toc>top</a> ] </h3>
 This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
 which is relevant for the query.
@@ -203,26 +203,26 @@ But not:
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
 
-<h3 style=display:inline-block><a name=inverse> inverse( list )</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=inverse> inverse( list )</a> [ <a href=#toc>top</a> ] </h3>
 Invert a set of results.
 
-<h2 style=display:inline-block><a name=manipulating> Manipulating </a></h2> [<a href=#toc>top</a>]<br>
+<h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
-<h4 style=display:inline-block>><a name=each> each( function ) </a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=each> each( function ) </a> [ <a href=#toc>top</a> ] </h4>
 This is more of a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-<h4 style=display:inline-block>><a name=reduceLeft> reduceLeft( list, function )</a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=reduceLeft> reduceLeft( list, function )</a> [ <a href=#toc>top</a> ] </h4>
 This does a traditional list-reduction on a list
 as popular in list comprehension suites common in 
 functional programming.
 
-<h4 style=display:inline-block>><a name=reduceRight> reduceRight( list, function ) </a></h4> [<a href=#toc>top</a>]<br>
+<h4><a name=reduceRight> reduceRight( list, function ) </a> [ <a href=#toc>top</a> ] </h4>
 This does a traditional right-reduction on a list
 as popular in list comprehension suites common in 
 functional programming.
 
-<h3 style=display:inline-block><a name=order> order( multi ) </a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=order> order( multi ) </a> [ <a href=#toc>top</a> ] </h3>
  *Aliased to sort*
 
 This is like SQLs orderby function.  If you pass it just a field, then
@@ -238,7 +238,7 @@ Summary:
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 
-<h3 style=display:inline-block><a name=group> group( field )</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=group> group( field )</a> [ <a href=#toc>top</a> ] </h3>
 This is like SQLs groupby function. It will take results from any other function and then
 return them as a hash where the keys are the field values and the results are an array
 of the rows that match that value.
@@ -280,7 +280,7 @@ It's worth noting that if you are using the last invocation style, the
 first parameter is going to be x and the second one, y.
 
 
-<h2 style=display:inline-block><a name=storage> Storage </a></h2> [<a href=#toc>top</a>]<br>
+<h2><a name=storage> Storage </a> [ <a href=#toc>top</a> ] </h2>
 What if you have an existing database from somewhere and you want to import
 your data when you load the page.  You can supply the data to be imported
 as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
@@ -288,7 +288,7 @@ you could initialize the database as follows:
 
 `var db = DB($.jStorage.get('government-secrets'));`
 
-<h3 style=display:inline-block><a name=sync> db.sync(callback) </a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=sync> db.sync(callback) </a> [ <a href=#toc>top</a> ] </h3>
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 
@@ -300,7 +300,7 @@ it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
 run, once, once, and once respectively.
 
-<h2 style=display:inline-block><a name=examples> Examples</a></h2> [<a href=#toc>top</a>]<br>
+<h2><a name=examples> Examples</a> [ <a href=#toc>top</a> ] </h2>
 ### Creation and Insertion
 Lets start with a trivial example; we will create a database and then
 just add the object `{key: value}` into it.
@@ -341,7 +341,7 @@ Enables unsafe optimizations.  Specifically, db.isin uses regex matching for sma
 are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
 large keys for some internal operations.
 
-<h2 style=display:inline-block><a name=introduction>Introduction</a></h2> [<a href=#toc>top</a>]<br>
+<h2><a name=introduction>Introduction</a> [ <a href=#toc>top</a> ] </h2>
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
 
@@ -377,7 +377,7 @@ Just remember these two simple rules:
 1. Do your "SQL where" stuff first.
 2. Everything else second.
 
-<h3 style=display:inline-block><a name=syntax>Syntax Notes</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=syntax>Syntax Notes</a> [ <a href=#toc>top</a> ] </h3>
 Great lengths have been taken to have a flexible and expressive API that
 conforms to dynamic coding styles.
 
@@ -422,7 +422,7 @@ Note that my arrays are pure magic here and I do not beligerently append
 arbitrary functions to Array.prototype.  
 
 
-<h3 style=display:inline-block><a name=support>Supported Platforms</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=support>Supported Platforms</a> [ <a href=#toc>top</a> ] </h3>
 
 This has been tested and is known to work on
 
@@ -432,22 +432,22 @@ This has been tested and is known to work on
  * Safari 2+
  * Opera 7+
 
-<h3 style=display:inline-block><a name=depenedencies>Dependencies</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=depenedencies>Dependencies</a> [ <a href=#toc>top</a> ] </h3>
 none.
 
-<h3 style=display:inline-block><a name=performance>Performance</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=performance>Performance</a> [ <a href=#toc>top</a> ] </h3>
 Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
 
-<h3 style=display:inline-block><a name=license>License</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=license>License</a> [ <a href=#toc>top</a> ] </h3>
 Dual-Licensed under MIT and GPL.
 
-<h3 style=display:inline-block><a name=contact>Contact</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=contact>Contact</a> [ <a href=#toc>top</a> ] </h3>
 [Join the mailing list](http://groups.google.com/group/dbjs).
 
-<h3 style=display:inline-block><a name=similar>Similar Projects</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=similar>Similar Projects</a> [ <a href=#toc>top</a> ] </h3>
 Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
 
-<h3 style=display:inline-block><a name=alt>Browser-Based Alternatives</a></h3> [<a href=#toc>top</a>]<br>
+<h3><a name=alt>Browser-Based Alternatives</a> [ <a href=#toc>top</a> ] </h3>
 Part of [HTML5](http://dev.w3.org/html5/webdatabase/#databases) has SQL support in the land of future browsers.
 
 There's two interfaces, "IndexedDB" and the deprecated "WebSQL".  As always, the browser world seems to be split.
