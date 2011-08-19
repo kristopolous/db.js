@@ -119,16 +119,20 @@ The template itself is implicit and modal; applying to all insertions until it i
 modified or removed.
 
 <h5>Creation
+
 To create a template use template.create( fields )
 
 <h5>Update
+
 Updating overwrite previous values as specified whilst retaining the old values of
 those which are not.  To update a template use template.update( fields )
 
 <h5>Getting
+
 You can get the current template with template.get()
 
 <h5>Destroy
+
 You can destroy a template with template.destroy()
 
 <h3><a name=update> update( field )</a> [ <a href=#toc-inserting>top</a> ] </h3>
@@ -182,7 +186,7 @@ then the returned object is empty.**
 <h4><a name=like> like( string )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is like SQL like command and it takes the value and does
 
- `value.toString().toLowerCase().search(query.toString().toLowerCase) > -1`
+ value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
 
 which is a mouthful.
 
@@ -195,16 +199,16 @@ with a static array or a callback like so:
 
 A usage scenario may be as follows:
 
-`db.find({months: db.isin(['jan', 'feb', 'march']));`   
+db.find({months: db.isin(['jan', 'feb', 'march']));
 
 <h4><a name=has> has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is the reverse of has.  If you do
 
-`db.insert({a: [1, 2, 3]})`
+db.insert({a: [1, 2, 3]})
 
 You can do
 
-`db.find({a: db.has(1)})`
+db.find({a: db.has(1)})
 
 <h3><a name=select> select( field(s) )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This will extract the values of a particular key from the filtered list
@@ -221,7 +225,7 @@ You can do
 
 But not:
 
-`select('one,two')`
+select('one,two')
 
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
@@ -315,13 +319,13 @@ your data when you load the page.  You can supply the data to be imported
 as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
 you could initialize the database as follows:
 
-`var db = DB($.jStorage.get('government-secrets'));`
+var db = DB($.jStorage.get('government-secrets'));
 
 <h3><a name=sync> db.sync(callback) </a> [ <a href=#toc>top</a> ] </h3>
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 
-`db.sync( function(data) { $.jStorage.set('government-secrets', data); } )`
+db.sync( function(data) { $.jStorage.set('government-secrets', data); } )
 
 The example file includes a synchronization function that logs to screen
 when it is run so you can see when this function would be called.  Basically
@@ -340,7 +344,7 @@ just add the object `{key: value}` into it.
 
 Now let's say we want to insert `{one: 1, two: 2}` into it
 
-`db.insert({one: 1, two: 2})`
+db.insert({one: 1, two: 2})
 
 Alright, let's say that we want to do this all over again and now insert
 both fields in.  We can do this a few ways:
@@ -412,15 +416,15 @@ conforms to dynamic coding styles.
 For instance, if you wanted to update 'key' to be 'value' for all records
 in the database, you could do it like
 
-`db.update('key', 'value')` 
+db.update('key', 'value')
 
 or
 
-`db.update({key: 'value'})`
+db.update({key: 'value'})
 
 or you can chain this under a find if you want to only update some records
 
-`db.find({key: 'value'}).update({key: 'somethingelse'})`
+db.find({key: 'value'}).update({key: 'somethingelse'})
 
 etc...
 
