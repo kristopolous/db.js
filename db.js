@@ -708,7 +708,7 @@
 
     ret.template = {
       create: function(opt) { _template = opt; },
-      update: function(opt) { extend(_template, opt); },
+      update: function(opt) { extend(_template || {}, opt); },
       get: function() { return _template },
       destroy: function() { _template = false }
     }; 
