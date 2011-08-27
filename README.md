@@ -356,17 +356,23 @@ both fields in.  We can do this a few ways:
 
 <h3><a name=ex-sql> SQL => DB examples </a> [ <a href=#toc>top</a> ] </h3>
 
-`remove from users where lastlogin = false` => `users.find({lastlogin: false}).remove();`
-
-    select * from people where id in (
-       select id from addresses where city like 'los angeles'
-    ) order by income asc limit 10 offset 1
-
-becomes:
-
-    people.find({ id: DB.isin(
-       addresses.find( DB.like('city', 'los angeles') ).select('id')
-    }).order('income').slice(1, 10)
+<table>
+  <thead>
+    <tr>
+      <th>SQL</th>
+      <th>db.js</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>delete from users where lastlogin = false</td>
+      <td>users.find({lastlogin: false}).remove()</td>
+    </tr>
+    <tr>
+      <td>select * from people where id in ( select id from addresses where city like 'los angeles') order by income asc limit 10 offset 1</td>
+      <td>people.find({ id: DB.isin( addresses.find( DB.like('city', 'los angeles') ).select('id') }).order('income').slice(1, 10)</td>
+  </tbody>
+</table>
 
 <h3><a name=ex-more> More </a> [ <a href=#toc>top</a> ] </h3>
 
@@ -482,7 +488,7 @@ Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by 
 <h3><a name=alt>Browser-Based Alternatives</a> [ <a href=#toc>top</a> ] </h3>
 Part of [HTML5](http://dev.w3.org/html5/webdatabase/#databases) has SQL support in the land of future browsers.
 
-There's two interfaces, "IndexedDB" and the deprecated "WebSQL".  As always, the browser world seems to be split.
+There's two interfaces, "IndexedDB" and the deprecated "WebSQL":
 
  * [Safari has supported WebSQL](http://www.webkit.org/blog/126/webkit-does-html5-client-side-database-storage/) for a while and is working on [indexedDB](https://github.com/NielsLeenheer/html5test/pull/68) support. 
  * [Chrome has had WebSQL support since version 4](http://www.infoq.com/news/2010/02/Web-SQL-Database) and used a [different interface](http://code.google.com/apis/gears/upcoming/api_database.html) prior to that.  IndexedDB support came in through [chromium](http://weblog.bocoup.com/javascript-indexeddb-in-chromium-8-0-552-5-dev).
