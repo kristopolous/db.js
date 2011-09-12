@@ -853,12 +853,7 @@
     //
     ret.findFirst = function(){
       var res = ret.find.apply(this, slice.call(arguments));
-
-      if(res.length) { 
-        return res[0];
-      } else {
-        return {};
-      }
+      return res.length ? res[0] : {};
     }
 
     //
@@ -1144,6 +1139,11 @@
   _DB.unsafe = function() { _unsafe = true; }
   _DB.deepcopy = deepcopy;
 
+  _DB.findFirst = function(){
+    var res = find.apply(this, slice.call(arguments));
+    return res.length ? res[0] : {};
+  }
+
   //
   // reduceLeft
   //
@@ -1177,18 +1177,10 @@
   // functional programming.
   //
   _DB.reduceRight = function(initial, oper) {
-    var lambda = new Function("y,x", "return y " + oper);
+    var callback = _DB.reduceLeft(initial, oper);
 
     return function(list) {
-      var 
-        len = list.length,
-        reduced = initial;
-
-      for(var ix = len - 1; ix > 0; ix--) {
-        reduced = lambda(reduced, list[ix]);
-      }
-
-      return reduced;
+      return callback(list.reverse());
     }
   }
 
