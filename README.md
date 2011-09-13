@@ -26,8 +26,9 @@
  * <a href=#find>Find</a> records through an expressive syntax
  * <a href=#findFirst>findFirst</a> record through an easy syntax
  * <a href=#like>like</a> to find records by substring
- * <a href=#isin>isin</a> to find whether the records is in a group
- * <a href=#has>has</a> to look inside a records stored as an array
+ * <a href=#isin>isin</a> to find whether the record is in a group
+ * <a href=#has>has</a> to look inside a record stored as an array
+ * <a href=#missing>missing</a> to get records that have keys not defined
  * <a href=#select>select</a> one or more fields from a result
  * <a href=#inverse>inverse</a> to find the unary inverse of a set of results
  * <a href=#unsafe>unsafe</a> optimizations that may speed things up
@@ -177,6 +178,22 @@ can invoke it one of the following ways:
  * find({key: db('< 10')})
  * find(db('key', '< 10'))
 
+<h4>About the arguments</h4>
+It can receive multiple arguments for multiple constraints.  For instance, you can
+use an object style filter followed by a functional one, e.g.
+
+    find( {key: value}, lambdaFilter );
+
+
+<h4>About the callback function style</h4>
+The arguments passed in for the functional style are either the whole record if invoked
+in the style of find( lambda ) or the key being argument 0 and the record being argument 1
+in the style of find({key: lambda}).  Therein you can have something like 
+
+   find(function(record) {
+      return record.key1 > record.key2;
+   });
+
 
 <h4><a name=findFirst> findFirst( constraint )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is a shorthand to find for when you are only expecting one result.
@@ -200,6 +217,30 @@ with a static array or a callback like so:
 A usage scenario may be as follows:
 
 db.find({months: db.isin(['jan', 'feb', 'march']));
+
+<h4><a name=missing> missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+Missing is a macro that can either be combined with find or called in a chain.  It will 
+return records where ALL the fields supplied in the argList are missing.  For instance, if you have the following
+records:
+
+    { a: 1,
+      b: 2,
+      c: 3
+    },
+    { a: 4,
+      b: 5
+    },
+    { a: 6 }
+
+And ran the following:
+
+    find(db.missing('c'))
+
+You'd get the second and third record.  Similarly, if you did
+
+    find(db.missing('c', 'b'))
+
+You'd get an implicit "AND" and get only record 3.
 
 <h4><a name=has> has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is the reverse of has.  If you do

@@ -103,6 +103,16 @@
      };
    
 
+  function hash(array) {
+    var ret = {};
+
+    each(array, function(index) {
+      ret[index] = true;
+    });
+
+    return ret;
+  }
+
   // We create basic comparator prototypes to avoid evals
   each('< <= > >= == === != !=='.split(' '), function(which) {
     _compProto[which] = Function(
@@ -149,6 +159,7 @@
     }
   }
 
+
   function simplecopy(obj) {
     // we need to call slice for array-like objects, such as the dom
     return obj.length ? slice.call(obj) : values(obj);
@@ -185,7 +196,7 @@
       filter = filterList[filterIx];
 
       if(_.isFun(filter)) {
-        var callback = filter.single;
+        var callback = filter.single || filter;
         cached = {};
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
@@ -216,18 +227,14 @@
               // Check for existence
               if( key in which ) {
                 val = which[key];
+
                 if( ! value(val, which) ) { continue }
-                /*
-                if(cached[val] === false) { continue }
-                if(cached[val] === undefined) {
-                  if( !(cached[val] = value(val, which)) ) { continue }
-                }
-                */
 
                 if(end - (ix + 1)) {
                   spliceix = ix + 1;
                   set.splice(spliceix, end - spliceix);
                 }
+
                 end = ix;
               }
             }
@@ -260,6 +267,27 @@
     return set;
   }
 
+  //
+  // missing
+  //
+  // Missing is to get records that have keys not defined
+  //
+  function missing() {
+    var fieldList = hash(slice.call(arguments));
+
+    return function(record) {
+      for(var field in fieldList) {
+        if(field in record) {
+          return false;
+        }
+      }
+      return true;
+    };
+  }
+
+  // 
+  // isin
+  //
   // This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
   // with a static array or a callback
   var isin = (function() {
@@ -407,7 +435,7 @@
 
         // Prevent never-ending loop
         if ( target === copy ) {
-           continue;
+          continue;
         }
 
         // Recurse if we're merging plain objects or arrays
@@ -440,6 +468,7 @@
       ret[which[0]] = which[1];
       return ret;
     }
+
     if(which.length == 1) {
       return which[0];
     }
@@ -572,6 +601,7 @@
 
       return ret;
     }
+
     return pub;
   })();
 
@@ -600,7 +630,7 @@
   stainer = safe_stain;
 
   // the list of functions to chain
-  var chainList = list2obj('has isin group remove update where select find order each like'.split(' '));
+  var chainList = list2obj('has missing isin group remove update where select find order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -616,65 +646,8 @@
       constraints = {},
       syncList = [],
       stainer = _unsafe ? unsafe_stain : safe_stain,
-      _indexCache = {},
-      _indexLock = false,
-      _indexQueue = [],
       _template = false,
       raw = [];
-
-    raw._indexCache = _indexCache;
-
-    function deindex(objList) {
-      return objList;
-      // not ready yet
-      _indexLock = true;
-      setTimeout(function(){
-        each(objList, function(record) {
-          var ix = record.constructor('x');
-          each(record, function(k, v) {
-            if(! _indexCache[k] ) { return }
-            if(! _indexCache[k][v] ) { return }
-            if( _indexCache[k][v][ix] ) {
-              delete _indexCache[k][v][ix]
-            }
-          });
-        });
-        _indexLock = false;
-
-        while(_indexQueue.length) { (_indexQueue.pop()); }
-      },0);
-      return objList;
-    }
-
-    function reindex(objList) {
-      return objList;
-      // not ready yet
-      setTimeout(function(){
-        function _reindex () {
-          each(objList, function(record) {
-            var ix = record.constructor('x');
-            each(record, function(k, v) {
-              if(! _indexCache[k] ) {
-                _indexCache[k] = {};
-              }
-              if (! _indexCache[k][v] ) {
-                _indexCache[k][v] = {};
-              }
-              if(! _indexCache[k][v][ix] ) {
-                _indexCache[k][v][ix] = true;
-              }
-            });
-          });
-        }
-        if(_indexLock) {
-          _indexQueue.push(_reindex);
-        } else {
-          _reindex();
-        }
-      },0);
-
-      return objList;
-    }
 
     function sync() {
       for(var i = 0, len = syncList.length; i < len; i++) {
@@ -721,18 +694,15 @@
     // of the rows that match that value.
     //
     ret.group = function(field) {
-      var groupMap = {};
-
-      if(_.isArr(this)) {
-        filter = this;
-      } else {
-        filter = ret.find();
-      }
+      var 
+        groupMap = {},
+        filter = _.isArr(this) ? this : ret.find();                 
 
       each(filter, function(which) {
         if(! groupMap[which[field]]) {
           groupMap[which[field]] = [];
         }
+
         groupMap[which[field]].push(which);
       });
       
@@ -764,7 +734,7 @@
         fnSort,
         len = arguments.length,
         order,
-        filter;
+        filter = _.isArr(this) ? this : ret.find();                 
 
       if(_.isFun(arg0)) {
         fnSort = arg0;
@@ -799,12 +769,6 @@
         fnSort = function(a, b) {
           return order(a[key], b[key]);
         }
-      }
-
-      if(_.isArr(this)) {
-        filter = this;
-      } else {
-        filter = ret.find();
       }
 
       return filter.sort(fnSort);
@@ -847,6 +811,15 @@
     }
 
     //
+    // missing
+    //
+    // Missing is to get records that have keys not defined
+    //
+    ret.missing = function() {
+      return ret.find(missing.apply(this, slice.call(arguments)));
+    }
+
+    //
     // findFirst
     //
     // This is a shorthand to find for when you are only expecting one result.
@@ -868,7 +841,7 @@
     //
     ret.select = function(field) {
       var 
-        filter,
+        filter = _.isArr(this) ? this : ret.find();                 
         len,
         resultList = {};
 
@@ -876,12 +849,6 @@
         field = slice.call(arguments);
       } else if (_.isStr(field)) {
         field = [field];
-      }
-
-      if(_.isArr(this)) {
-        filter = this;
-      } else {
-        filter = ret.find();
       }
 
       len = field.length;
@@ -998,11 +965,7 @@
 
       sync();
 
-      return chain(
-        reindex(
-          list2data(ixList)
-        )
-      );
+      return chain(list2data(ixList));
     }
 
     //
@@ -1020,14 +983,8 @@
     //
     ret.update = function(newvalue, param) {
       var 
-        list,
+        list = _.isArr(this) ? simplecopy(this) : ret.find(),
         key;
-
-      if(_.isArr(this)) {
-        list = simplecopy(this);
-      } else {
-        list = ret.find();
-      }
 
       // This permits update(key, value) on a chained find
       if( arguments.length == 2 && 
@@ -1042,8 +999,6 @@
         newvalue = {};
         newvalue[key] = param; 
       }
-
-      deindex(list);
 
       if(_.isFun(newvalue)) {
         each(list, newvalue);
@@ -1067,9 +1022,7 @@
 
       sync();
 
-      return chain(
-        reindex(list)
-      );
+      return chain(list);
     }
 
     // remove
@@ -1111,7 +1064,7 @@
       }
 
       sync();
-      return chain(deindex(save));
+      return chain(save);
     }
 
 
@@ -1137,7 +1090,7 @@
   _DB.values = values;
   _DB.like = like;
   _DB.unsafe = function() { _unsafe = true; }
-  _DB.deepcopy = deepcopy;
+  _DB.missing = missing;
 
   _DB.findFirst = function(){
     var res = find.apply(this, slice.call(arguments));
