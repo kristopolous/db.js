@@ -136,7 +136,7 @@ You can get the current template with template.get()
 
 You can destroy a template with template.destroy()
 
-<h3><a name=update> [chain] update( field | lambda )</a> [ <a href=#toc-inserting>top</a> ] </h3>
+<h3><a name=update> [chain] update( field | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all
 parameters matching a constrainta.  You can pass a lambda in to assign new values
 to a record. For instance:
@@ -147,9 +147,10 @@ will work.  The object syntax, similar to find will also work.  So you can do
 
     db.find().update({ key: function() { return 'value' } });
 
-And lastly, you can do static assignment:
+And lastly, you can do static assignment two ways:
 
     db.find().update({ key: 'value' });
+    db.find().update('key', 'value');
 
 <h3><a name=remove> [chain] remove( constraint )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 This will remove the entries from the database but also return them if
@@ -197,14 +198,14 @@ This is a shorthand to find for when you are only expecting one result.
 then the returned object is empty.**
 
 <h4><a name=like> [chain] like( string )</a> [ <a href=#toc-finding>top</a> ] </h4>
-This is like SQL like command and it takes the value and does
+A macro lambda for find, this is like SQL like command and it takes the value and does
 
    value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
 
 which is a mouthful.
 
-<h4><a name=isin> isin( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
-This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
+<h4><a name=isin> [chain] isin( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
+A macro lambda for find, this is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
  * db.isin('months', ['jan','feb','march'])
@@ -214,8 +215,8 @@ A usage scenario may be as follows:
 
 db.find({months: db.isin(['jan', 'feb', 'march']));
 
-<h4><a name=missing> missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
-Missing is a macro that can either be combined with find or called in a chain.  It will 
+<h4><a name=missing> [chain] missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+Missing is a macro lambda for find that can either be combined with find or called in a chain.  It will 
 return records where ALL the fields supplied in the argList are missing.  For instance, if you have the following
 records:
 
@@ -238,7 +239,7 @@ You'd get the second and third record.  Similarly, if you did
 
 You'd get an implicit "AND" and get only record 3.
 
-<h4><a name=has> has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h4><a name=has> [chain] has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is the reverse of has.  If you do
 
 db.insert({a: [1, 2, 3]})
@@ -247,7 +248,7 @@ You can do
 
 db.find({a: db.has(1)})
 
-<h3><a name=select> select( field(s) )</a> [ <a href=#toc-finding>top</a> ] </h3>
+<h3><a name=select> [chain] select( field(s) )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
 which is relevant for the query.
@@ -277,7 +278,7 @@ large keys for some internal operations.
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
-<h4><a name=each> each( function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h4><a name=each> [array] each( function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
  *Aliased to map*
 The arguments for the lambda for each is either the return of a select as an array or the record
 as a return of a find.
@@ -285,17 +286,19 @@ as a return of a find.
 This is a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-<h4><a name=reduceLeft> reduceLeft( list, function )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
-This does a traditional list-reduction on a list
-as popular in list comprehension suites common in 
-functional programming.
+<h4><a name=reduceLeft> [scalar] reduceLeft( memo, function )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
+This is a macro lambda for each that implements a traditional functional list-reduction. You can use it like so:
 
-<h4><a name=reduceRight> reduceRight( list, function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
-This does a traditional right-reduction on a list
-as popular in list comprehension suites common in 
-functional programming.
+    db.each( DB.reduceLeft(0, ' += x.value');
 
-<h3><a name=order> order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
+The y parameter is the iterated reduction and the x parameter is the record to reduce.  The second value, the
+lambda function can either be a partial expression which will be evaluated to ('y = ' + expression) or it can
+be a passed in lambda.
+
+<h4><a name=reduceRight> [scalar] reduceRight( memeo, function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
+
+<h3><a name=order> [array] order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
  *Aliased to sort*
 
 This is like SQLs orderby function.  If you pass it just a field, then
@@ -311,7 +314,7 @@ Summary:
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 
-<h3><a name=group> group( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
+<h3><a name=group> [map] group( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is like SQLs groupby function. It will take results from any other function and then
 return them as a hash where the keys are the field values and the results are an array
 of the rows that match that value.
@@ -361,7 +364,7 @@ you could initialize the database as follows:
 
 var db = DB($.jStorage.get('government-secrets'));
 
-<h3><a name=sync> db.sync(callback) </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=sync> [handle] db.sync(callback) </a> [ <a href=#toc>top</a> ] </h3>
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 

@@ -981,9 +981,9 @@
     //   var result = db.find(constraint);
     //   result.update({a: b});
     //
-    ret.update = function(arg0, param) {
+    ret.update = function(arg0, arg1) {
       var 
-        filter = _.isArr(this) ? simplecopy(this) : ret.find(),
+        filter = _.isArr(this) ? this : ret.find(),
         key;
 
       // This permits update(key, value) on a chained find
@@ -995,11 +995,13 @@
         // The constraint is actually the new value to be
         // assigned.
         arg0 = {};
-        arg0[key] = param; 
+        arg0[key] = arg1; 
       }
 
       if(_.isFun(arg0)) {
-        each(filter, arg0);
+        if(filter.length) {
+          each(filter, arg0);
+        }
       } else {
         each(arg0, function(key, value) {
           if(_.isFun( value )) {
@@ -1103,7 +1105,7 @@
   // functional programming.
   //
   _DB.reduceLeft = function(initial, oper) {
-    var lambda = new Function("y,x", "return y " + oper);
+    var lambda = _.isStr(oper) ? new Function("y,x", "return y " + oper) | oper;
 
     return function(list) {
       var 
