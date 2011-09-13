@@ -87,7 +87,7 @@ Along with this:
       db.like('innerHTML', 'hello World')
     )
 
-<h3><a name=insert> insert( rows ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
+<h3><a name=insert> insert( arguments | object | array ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
 
@@ -136,9 +136,9 @@ You can get the current template with template.get()
 
 You can destroy a template with template.destroy()
 
-<h3><a name=update> [chain] update( field | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
-Update allows you to set newvalue to all
-parameters matching a constrainta.  You can pass a lambda in to assign new values
+<h3><a name=update> [chain] update( object | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
+Update allows you to set newvalue to all parameters matching a constraint.  
+You can pass a lambda in to assign new values
 to a record. For instance:
 
     db.find().update( function(record) { record.key = 'value' } );
@@ -152,7 +152,7 @@ And lastly, you can do static assignment two ways:
     db.find().update({ key: 'value' });
     db.find().update('key', 'value');
 
-<h3><a name=remove> [chain] remove( constraint )</a> [ <a href=#toc-inserting>top</a> ] </h3>
+<h3><a name=remove> [chain] remove( object | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 This will remove the entries from the database but also return them if
 you want to manipulate them.  You can invoke this with a constraint.
 
@@ -165,7 +165,7 @@ this key ... it just does a lookup every time as of now.
 
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
-<h3><a name=find> [chain] find( constraint )</a> [ <a href=#toc-finding>top</a> ] </h3>
+<h3><a name=find> [chain] find( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
@@ -192,8 +192,8 @@ in the style of find({key: lambda}).  Therein you can have something like
    });
 
 
-<h4><a name=findFirst> findFirst( constraint )</a> [ <a href=#toc-finding>top</a> ] </h4>
-This is a shorthand to find for when you are only expecting one result.
+<h4><a name=findFirst> [chain] findFirst( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h4>
+This is a wrapper of find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
 
@@ -268,7 +268,7 @@ select('one,two')
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
 
-<h3><a name=inverse> inverse( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
+<h3><a name=inverse> [chain] inverse( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Invert a set of results.
 
 <h3><a name=unsafe> DB.unsafe </a> [ <a href=#toc-finding>top</a> ] </h3>
