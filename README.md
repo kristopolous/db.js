@@ -278,7 +278,7 @@ large keys for some internal operations.
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
-<h4><a name=each> [array] each( function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h4><a name=each> [array] each( lambda ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
  *Aliased to map*
 The arguments for the lambda for each is either the return of a select as an array or the record
 as a return of a find.
@@ -286,7 +286,7 @@ as a return of a find.
 This is a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-<h4><a name=reduceLeft> [scalar] reduceLeft( memo, function )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h4><a name=reduceLeft> [scalar] reduceLeft( memo, lambda | expression )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
 This is a macro lambda for each that implements a traditional functional list-reduction. You can use it like so:
 
     db.each( DB.reduceLeft(0, ' += x.value');
@@ -295,7 +295,7 @@ The y parameter is the iterated reduction and the x parameter is the record to r
 lambda function can either be a partial expression which will be evaluated to ('y = ' + expression) or it can
 be a passed in lambda.
 
-<h4><a name=reduceRight> [scalar] reduceRight( memeo, function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h4><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
 This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
 
 <h3><a name=order> [array] order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>

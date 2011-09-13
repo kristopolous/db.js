@@ -1025,6 +1025,7 @@
       return chain(filter);
     }
 
+    //
     // remove
     // 
     // This will remove the entries from the database but also return them if
@@ -1104,15 +1105,13 @@
   // as popular in list comprehension suites common in 
   // functional programming.
   //
-  _DB.reduceLeft = function(initial, oper) {
-    var lambda = _.isStr(oper) ? new Function("y,x", "return y " + oper) | oper;
+  _DB.reduceLeft = function(memo, callback) {
+    var lambda = _.isStr(callback) ? new Function("y,x", "return y " + callback) : callback;
 
     return function(list) {
-      var 
-        len = list.length,
-        reduced = initial;
+      var reduced = memo;
 
-      for(var ix = 0; ix < len; ix++) {
+      for(var ix = 0, len = list.length; ix < len; ix++) {
         if(list[ix]) {
           reduced = lambda(reduced, list[ix]);
         }
@@ -1129,8 +1128,8 @@
   // as popular in list comprehension suites common in 
   // functional programming.
   //
-  _DB.reduceRight = function(initial, oper) {
-    var callback = _DB.reduceLeft(initial, oper);
+  _DB.reduceRight = function(memo, callback) {
+    var callback = _DB.reduceLeft(memo, callback);
 
     return function(list) {
       return callback(list.reverse());
