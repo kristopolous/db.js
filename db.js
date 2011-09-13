@@ -841,7 +841,7 @@
     //
     ret.select = function(field) {
       var 
-        filter = _.isArr(this) ? this : ret.find();                 
+        filter = _.isArr(this) ? this : ret.find(),
         len,
         resultList = {};
 
@@ -981,39 +981,37 @@
     //   var result = db.find(constraint);
     //   result.update({a: b});
     //
-    ret.update = function(newvalue, param) {
+    ret.update = function(arg0, param) {
       var 
-        list = _.isArr(this) ? simplecopy(this) : ret.find(),
+        filter = _.isArr(this) ? simplecopy(this) : ret.find(),
         key;
 
       // This permits update(key, value) on a chained find
-      if( arguments.length == 2 && 
-          _.isStr(newvalue)
-        ) {
+      if( arguments.length == 2 && _.isStr(arg0)) {
 
         // Store the key string
-        key = newvalue;
+        key = arg0;
 
         // The constraint is actually the new value to be
         // assigned.
-        newvalue = {};
-        newvalue[key] = param; 
+        arg0 = {};
+        arg0[key] = param; 
       }
 
-      if(_.isFun(newvalue)) {
-        each(list, newvalue);
+      if(_.isFun(arg0)) {
+        each(filter, arg0);
       } else {
-        each(newvalue, function(key, value) {
+        each(arg0, function(key, value) {
           if(_.isFun( value )) {
-            // take eacch item from the list (filtered results)
+            // take each item from the filter (filtered results)
             // and then apply the value function to it, storing
             // back the results
-            each(list, function(which) {
+            each(filter, function(which) {
               which[key] = value(which);
             });
           } else {
             // otherwise, assign the static 
-            each(list, function(which) {
+            each(filter, function(which) {
               which[key] = value;
             });
           }
@@ -1022,7 +1020,7 @@
 
       sync();
 
-      return chain(list);
+      return chain(filter);
     }
 
     // remove

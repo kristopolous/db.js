@@ -136,26 +136,22 @@ You can get the current template with template.get()
 
 You can destroy a template with template.destroy()
 
-<h3><a name=update> update( field )</a> [ <a href=#toc-inserting>top</a> ] </h3>
+<h3><a name=update> [chain] update( field | lambda )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all
-parameters matching constraint where constraint
-is either a set of K/V pairs or a result
-of find so that you can do something like
+parameters matching a constrainta.  You can pass a lambda in to assign new values
+to a record. For instance:
 
-Update also can take a callback.  Say you wanted to decrease a reference
-count of some object that matches a set.  You can do
+    db.find().update( function(record) { record.key = 'value' } );
 
-    db
-      .find({ 
-        id: db.isin( set ) 
-      })
-      .update({
-        referenceCounter: function(number) {
-          return number - 1;
-        })
-      });
+will work.  The object syntax, similar to find will also work.  So you can do
 
-<h3><a name=remove> remove( constraint )</a> [ <a href=#toc-inserting>top</a> ] </h3>
+    db.find().update({ key: function() { return 'value' } });
+
+And lastly, you can do static assignment:
+
+    db.find().update({ key: 'value' });
+
+<h3><a name=remove> [chain] remove( constraint )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 This will remove the entries from the database but also return them if
 you want to manipulate them.  You can invoke this with a constraint.
 
@@ -168,7 +164,7 @@ this key ... it just does a lookup every time as of now.
 
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
-<h3><a name=find> find( constraint )</a> [ <a href=#toc-finding>top</a> ] </h3>
+<h3><a name=find> [chain] find( constraint )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
@@ -200,10 +196,10 @@ This is a shorthand to find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
 
-<h4><a name=like> like( string )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h4><a name=like> [chain] like( string )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is like SQL like command and it takes the value and does
 
- value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
+   value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
 
 which is a mouthful.
 
@@ -283,7 +279,10 @@ large keys for some internal operations.
 
 <h4><a name=each> each( function ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
  *Aliased to map*
-This is more of a convenience on select for when you do select('one','two')
+The arguments for the lambda for each is either the return of a select as an array or the record
+as a return of a find.
+
+This is a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
 <h4><a name=reduceLeft> reduceLeft( list, function )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
