@@ -14,9 +14,6 @@
 
     _DB,
 
-    // system variables
-    _unsafe = false,
-
     // system caches
     _orderCache = {},
 
@@ -304,12 +301,7 @@
       // If the second argument is an array then we assume that we are looking
       // to see if the value in the database is part of the user supplied funciton
       if(compare.length){
-        if(_unsafe && compare.length < 10 ) {
-
-          // This is totally unsafe
-          var regex = new RegExp('^(' + compare.join('|') + ')$');
-          callback = function(x) { return regex.test(x); };
-        } else if(compare.length < 20 && _.isNum(compare[0])) {
+        if(compare.length < 20 && _.isNum(compare[0])) {
           var key = compare.join(',');
 
           // new Function is faster then eval but it's still slow, so we cache
@@ -575,38 +567,7 @@
   }
 
 
-  var unsafe_stain = (function() {
-    var 
-      pub = {},
-      seed = (Math.random() * Math.pow(2, 32)).toString(36),
-      seedid = 1,
-      stainid;
-
-    pub.stain = function(list) {
-      seedid++;
-      stainid = seed + seedid; 
-
-      for(var ix = 0, len = list.length; ix < len; ix++) {
-        list[ix][stainid] = true;
-      }
-      return stainid;
-    }
-
-    pub.isStained = function(obj) {
-      var ret = obj[stainid];
-
-      if(ret) {
-        delete obj[stainid];
-      }
-
-      return ret;
-    }
-
-    return pub;
-  })();
-
-
-  var safe_stain = (function() {
+  var stain = (function() {
     var 
       pub = {},
       stainid = 0;
@@ -627,7 +588,7 @@
     return pub;
   })();
 
-  stainer = safe_stain;
+  stainer = stain;
 
   // the list of functions to chain
   var chainList = list2obj('has missing isin group remove update where select find order each like'.split(' '));
@@ -645,7 +606,7 @@
     var 
       constraints = {},
       syncList = [],
-      stainer = _unsafe ? unsafe_stain : safe_stain,
+      stainer = stain,
       _template = false,
       raw = [];
 
@@ -811,6 +772,32 @@
     }
 
     //
+    // view 
+    //
+    // Views are an expensive synchronization macro that return 
+    // an object that can be indexed in order to get into the data.
+    //
+    ret.view = function(field) {
+      var obj = {};
+
+      ret.sync(function(data) {
+        for(var key in obj) {
+          delete obj[key];
+        }
+
+        each(data, function(row) {
+          if(field in row) {
+            obj[row[field]] = row;
+          }
+        });
+      });
+
+      sync();
+
+      return obj;
+    }
+
+    //
     // missing
     //
     // Missing is to get records that have keys not defined
@@ -940,13 +927,9 @@
         }
 
         try {
-          if(_unsafe) {
-            raw.push(which);
-          } else {
-            data = new (secret(ix))();
-            extend(data, which);
-            raw.push(data);
-          }
+          data = new (secret(ix))();
+          extend(data, which);
+          raw.push(data);
         } catch(ex) {
 
           // Embedded objects, like flash controllers
@@ -954,9 +937,7 @@
           // properties aren't totally enumerable.  We
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
-          if(!unsafe) {
-            which.constructor = secret(ix);
-          }
+          which.constructor = secret(ix);
           raw.push(which);
         }
 
@@ -1090,7 +1071,6 @@
   _DB.each = eachRun;
   _DB.values = values;
   _DB.like = like;
-  _DB.unsafe = function() { _unsafe = true; }
   _DB.missing = missing;
 
   _DB.findFirst = function(){

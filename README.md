@@ -10,6 +10,7 @@
  * <a href=#contact>Contact</a>
  * <a href=#similar>Similar Projects</a>
  * <a href=#alt>Browser-based Alternatives</a>
+ * <a href=#users>Users</a>
 
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
@@ -31,7 +32,7 @@
  * <a href=#missing>missing</a> to get records that have keys not defined
  * <a href=#select>select</a> one or more fields from a result
  * <a href=#inverse>inverse</a> to find the unary inverse of a set of results
- * <a href=#unsafe>unsafe</a> optimizations that may speed things up
+ * <a href=#view>view</a> data easily
 
 ### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
 
@@ -271,10 +272,34 @@ it's the way it is. Sorry.
 <h3><a name=inverse> [chain] inverse( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Invert a set of results.
 
-<h3><a name=unsafe> DB.unsafe </a> [ <a href=#toc-finding>top</a> ] </h3>
-Enables unsafe optimizations.  Specifically, db.isin uses regex matching for small sets as opposed to indexOf and insertions
-are sped it because instead of using a special type of object internally to do bookkeeping, objects get stained with sufficiently
-large keys for some internal operations.
+<h3><a name=view> [object] view( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
+Views are an expensive, unoptimized, naively implemented synchronization macro that return an object that can be indexed
+in order to get into the data.  Don't use views if performance is required.  If keys aren't unique, then the value for 
+the key is not defined (but not the undefined JS type).
+
+example:
+
+if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object like so:
+
+    { 
+      1: {a: 1},
+      2: {a: 2},
+      3: {a: 3}
+    }
+
+<h4>Notes</h4>
+
+ * Unlike the other parts of the api, there's one option, a string, which will be the key for the hash.
+ * This is similar to a group by, but the values are Not Arrays.
+ * The values are direct tie ins to the database.  You can change them silently.  Use caution.
+ * Deletion of course only decreases a reference count, so the data doesn't actually get removed from the raw db.
+ * If you create N views, then N objects get updated each time.
+ * The object returned will always be up to date.  At a synchronization instance
+   * All the keys are discarded
+   * The entire dataset is gone over linearly
+   * The table is recreated.
+   * This is about as expensive as it sounds.
+
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
@@ -318,6 +343,9 @@ Summary:
 This is like SQLs groupby function. It will take results from any other function and then
 return them as a hash where the keys are the field values and the results are an array
 of the rows that match that value.
+
+Note that the values returned do not update.  You can create a <a href=#view>view</a> if
+you want something that stays relevant.
 
 Example:
 
@@ -539,3 +567,10 @@ There's two interfaces, "IndexedDB" and the deprecated "WebSQL":
  * [Opera 11 has IndexedDB support](http://dev.opera.com/articles/view/taking-your-web-apps-offline-web-storage-appcache-websql/).
  * [Internet Explorer 9 has IndexedDB support](http://msdn.microsoft.com/en-us/scriptjunkie/gg679063) tentatively.
 
+<h3><a name=users>Users</a> [ <a href=#toc>top</a> ] </h3>
+If you use this library, let me know on the mailing list or through github!
+
+Current users:
+
+ * [iizuu](http://www.iizuu.com) uses the library extensively
+ * [ytmix](https://github.com/kristopolous/ytmix) a data drive youtube application
