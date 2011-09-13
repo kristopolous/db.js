@@ -781,15 +781,26 @@
       var obj = {};
 
       ret.sync(function(data) {
-        for(var key in obj) {
-          delete obj[key];
-        }
+        var ref = {}, key;
 
         each(data, function(row) {
           if(field in row) {
-            obj[row[field]] = row;
+            ref[row[field]] = row;
           }
         });
+
+        for(key in ref) {
+          if( ! ( key in obj ) ) {
+            obj[key] = ref[key];
+          } else if(obj[key] !== ref[key]) {
+            obj[key] = ref[key];
+          }
+        }
+        for(key in obj) {
+          if( ! (key in ref) ) {
+            delete obj[key];
+          }
+        }
       });
 
       sync();
