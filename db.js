@@ -176,9 +176,6 @@
       spliceix,
       ix,
 
-      // Cached result
-      cached = {},
-
       // The dataset to compare against
       set = simplecopy(_.isArr(this) ? this : filterList.shift());
 
@@ -194,13 +191,10 @@
 
       if(_.isFun(filter)) {
         var callback = filter.single || filter;
-        cached = {};
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
           which = set[ix];
-          if(which in cached) {
-            if(!cached[which]) { continue }
-          } else if(!(cached[which] = callback(which))) { continue }
+          if(!callback(which)) { continue }
 
           if(end - (ix + 1)) {
             spliceix = ix + 1;
@@ -217,7 +211,6 @@
         each(filter, function(key, value) {
 
           if( _.isFun(value)) {
-            cached = {};
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
