@@ -730,7 +730,7 @@
         }
       }
 
-      return filter.sort(fnSort);
+      return slice.call(filter).sort(fnSort);
     }
 
     // 
