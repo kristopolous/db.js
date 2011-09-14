@@ -807,7 +807,7 @@
     // Missing is to get records that have keys not defined
     //
     ret.missing = function() {
-      return ret.find(missing.apply(this, slice.call(arguments)));
+      return chain(ret.find(missing.apply(this, slice.call(arguments))));
     }
 
     //
