@@ -599,13 +599,18 @@
     var 
       constraints = {},
       syncList = [],
+      bSync = false,
       stainer = stain,
       _template = false,
       raw = [];
 
     function sync() {
-      for(var i = 0, len = syncList.length; i < len; i++) {
-        syncList[i].call(ret, raw);
+      if(!bSync) {
+        bSync = true;
+        for(var i = 0, len = syncList.length; i < len; i++) {
+          syncList[i].call(ret, raw);
+        }
+        bSync = false;
       }
     }
 
