@@ -584,7 +584,7 @@
   stainer = stain;
 
   // the list of functions to chain
-  var chainList = list2obj('has missing isin group remove update where select find order each like'.split(' '));
+  var chainList = list2obj('has missing isin group remove update where select find sort order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -807,7 +807,7 @@
     // Missing is to get records that have keys not defined
     //
     ret.missing = function() {
-      return chain(ret.find(missing.apply(this, slice.call(arguments))));
+      return ret.find(missing.apply(this, slice.call(arguments)));
     }
 
     //
