@@ -168,6 +168,8 @@ this key ... it just does a lookup every time as of now.
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
 <h3><a name=find> [chain] find( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
+*Also a top level function*
+
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
@@ -207,6 +209,8 @@ A macro lambda for find, this is like SQL like command and it takes the value an
 which is a mouthful.
 
 <h4><a name=isin> [chain] isin( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
+*Also a top level function*
+
 A macro lambda for find, this is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
 with a static array or a callback like so:
 
@@ -245,7 +249,7 @@ You'd get an implicit "AND" and get only record 3.
 hasKey is simply <a href=#missing>missing</a> followed by an invert.  It's worth noting that this means it's implicitly an OR because ! A & B = A | B
 
 <h4><a name=has> [chain] has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
-This is the reverse of has.  If you do
+This is the reverse of isin.  If you do
 
 db.insert({a: [1, 2, 3]})
 
@@ -309,6 +313,8 @@ if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object lik
 
 <h4><a name=each> [array] each( lambda ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
  *Aliased to map*
+*Also a top level function*
+
 The arguments for the lambda for each is either the return of a select as an array or the record
 as a return of a find.
 
