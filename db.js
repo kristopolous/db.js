@@ -672,7 +672,6 @@
     }
 
     extend(ret, {
-      __raw__: raw,
 
       // This is to constrain the database.  Currently you can enforce a unique
       // key value through something like `db.constrain('unique', 'somekey')`.
@@ -745,11 +744,9 @@
     // of the rows that match that value.
     //
     ret.group = function(field) {
-      var 
-        groupMap = {},
-        filter = _.isArr(this) ? this : ret.find();                 
+      var groupMap = {};
 
-      each(filter, function(which) {
+      each(this, function(which) {
         if(! groupMap[which[field]]) {
           groupMap[which[field]] = [];
         }
@@ -1033,7 +1030,6 @@
       return chain(save);
     }
 
-
     // The ability to import a database from somewhere
     if (arguments.length == 1) {
       if(_.isArr(arg0)) { ret.insert(arg0) }
@@ -1044,6 +1040,8 @@
       ret.insert(slice.call(arguments));
     }
 
+    // Assign this after initialization
+    ret.__raw__ = raw;
     return ret;
   }
 
