@@ -30,8 +30,9 @@
  * <a href=#isin>isin</a> to find whether the record is in a group
  * <a href=#has>has</a> to look inside a record stored as an array
  * <a href=#missing>missing</a> to get records that have keys not defined
+ * <a href=#hasKey>hasKey</a> to get records that have keys defined
  * <a href=#select>select</a> one or more fields from a result
- * <a href=#inverse>inverse</a> to find the unary inverse of a set of results
+ * <a href=#invert>invert</a> to find the unary inverse of a set of results
  * <a href=#view>view</a> data easily
 
 ### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
@@ -240,6 +241,9 @@ You'd get the second and third record.  Similarly, if you did
 
 You'd get an implicit "AND" and get only record 3.
 
+<h4><a name=hasKey> [chain] hasKey( argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+hasKey is simply <a href=#missing>missing</a> followed by an invert.  It's worth noting that this means it's implicitly an OR because ! A & B = A | B
+
 <h4><a name=has> [chain] has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
 This is the reverse of has.  If you do
 
@@ -269,7 +273,7 @@ select('one,two')
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
 
-<h3><a name=inverse> [chain] inverse( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
+<h3><a name=invert> [chain] invert( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Invert a set of results.
 
 <h3><a name=view> [object] view( string )</a> [ <a href=#toc-finding>top</a> ] </h3>

@@ -19,6 +19,9 @@
 
     _compProto = {},
 
+    // For computing set differences
+    _stainID = 0,
+
     // type checking system
     _ = {
       // from underscore.js {
@@ -387,17 +390,20 @@
     return ret;
   }
 
+  // These function accept index lists.
   function setdiff(larger, subset) {
-    larger = list2obj(larger);
-    subset = list2obj(subset);
+    var ret = [];
 
-    for(var key in subset) {
-      if(larger[key]) {
-        delete larger[key];
-      }
+    stain(subset);
+
+    for(var ix = 0, len = larger.length; ix < len; ix++) {
+      if (isStained(larger[ix])) { 
+        continue;
+      } 
+      ret.push(larger[ix]);
     }
 
-    return keys(larger);
+    return ret;
   }
 
   // Jacked from Resig's jquery 1.5.2
@@ -560,31 +566,31 @@
   }
 
 
-  var stain = (function() {
-    var 
-      pub = {},
-      stainid = 0;
+  // 
+  // "Staining" is my own crackpot algorithm of comparing
+  // two unsorted lists of pointers that reference shared
+  // objects. We go through list one, affixing a unique
+  // constant value to each of the members. Then we go
+  // through list two and see if the value is there.
+  //
+  // This has to be done rather atomically as the value
+  // can easily be replaced by something else.  It's an
+  // N + M cost...
+  //
+  function stain(list) {
+    _stainID++;
 
-    pub.stain = function(list) {
-      stainid++;
-
-      for(var ix = 0, len = list.length; ix < len; ix++) {
-        list[ix].constructor('i', stainid);
-      }
-
-      return stainid;
+    for(var ix = 0, len = list.length; ix < len; ix++) {
+      list[ix].constructor('i', _stainID);
     }
+  }
 
-    pub.isStained = function(obj) {
-      return obj.constructor('i') == stainid;
-    }
-    return pub;
-  })();
-
-  stainer = stain;
+  function isStained(obj) {
+    return obj.constructor('i') == _stainID;
+  }
 
   // the list of functions to chain
-  var chainList = list2obj('has missing isin group remove update where select find sort order each like'.split(' '));
+  var chainList = list2obj('has hasKey invert missing isin group remove update where select find sort order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -600,7 +606,6 @@
       constraints = {},
       syncList = [],
       bSync = false,
-      stainer = stain,
       _template = false,
       raw = [];
 
@@ -730,7 +735,7 @@
         }
       }
 
-      return slice.call(filter).sort(fnSort);
+      return chain(slice.call(filter).sort(fnSort));
     }
 
     // 
@@ -747,16 +752,12 @@
     }
 
     //
-    // inverse
+    // invert
     //
     // Invert a set of results.
     //
-    ret.inverse = function(list) {
-      if(arguments.length == 0 && _.isArr(this)) {
-        list = this;
-      }
-
-      return chain(setdiff(raw, list));
+    ret.invert = function(list) {
+      return chain(setdiff(raw, list || this));
     }
 
     ret.where = ret.find = function() {
@@ -816,6 +817,15 @@
     }
 
     //
+    // hasKey
+    //
+    // hasKey is to get records that have keys defined
+    //
+    ret.hasKey = function() {
+      return ret.find(missing.apply(this, slice.call(arguments))).invert();
+    }
+
+    //
     // findFirst
     //
     // This is a shorthand to find for when you are only expecting one result.
@@ -824,6 +834,7 @@
       var res = ret.find.apply(this, slice.call(arguments));
       return res.length ? res[0] : {};
     }
+
 
     //
     // select
@@ -1032,13 +1043,10 @@
       else if(arguments.length > 0){ list = ret.find(constraint); } 
       else { list = ret.find(); }
 
-      var uid = stainer.stain(list);
+      stain(list);
 
-      // Remove the undefined nodes from the raw table
-      var end = raw.length;
-
-      for(var ix = raw.length - 1; ix >= 0; ix--) {
-        if (stainer.isStained(raw[ix])) { 
+      for(var ix = raw.length - 1, end = raw.length; ix >= 0; ix--) {
+        if (isStained(raw[ix])) { 
           save.push(raw[ix]);
           continue;
         }
