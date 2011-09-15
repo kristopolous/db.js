@@ -197,6 +197,8 @@ in the style of find({key: lambda}).  Therein you can have something like
 
 
 <h4><a name=findFirst> [chain] findFirst( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h4>
+*Also a top level function*
+
 This is a wrapper of find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
@@ -402,7 +404,7 @@ you could initialize the database as follows:
 
 var db = DB($.jStorage.get('government-secrets'));
 
-<h3><a name=sync> [handle] db.sync(callback) </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=sync> [handle] sync( callback ) </a> [ <a href=#toc>top</a> ] </h3>
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 

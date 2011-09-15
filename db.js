@@ -749,11 +749,13 @@
         filter = _.isArr(this) ? this : ret.find();                 
 
       each(filter, function(which) {
-        if(! groupMap[which[field]]) {
-          groupMap[which[field]] = [];
-        }
+        if(field in which) {
+          if(! groupMap[which[field]]) {
+            groupMap[which[field]] = chain([]);
+          }
 
-        groupMap[which[field]].push(which);
+          groupMap[which[field]].push(which);
+        }
       });
       
       return groupMap;
@@ -1051,6 +1053,12 @@
     find: find,
     each: eachRun,
     like: like,
+    isin: isin,
+
+    findFirst: function(){
+      var res = find.apply(this, slice.call(arguments));
+      return res.length ? res[0] : {};
+    },
 
     // This does a traditional left-reduction on a list
     // as popular in list comprehension suites common in 
