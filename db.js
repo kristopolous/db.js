@@ -744,9 +744,11 @@
     // of the rows that match that value.
     //
     ret.group = function(field) {
-      var groupMap = {};
+      var 
+        groupMap = {},
+        filter = _.isArr(this) ? this : ret.find();                 
 
-      each(this, function(which) {
+      each(filter, function(which) {
         if(! groupMap[which[field]]) {
           groupMap[which[field]] = [];
         }
@@ -754,7 +756,7 @@
         groupMap[which[field]].push(which);
       });
       
-      return chain(groupMap);
+      return groupMap;
     } 
 
 
