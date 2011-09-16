@@ -625,7 +625,7 @@
   }
 
   // the list of functions to chain
-  var chainList = list2obj('has hasKey invert missing isin group remove update where select find sort order each like'.split(' '));
+  var chainList = list2obj('has hasKey insert invert missing isin group remove update where select find sort order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -929,20 +929,20 @@
         toInsert.push(param);
       } 
 
-      // If the user had opted for a certain field to be unique,
-      // then we find all the matches to that field and create
-      // a block list from them.
-      if(constraints.unique) {
-        each(raw, function(data, index){
-          constraintMap[data[constraints.unique]] = index;
-        });
-      }
-
       each(toInsert, function(which) {
         // If the unique field has been set then we do
         // a hash search through the constraints to 
         // see if it's there.
         if(constraints.unique) {
+          // If the user had opted for a certain field to be unique,
+          // then we find all the matches to that field and create
+          // a block list from them.
+          constraintMap = {};
+
+          each(raw, function(data, index){
+            constraintMap[data[constraints.unique]] = index;
+          });
+
           if(which[constraints.unique] in constraintMap){
             // put on the existing value
             ixList.push(constraintMap[which[constraints.unique]]);
@@ -1000,15 +1000,15 @@
     // This will remove the entries from the database but also return them if
     // you want to manipulate them.  You can invoke this with a constraint.
     //
-    ret.remove = function(constraint) {
+    ret.remove = function(arg0, arg1) {
       var 
         end, start,
         list,
         save = [];
 
       if(_.isArr(this)) { list = this; } 
-      else if(_.isArr(constraint)) { list = constraint; } 
-      else if(arguments.length > 0){ list = ret.find(constraint); } 
+      else if(_.isArr(arg0)) { list = arg0; } 
+      else if(arguments.length > 0){ list = ret.find.apply(this, slice.call(arguments)); } 
       else { list = ret.find(); }
 
       stain(list);
@@ -1031,7 +1031,7 @@
       }
 
       sync();
-      return chain(save);
+      return chain(save.reverse());
     }
 
     // The ability to import a database from somewhere

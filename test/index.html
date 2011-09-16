@@ -1,0 +1,512 @@
+<!doctype html>
+<html>
+<head>
+  <title>db.js test suite</title>
+  <link rel=stylesheet href=qunit.css>
+  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src=../db.js > </script>
+  <script src=qunit.js > </script>
+</head>
+<body>
+  <h1 id=qunit-header>db.js test suite</h1>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+  <div id="qunit-fixture">test markup, will be hidden</div>
+</body>
+<script>
+$(function(){
+module("Initialization");
+
+  test("No arguments", function(){
+    var db = DB();
+    equal(db.__raw__.length, 0, "The database has one element");
+  });
+
+  test("One KV arg", function(){
+    var db = DB({key: 'value'});
+    equal(db.__raw__.length, 1, "The database has one element");
+    equal(db.__raw__[0].key, "value", "The first element has a key and a value");
+  });
+
+  test("Multiple KV arg", function(){
+    var db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+    equal(db.__raw__.length, 3, "Three items were inserted");
+    equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
+  });
+
+  test("Multiple KV arg as array", function(){
+    var db = DB([{key1: 0}, {key2: 'value2'}, {key1: 'value3'}]);
+    equal(db.__raw__.length, 3, "Three items were inserted");
+    equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
+  });
+
+module("Insertion");
+  test("One KV arg", function(){
+    var db = DB();
+    db.insert({key: 'value'});
+    equal(db.__raw__.length, 1, "The database has one element");
+    equal(db.__raw__[0].key, "value", "The first element has a key and a value");
+  });
+
+  test("Multiple KV arg", function(){
+    var db = DB();
+    db.insert({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+    equal(db.__raw__.length, 3, "Three items were inserted");
+    equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
+  });
+
+  test("Multiple KV arg as array", function(){
+    var db = DB();
+    db.insert([{key1: 0}, {key2: 'value2'}, {key1: 'value3'}]);
+    equal(db.__raw__.length, 3, "Three items were inserted");
+    equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
+  });
+
+  test("Multiple KV arg as chain", function(){
+    var db = DB();
+    db
+      .insert({key1: 0})
+      .insert({key2: 'value2'})
+      .insert({key1: 'value3'});
+
+    equal(db.__raw__.length, 3, "Three items were inserted");
+    equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
+  });
+
+module('constrain');
+  test("Create a table, constrain by key", function(){
+    var db = DB();
+    db.constrain('unique', 'key1');
+    db.insert( {key1: 0, a:0}, {key2: 'value2', a:1}, {key1: 0, a:2});
+    db.find();
+
+    equal(db.__raw__.length, 2, "Three items were inserted");
+    equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+  });
+
+module("Removal");
+  test("Remove all", function(){
+    var db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+
+    var removedRecords = db.remove();
+    equal(db.__raw__.length, 0, "All items have been removed");
+    equal(removedRecords.length, 3, "I got three records back");
+    equal(removedRecords[0].key1, 0, "The first record looks right");
+    equal(typeof removedRecords.find, 'function', "It looks to be chained too");
+  });
+
+  test("Remove first element by KV", function(){
+    var db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+
+    db.remove({key1: 0});
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[0].key2, "value2", "The first one has the expected value");
+  });
+
+  test("Remove middle element by KV", function(){
+    var db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+
+    db.remove({key2: 'value2'});
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[1].key1, "value3", "The last one has the expected value");
+  });
+
+  test("Remove last element by KV", function(){
+    var db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'});
+
+    db.remove({key1: 'value3'});
+    equal(db.__raw__.length, 2, "There's two elements left");
+  });
+
+  test("(Remove last element by KV, insert again) * 10", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res,
+      ix = 0;
+
+    for(ix = 0; ix < 10; ix ++) {
+      db.insert( db.remove({key1: 'value3'}) );
+    }
+
+    equal(db.__raw__.length, 3, "There's three elements");
+  });
+
+module("Removal - syntax check");
+  test("Remove middle element by arglist", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.remove('key2', 'value2');
+
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[1].key1, "value3", "The last one has the expected value");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Remove middle element by record function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.remove(function(record) { return record.key2 == 'value2'; });
+
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[1].key1, "value3", "The last one has the expected value");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Remove middle element by key function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.remove({key2: function(value) { return value == 'value2'; }});
+
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[1].key1, "value3", "The last one has the expected value");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Remove middle element by expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.remove({key2: db('== "value2"')});
+
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[1].key1, "value3", "The last one has the expected value");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+module("update");
+  test("Add a Key/Value pair by Object", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.update({key4: 0});
+
+    equal(db.__raw__[0].key4, 0, "Checks out");
+    equal(db.__raw__[1].key4, 0, "Checks out");
+    equal(db.__raw__[2].key4, 0, "Checks out");
+  });
+
+  test("Add a Key/Value pair by argList", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.update('key4', 0);
+
+    equal(db.__raw__[0].key4, 0, "Checks out");
+    equal(db.__raw__[1].key4, 0, "Checks out");
+    equal(db.__raw__[2].key4, 0, "Checks out");
+  });
+
+  test("Add a Key/Value pair by record Function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.update(function(record){
+        record.key4 = 0;
+      });
+
+    equal(db.__raw__[0].key4, 0, "Checks out");
+    equal(db.__raw__[1].key4, 0, "Checks out");
+    equal(db.__raw__[2].key4, 0, "Checks out");
+  });
+
+module("Finding");
+  test("Find all elements", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find();
+
+    equal(res.length, 3, "I got three records");
+    equal(res[0].key1, 0, "They are the right ones");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by Object", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find({key1: 0});
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by argList", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find('key1', 0);
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by record function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find(function(record) {
+        return record.key1 === 0;
+      });
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by key function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find({key1: function(value) {
+        return value === 0;
+      }});
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by key expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find({key1: db('=== 0')});
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by anonymous expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find(db('key1', '=== 0'));
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by argList", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find('key1', 0);
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by record function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find(function(record) {
+        return record.key1 === 0;
+      });
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by key function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find({key1: function(value) {
+        return value === 0;
+      }});
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find one element by expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find({key1: db('=== 0')});
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+module("FindFirst");
+  test("First element by Object", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst({key1: 0});
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by argList", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst('key1', 0);
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by record function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst(function(record) {
+        return record.key1 === 0;
+      });
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by key function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst({key1: function(value) {
+        return value === 0;
+      }});
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by key expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst({key1: db('=== 0')});
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by anonymous expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst(db('key1', '=== 0'));
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by argList", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst('key1', 0);
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by record function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst(function(record) {
+        return record.key1 === 0;
+      });
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by key function", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst({key1: function(value) {
+        return value === 0;
+      }});
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by expression", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.findFirst({key1: db('=== 0')});
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+module("like");
+module("isin");
+module("missing");
+  test("Find records without a single specific key set", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.missing('key2');
+
+    equal(res.length, 2, "I got two records");
+    equal(res[0].key1, 0, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+  test("Find records without two specific keys set", function(){
+    var 
+      db = DB({key1: 0}, {key1: false, key2: 'value2'}, {key3: 'value3'}),
+      res = db.missing('key1', 'key2');
+
+    equal(res.length, 1, "I got one records");
+    equal(res[0].key3, 'value3', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+module('hasKey');
+  test("Find records with a single specific key set", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.hasKey('key2');
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key2, 'value2', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+module('has');
+module('select');
+  test("Select records by a single key", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.select('key1');
+
+    equal(res.length, 2, "I got one record");
+    equal(res[0], 0, "It is the right one");
+    equal(res[1], 'value3', "It is the right one");
+  });
+
+module('invert');
+  test("Find one element by Object, invert results", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find({key1: 0}).invert();
+
+    equal(res.length, 2, "I got two records");
+    equal(res[0].key2, 'value2', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find two elements by Object, invert results", function(){
+    var 
+      db = DB({key1: 0, a: 1}, {key2: 'value2'}, {key1: 'value3', a: 1}),
+      res = db.find({a: 1}).invert();
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].key2, 'value2', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find all elements anonymously, invert results", function(){
+    var 
+      db = DB({key1: 0, a: 1}, {key2: 'value2'}, {key1: 'value3', a: 1}),
+      res = db.find().invert();
+
+    equal(res.length, 0, "I got zero records");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+module('view');
+module('each');
+module('order');
+module('group');
+module('sync');
+});
+</script>
+
+

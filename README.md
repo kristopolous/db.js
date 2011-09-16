@@ -173,11 +173,12 @@ this key ... it just does a lookup every time as of now.
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
- * find({key: 'value'})
- * find('key', 'value')
- * find({key: function(value) { return value < 10; })
- * find({key: db('< 10')})
- * find(db('key', '< 10'))
+ * by Object: find({key: 'value'})
+ * by ArgList: find('key', 'value')
+ * by record Function: find(function(record) { return record.value < 10; })
+ * by key Function: find({key: function(value) { return value < 10; })
+ * by key Expression: find({key: db('< 10')})
+ * by anonymous Expression: find(db('key', '< 10'))
 
 <h4>About the arguments</h4>
 It can receive multiple arguments for multiple constraints.  For instance, you can
@@ -185,6 +186,9 @@ use an object style filter followed by a functional one, e.g.
 
     find( {key: value}, lambdaFilter );
 
+These operate together as an "AND" and is equivalent to doing something like:
+
+    find( {key: value} ).find( lambdaFilter );
 
 <h4>About the callback function style</h4>
 The arguments passed in for the functional style are either the whole record if invoked
@@ -350,11 +354,20 @@ Summary:
  * order('key', 'desc')
 
 **Note that the invocation styles above don't work on String values by default as of now.**
+#### Callback based ordering
+You can also do callback based sorting like so:
+
+ * order('key', function(x, y) { return x - y } )
+ * order(function(a, b) { return a[key] - b[key] })
+ * order('key', 'x - y') *see below*
+
+It's worth noting that if you are using the last invocation style, the
+first parameter is going to be x and the second one, y.
 
 <h3><a name=group> [map] group( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is like SQLs groupby function. It will take results from any other function and then
-return them as a hash where the keys are the field values and the results are an array
-of the rows that match that value.
+return them as a hash where the keys are the field values and the results are a chained array
+of the rows that match that value; each one supporting all the usual functions.
 
 Note that the values returned do not update.  You can create a <a href=#view>view</a> if
 you want something that stays relevant.
@@ -384,16 +397,6 @@ Example:
     }
 
 There's another example in the test.html file at around line 414
-
-#### Callback based ordering
-You can also do callback based sorting like so:
-
- * order('key', function(x, y) { return x - y } )
- * order(function(a, b) { return a[key] - b[key] })
- * order('key', 'x - y') *see below*
-
-It's worth noting that if you are using the last invocation style, the
-first parameter is going to be x and the second one, y.
 
 
 <h2><a name=storage> Storage </a> [ <a href=#toc>top</a> ] </h2>
