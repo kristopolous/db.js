@@ -163,7 +163,7 @@
 
   function simplecopy(obj) {
     // we need to call slice for array-like objects, such as the dom
-    return obj.length ? slice.call(obj) : values(obj);
+    return obj.length ? obj.slice() : values(obj);
   }
 
   function find() {
@@ -176,12 +176,12 @@
       val,
 
       // The indices
-      end,
-      spliceix,
       ix,
 
+      res = [],
+      len,
       // The dataset to compare against
-      set = simplecopy(_.isArr(this) ? this : filterList.shift());
+      set = _.isArr(this) ? this : filterList.shift();
 
     if( filterList.length == 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
@@ -196,45 +196,26 @@
       if(_.isFun(filter)) {
         var callback = filter.single || filter;
 
-        for(end = set.length, ix = end - 1; ix >= 0; ix--) {
+        for(ix = 0, len = set.length; ix < len; ix++) {
           which = set[ix];
           if(!callback(which)) { continue }
-
-          if(end - (ix + 1)) {
-            spliceix = ix + 1;
-            set.splice(spliceix, end - spliceix);
-          }
-          end = ix;
-        }
-
-        spliceix = ix + 1;
-        if(end - spliceix) {
-          set.splice(spliceix, end - spliceix);
+          res.push(which);
         }
       } else {
         each(filter, function(key, value) {
 
           if( _.isFun(value)) {
-            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
+            for(ix = 0, len = set.length; ix < len; ix++) {
               which = set[ix];
 
               // Check for existence
-              if( key in which ) {
-                val = which[key];
-
-                if( ! value(val, which) ) { continue }
-
-                if(end - (ix + 1)) {
-                  spliceix = ix + 1;
-                  set.splice(spliceix, end - spliceix);
-                }
-
-                end = ix;
+              if( key in which && value(which[key], which) )  {
+                res.push(which);
               }
             }
 
           } else {
-            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
+            for(ix = 0, len = set.length; ix < len; ix++) {
               which = set[ix];
 
               // Check for existence
@@ -242,23 +223,15 @@
                 continue;
               }
 
-              if(end - (ix + 1)) {
-                spliceix = ix + 1;
-                set.splice(spliceix, end - spliceix);
-              }
-              end = ix;
+              res.push(which);
             }
           }
 
-          spliceix = ix + 1;
-          if(end - spliceix) {
-            set.splice(spliceix, end - spliceix);
-          }
         });
       }
     }
 
-    return set;
+    return res;
   }
 
   //
