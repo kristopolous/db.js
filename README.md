@@ -207,17 +207,16 @@ This is a wrapper of find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
 
-<h4><a name=like> [chain] like( string )</a> [ <a href=#toc-finding>top</a> ] </h4>
-A macro lambda for find, this is like SQL like command and it takes the value and does
+<h4><a name=like> [chain] like( string | argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+A macro lambda for find that does a case-insensitive regex search on the values for keys.
+This is similar to the SQL like command and it takes the value and does
 
    value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
 
-which is a mouthful.
-
-<h4><a name=isin> [chain] isin( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h4><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h4>
 *Also a top level function*
 
-A macro lambda for find, this is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
+A macro lambda for find which tests for set membership. This is like the SQL "in" operator.  You can invoke it either
 with a static array or a callback like so:
 
  * db.isin('months', ['jan','feb','march'])

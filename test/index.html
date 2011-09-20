@@ -427,7 +427,47 @@ module("FindFirst");
   });
 
 module("like");
+  test("Find records based on KV convention", function(){
+    var 
+    db = DB({key: 'abcde'}, {key: 'cdefg'}, {key: 'efgh'}, {key: 'aceg'}),
+      res = db.find({key: db.like('cd')});
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 'cdefg', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find records based on argList convention", function(){
+    var 
+      db = DB({key: 'abcde'}, {key: 'cdefg'}, {key: 'efgh'}, {key: 'aceg'}),
+      res = db.find(db.like('key', 'cd'));
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 'cdefg', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
 module("isin");
+  test("Find records with a value in a list based on KV convention", function(){
+    var 
+      db = DB({key: 0}, {key: 1}, {key: 2}),
+      res = db.find({key: db.isin([0,2])});
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 2, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find records with a value in a list based on argList convention", function(){
+    var 
+      db = DB({key: 0}, {key: 1}, {key: 2}),
+      res = db.find(db.isin('key', [0,2]));
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 2, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
 module("missing");
   test("Find records without a single specific key set", function(){
     var 
