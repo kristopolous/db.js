@@ -222,6 +222,9 @@
               if( key in which ) {
                 val = which[key];
 
+                // Permit mutator events
+                if( _.isFun(val) ) { val = val(); }
+
                 if( ! value(val, which) ) { continue }
 
                 if(end - (ix + 1)) {
@@ -237,8 +240,12 @@
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
+              val = which[key];
+
+              if( _.isFun(val) ) { val = val(); }
+
               // Check for existence
-              if( ! (key in which && which[key] === value ) ) {
+              if( ! (key in which && val === value ) ) {
                 continue;
               }
 
@@ -430,10 +437,22 @@
           // take each item from the filter (filtered results)
           // and then apply the value function to it, storing
           // back the results
-          each(filter, function(which) { which[key] = value(which); });
+          each(filter, function(which) { 
+            if(_.isFun(which[key])) {
+              which[key]( value(which) );
+            } else {
+              which[key] = value(which); 
+            }
+          });
         } else {
           // otherwise, assign the static 
-          each(filter, function(which) { which[key] = value; });
+          each(filter, function(which) { 
+            if(_.isFun(which[key])) {
+              which[key]( value );
+            } else {
+              which[key] = value; 
+            }
+          });
         }
       });
     }

@@ -17,6 +17,7 @@
  * <a href=#initialization>Initialization</a> a new database
  * <a href=#transforming>Transforming</a> existing data
  * <a href=#insert>Insert</a> new records
+ * <a href=#mutator>Mutator</a> functions as values
  * <a href=#template>Template</a> based insertion
  * <a href=#update>Update</a> exiting records
  * <a href=#remove>Remove</a> records and get a copy of them
@@ -111,6 +112,37 @@ and puts in some type of record keeping information and accounting.
 
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
+
+<h3><a name=mutator> insert( lambda ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
+Values can also be mutators.  This semantically changes what update and find mean.  Value based mutators can be used
+to achieve many aspects of list comprehension. Find will run the mutator with no arguments while update will pass the
+argument to the mutator; with the argument itself of course, possible to be another lambda.  
+
+To help wrap your head around it, the example below adds or subtracts a local variable based on the value passed in:
+
+    var db = DB({key: (function(){
+      var value = 0; 
+
+      return function(modifier){
+        if(arguments.length) {
+          value += modifier;
+        }
+        return value;
+      }
+    })()});
+
+If you run a db.find({key: 0}) on this then the function will be run, returning the value at its initial state.  In this
+case it would be 0.
+
+Semantically, the update will now pass in a value, as mentioned above.  So if you do something like:
+
+    db.update({key: 4});
+
+Now the value in the closure will be "4" and a db.find({key: 4}) will return.
+<!--
+<h4>Random set example</h4>
+
+As another example, pretend you want a set of n numbers with a range from min to max.-->
 
 <h3><a name=template> Templates </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Templates permit you to have a set of K/V pairs or K/lambda pairs that act as
@@ -571,9 +603,25 @@ Dual-Licensed under MIT and GPL.
 Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
 
 <h3><a name=alt>Browser-Based Alternatives</a> [ <a href=#toc>top</a> ] </h3>
-Part of [HTML5](http://dev.w3.org/html5/webdatabase/#databases) has SQL support in the land of future browsers.
+Part of [HTML5](http://dev.w3.org/html5/webdatabase/#databases) may have SQL support in the land of future browsers.
+But this is probably unlikely.  WebSQL, which is an SQL driver, usually just an interface to SQLite is being deprecated
+in favor of a K/V store, IndexedDB which operates like a persistent hash with the following properties:
 
-There's two interfaces, "IndexedDB" and the deprecated "WebSQL":
+ * Schema-free
+ * K/V based (as opposed to row)
+ * Driven through DOM events
+ * Does not use SQL.
+ * Transactional (this implicates Cursors)
+ * Mostly asynchronous and driven through events.
+ * Supports unique indices 
+ * Supports LINQ-style [ranges](https://developer.mozilla.org/en/IndexedDB/IDBKeyRange)
+
+Here's where it's lacking
+
+ * Mutator methods
+
+
+<h4>Support</h4>
 
  * [Safari has supported WebSQL](http://www.webkit.org/blog/126/webkit-does-html5-client-side-database-storage/) for a while and is working on [indexedDB](https://github.com/NielsLeenheer/html5test/pull/68) support. 
  * [Chrome has had WebSQL support since version 4](http://www.infoq.com/news/2010/02/Web-SQL-Database) and used a [different interface](http://code.google.com/apis/gears/upcoming/api_database.html) prior to that.  IndexedDB support came in through [chromium](http://weblog.bocoup.com/javascript-indexeddb-in-chromium-8-0-552-5-dev).
