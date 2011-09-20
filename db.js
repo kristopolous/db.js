@@ -176,12 +176,12 @@
       val,
 
       // The indices
+      end,
+      spliceix,
       ix,
 
-      res = [],
-      len,
       // The dataset to compare against
-      set = _.isArr(this) ? this : filterList.shift();
+      set = simplecopy(_.isArr(this) ? this : filterList.shift());
 
     if( filterList.length == 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
@@ -196,26 +196,45 @@
       if(_.isFun(filter)) {
         var callback = filter.single || filter;
 
-        for(ix = 0, len = set.length; ix < len; ix++) {
+        for(end = set.length, ix = end - 1; ix >= 0; ix--) {
           which = set[ix];
           if(!callback(which)) { continue }
-          res.push(which);
+
+          if(end - (ix + 1)) {
+            spliceix = ix + 1;
+            set.splice(spliceix, end - spliceix);
+          }
+          end = ix;
+        }
+
+        spliceix = ix + 1;
+        if(end - spliceix) {
+          set.splice(spliceix, end - spliceix);
         }
       } else {
         each(filter, function(key, value) {
 
           if( _.isFun(value)) {
-            for(ix = 0, len = set.length; ix < len; ix++) {
+            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
               // Check for existence
-              if( key in which && value(which[key], which) )  {
-                res.push(which);
+              if( key in which ) {
+                val = which[key];
+
+                if( ! value(val, which) ) { continue }
+
+                if(end - (ix + 1)) {
+                  spliceix = ix + 1;
+                  set.splice(spliceix, end - spliceix);
+                }
+
+                end = ix;
               }
             }
 
           } else {
-            for(ix = 0, len = set.length; ix < len; ix++) {
+            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
               // Check for existence
@@ -223,15 +242,23 @@
                 continue;
               }
 
-              res.push(which);
+              if(end - (ix + 1)) {
+                spliceix = ix + 1;
+                set.splice(spliceix, end - spliceix);
+              }
+              end = ix;
             }
           }
 
+          spliceix = ix + 1;
+          if(end - spliceix) {
+            set.splice(spliceix, end - spliceix);
+          }
         });
       }
     }
 
-    return res;
+    return set;
   }
 
   //
