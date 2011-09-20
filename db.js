@@ -875,7 +875,7 @@
     ret.select = function(field) {
       var 
         filter = _.isArr(this) ? this : ret.find(),
-        len,
+        fieldCount,
         resultList = {};
 
       if(arguments.length > 1) {
@@ -884,7 +884,7 @@
         field = [field];
       }
 
-      len = field.length;
+      fieldCount = field.length;
       
       each(field, function(column, iy) {
         if(column == '*') {
@@ -894,7 +894,7 @@
             row = filter[ix];
 
             if(column in row){
-              if(len > 1) {
+              if(fieldCount > 1) {
                 if(!resultList[ix]) {
                   resultList[ix] = [];
                 }
