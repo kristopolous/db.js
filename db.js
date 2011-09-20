@@ -639,6 +639,7 @@
   self.DB = function(arg0, arg1){
     var 
       constraints = {},
+      constrainCache = {},
       syncList = [],
       bSync = false,
       _template = false,
