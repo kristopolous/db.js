@@ -729,7 +729,13 @@
       // The callbacks in this list are called
       // every time the database changes with
       // the raw value of the database.
-      sync: function(callback) { syncList.push(callback); },
+      sync: function(callback) { 
+        if(callback) {
+          syncList.push(callback);
+        } else { 
+          sync();
+        }
+      },
 
       template: {
         create: function(opt) { _template = opt; },

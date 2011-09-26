@@ -450,6 +450,9 @@ it is done at the END of a function call, regardless of invocation.  That is
 to say, that if you update 10 records, or insert 20, or remove 50, it would be
 run, once, once, and once respectively.
 
+If you run sync with no arguments then it will not add an undefined to the function
+stack and then crash on an update; on the contrary, it will run the synchronization function stack; just as one would expect.
+
 <h2><a name=example> Examples</a> [ <a href=#toc>top</a> ] </h2>
 
 <h3><a name=ex-creation> Creation and Insertion</a> [ <a href=#toc>top</a> ] </h3>
