@@ -304,6 +304,9 @@
 
       // If the second argument is an array then we assume that we are looking
       // to see if the value in the database is part of the user supplied funciton
+      if(!_.isArr(compare)) {
+        throw new TypeError("isin's argument is wrong. ", compare);
+      }
       if(compare.length){
         if(compare.length < 20 && _.isNum(compare[0])) {
           var key = compare.join(',');
