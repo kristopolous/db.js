@@ -114,6 +114,16 @@
     return ret;
   }
 
+  function print(arg) {
+    if(_.isStr(arg)) {
+      return '"' + arg.replace(/\"/g, '\\\"') + '"';
+    } else if(_.isNum(arg)) {
+      return arg;
+    } else if(_.isArr(arg)) {
+      return '[' + arg.map(function(param) { return print(param) }).join(',') + ']';
+    }
+  }
+
   // We create basic comparator prototypes to avoid evals
   each('< <= > >= == === != !=='.split(' '), function(which) {
     _compProto[which] = Function(
@@ -160,10 +170,9 @@
     }
   }
 
-
   function simplecopy(obj) {
     // we need to call slice for array-like objects, such as the dom
-    return obj.length ? obj.slice() : values(obj);
+    return obj.length ? slice.call(obj) : values(obj);
   }
 
   function find() {
@@ -843,13 +852,14 @@
     }
 
     ret.where = ret.find = function() {
-      return chain( 
-        find.apply(this, 
-          arguments.length ? 
-            [raw].concat(slice.call(arguments)) : 
-            [raw]
-          )
-        );
+      var args = slice.call(arguments || []);
+
+      // Addresses test 23 (Finding: Find all elements cascarded, 3 times)
+      if(!_.isArr(this)) {
+        args = [raw].concat(args);
+      }
+
+      return chain( find.apply(this, args) );
     }
 
     //

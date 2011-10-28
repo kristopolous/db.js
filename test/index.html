@@ -229,6 +229,19 @@ module("Finding");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find all elements cascarded, 3 times", function(){
+    var 
+      db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
+      res = db.find();
+
+    res = res.find();
+    res = res.find();
+
+    equal(res.length, 3, "I got three records");
+    equal(res[0].key1, 0, "They are the right ones");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
   test("Find one element by Object", function(){
     var 
       db = DB({key1: 0}, {key2: 'value2'}, {key1: 'value3'}),
