@@ -843,7 +843,7 @@
           }
         }
 
-        fnSort = new Function('a,b', 'return order(a.' + key + ', b.' + key + ')');
+        fnSort = eval('function(a,b){return order(a.' + key + ', b.' + key + ')}');
       }
 
       return chain(slice.call(filter).sort(fnSort));
