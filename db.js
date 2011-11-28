@@ -656,7 +656,7 @@
   }
 
   // the list of functions to chain
-  var chainList = list2obj('has hasKey insert invert missing isin group keyBy remove update where select find sort order each like'.split(' '));
+  var chainList = list2obj('has hasKey insert invert missing isin group keyBy remove update where select find sort orderBy order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -823,7 +823,7 @@
     //
     // You can also supply a second parameter of a case insensitive "asc" and "desc" like in SQL.
     //
-    ret.order = ret.sort = function (arg0, arg1) {
+    ret.order = ret.sort = ret.orderBy = function (arg0, arg1) {
       var 
         key, 
         fnSort,

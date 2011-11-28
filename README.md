@@ -373,6 +373,7 @@ This is a right-wise reduction.  It is simply a left-wise with the input list be
 
 <h3><a name=order> [array] order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
  *Aliased to sort*
+ *Aliased to orderBy*
 
 This is like SQLs orderby function.  If you pass it just a field, then
 the results are returned in ascending order (x - y).  
