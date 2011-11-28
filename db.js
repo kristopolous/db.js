@@ -810,7 +810,7 @@
 
       each(groupResult, function(key, value) {
         groupResult[key] = value[0];
-      }
+      });
 
       return groupResult;
     } 
