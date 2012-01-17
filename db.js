@@ -1094,6 +1094,22 @@
     like: like,
     isin: isin,
 
+    objectify: function(keyList, values) {
+      var obj = [];
+
+      each(values, function(row) {
+        var objRow = {};
+        each(keyList, function(key, index) {
+          objRow[key] = row[index];
+        });
+
+        obj.push(objRow);
+
+      });
+
+      return obj; 
+    },
+
     findFirst: function(){
       var res = find.apply(this, slice.call(arguments));
       return res.length ? res[0] : {};

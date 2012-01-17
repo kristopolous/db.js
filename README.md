@@ -90,6 +90,32 @@ Along with this:
       db.like('innerHTML', 'hello World')
     )
 
+There is also a routine named `DB.objectify` which takes a set of keys and values and
+emits an object.  For instance, if you had a flat data structure, say, from CSV, like this:
+
+    var FlatData = [
+      [ "FIRST", "LAST" ],
+      [ "Alice", "Foo" ],
+      [ "Bob", "Bar" ],
+      [ "Carol", "Baz" ]
+    ];
+
+Then you can do this:
+
+    DB.objectify(FlatData[0], FlatData.slice(1));
+
+And you'd get:
+
+    [
+      { First: "Alice", Last: "Foo" },
+      { First: "Bob", Last: "Bar" },
+      { First: "Carol", Last: "Baz" }
+    ]
+
+So you can combine these two and then do an insertion:
+
+    var myDB = DB( DB.objectify(FlatData[0], FlatData.slice(1)) );
+
 <h3><a name=insert> insert( arguments | object | array ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
@@ -140,7 +166,7 @@ Semantically, the update will now pass in a value, as mentioned above.  So if yo
 
 Now the value in the closure will be "4" and a db.find({key: 4}) will return.
 <!--
-<h4>Random set example</h4>
+<h3>Random set example</h3>
 
 As another example, pretend you want a set of n numbers with a range from min to max.-->
 
@@ -212,7 +238,7 @@ can invoke it one of the following ways:
  * by key Expression: find({key: db('< 10')})
  * by anonymous Expression: find(db('key', '< 10'))
 
-<h4>About the arguments</h4>
+<h3>About the arguments</h3>
 It can receive multiple arguments for multiple constraints.  For instance, you can
 use an object style filter followed by a functional one, e.g.
 
@@ -222,7 +248,7 @@ These operate together as an "AND" and is equivalent to doing something like:
 
     find( {key: value} ).find( lambdaFilter );
 
-<h4>About the callback function style</h4>
+<h3>About the callback function style</h3>
 The arguments passed in for the functional style are either the whole record if invoked
 in the style of find( lambda ) or the key being argument 0 and the record being argument 1
 in the style of find({key: lambda}).  Therein you can have something like 
@@ -232,20 +258,20 @@ in the style of find({key: lambda}).  Therein you can have something like
    });
 
 
-<h4><a name=findFirst> [chain] findFirst( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h3><a name=findFirst> [chain] findFirst( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
 *Also a top level function*
 
 This is a wrapper of find for when you are only expecting one result.
 **Please note that findFirst ALWAYS returns an object.  If there was no match
 then the returned object is empty.**
 
-<h4><a name=like> [chain] like( string | argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h3><a name=like> [chain] like( string | argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 A macro lambda for find that does a case-insensitive regex search on the values for keys.
 This is similar to the SQL like command and it takes the value and does
 
    value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
 
-<h4><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h3><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h3>
 *Also a top level function*
 
 A macro lambda for find which tests for set membership. This is like the SQL "in" operator.  You can invoke it either
@@ -258,7 +284,7 @@ A usage scenario may be as follows:
 
 db.find({months: db.isin(['jan', 'feb', 'march']));
 
-<h4><a name=missing> [chain] missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h3><a name=missing> [chain] missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Missing is a macro lambda for find that can either be combined with find or called in a chain.  It will 
 return records where ALL the fields supplied in the argList are missing.  For instance, if you have the following
 records:
@@ -282,10 +308,10 @@ You'd get the second and third record.  Similarly, if you did
 
 You'd get an implicit "AND" and get only record 3.
 
-<h4><a name=hasKey> [chain] hasKey( argList )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h3><a name=hasKey> [chain] hasKey( argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 hasKey is simply <a href=#missing>missing</a> followed by an invert.  It's worth noting that this means it's implicitly an OR because ! A & B = A | B
 
-<h4><a name=has> [chain] has( multi )</a> [ <a href=#toc-finding>top</a> ] </h4>
+<h3><a name=has> [chain] has( multi )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This is the reverse of isin.  If you do
 
 db.insert({a: [1, 2, 3]})
@@ -332,7 +358,7 @@ if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object lik
       3: {a: 3}
     }
 
-<h4>Notes</h4>
+<h3>Notes</h3>
 
  * Unlike the other parts of the api, there's one option, a string, which will be the key for the hash.
  * This is similar to a group by, but the values are Not Arrays.
@@ -348,7 +374,7 @@ if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object lik
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
-<h4><a name=each> [array] each( lambda ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h3><a name=each> [array] each( lambda ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
  *Aliased to map*
 *Also a top level function*
 
@@ -358,7 +384,7 @@ as a return of a find.
 This is a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-<h4><a name=reduceLeft> [scalar] reduceLeft( memo, lambda | expression )</a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h3><a name=reduceLeft> [scalar] reduceLeft( memo, lambda | expression )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is a macro lambda for each that implements a traditional functional list-reduction. You can use it like so:
 
     db.each( DB.reduceLeft(0, ' += x.value');
@@ -367,7 +393,7 @@ The y parameter is the iterated reduction and the x parameter is the record to r
 lambda function can either be a partial expression which will be evaluated to ('y = ' + expression) or it can
 be a passed in lambda.
 
-<h4><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
+<h3><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
 
 <h3><a name=order> [array] order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
@@ -624,7 +650,7 @@ Here's where it's lacking
  * Mutator methods
 
 
-<h4>Support</h4>
+<h3>Support</h3>
 
  * [Safari has supported WebSQL](http://www.webkit.org/blog/126/webkit-does-html5-client-side-database-storage/) for a while and is working on [indexedDB](https://github.com/NielsLeenheer/html5test/pull/68) support. 
  * [Chrome has had WebSQL support since version 4](http://www.infoq.com/news/2010/02/Web-SQL-Database) and used a [different interface](http://code.google.com/apis/gears/upcoming/api_database.html) prior to that.  IndexedDB support came in through [chromium](http://weblog.bocoup.com/javascript-indexeddb-in-chromium-8-0-552-5-dev).
