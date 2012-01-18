@@ -43,6 +43,7 @@
  * <a href=#reduceRight>reduceRight</a> results to aggregate values
  * <a href=#order>order</a> or <a href=#order>sort</a> results given some function or expression
  * <a href=#group>group</a> results by some key
+ * <a href=#keyBy>keyBy</a> a certain key to make a 1-to-1 map
 
 ### <a href=#storage>Storage</a> options to importing and expoting data
 
@@ -398,6 +399,7 @@ This is a right-wise reduction.  It is simply a left-wise with the input list be
 
 <h3><a name=order> [array] order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
  *Aliased to sort*
+ *Aliased to orderBy*
 
 This is like SQLs orderby function.  If you pass it just a field, then
 the results are returned in ascending order (x - y).  
@@ -455,6 +457,10 @@ Example:
 
 There's another example in the test.html file at around line 414
 
+<h3><a name=keyBy> [map] keyBy( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
+This is similar to the <a href=#group>group</a> feature except that the values are never
+arrays and are instead just a single entry.  If there are multiple values, then the first
+one acts as te value.  This should probably be done on unique keys (or columns if you will)
 
 <h2><a name=storage> Storage </a> [ <a href=#toc>top</a> ] </h2>
 What if you have an existing database from somewhere and you want to import

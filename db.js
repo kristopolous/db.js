@@ -656,7 +656,7 @@
   }
 
   // the list of functions to chain
-  var chainList = list2obj('has hasKey insert invert missing isin group remove update where select find sort order each like'.split(' '));
+  var chainList = list2obj('has hasKey insert invert missing isin group keyBy remove update where select find sort orderBy order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -799,6 +799,21 @@
       return groupMap;
     } 
 
+    //
+    // keyBy
+    //
+    // This is like group above but it just maps as a K/V tuple, with 
+    // the duplication policy of the first match being preferred.
+    //
+    ret.keyBy = function(field) {
+      var groupResult = ret.group.apply(this, arguments);
+
+      each(groupResult, function(key, value) {
+        groupResult[key] = value[0];
+      });
+
+      return groupResult;
+    } 
 
     //
     // sort
@@ -808,7 +823,7 @@
     //
     // You can also supply a second parameter of a case insensitive "asc" and "desc" like in SQL.
     //
-    ret.order = ret.sort = function (arg0, arg1) {
+    ret.order = ret.sort = ret.orderBy = function (arg0, arg1) {
       var 
         key, 
         fnSort,
@@ -843,9 +858,7 @@
           }
         }
 
-        fnSort = function(a, b) {
-          return order(a[key], b[key]);
-        }
+        eval('fnSort=function(a,b){return order(a.' + key + ', b.' + key + ')}');
       }
 
       return chain(slice.call(filter).sort(fnSort));
