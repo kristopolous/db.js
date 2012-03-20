@@ -132,6 +132,21 @@
     )
   });
 
+  function trace(obj, cb) {
+    obj.__$$tracer$$__ = {};
+
+    each(obj, function(key, value) {
+      if(_.isFun(value)) {
+        obj.__$$tracer$$__[key] = value;
+        obj[key] = function() {
+          console.log.apply(this, [key + ":" ].concat(slice.call(arguments)));
+          if(cb) { cb.apply(this, arguments); }
+          return obj.__$$tracer$$__[key].apply(this, arguments);
+        }
+      }
+    });
+  }
+
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
   // The second parameter is the index to search
@@ -1105,6 +1120,7 @@
     find: find,
     each: eachRun,
     like: like,
+    trace: trace,
     isin: isin,
 
     objectify: function(keyList, values) {
