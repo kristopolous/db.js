@@ -289,6 +289,9 @@
       }
     }
 
+    set.first = set[0];
+    set.last = set[set.length - 1];
+
     return set;
   }
 
