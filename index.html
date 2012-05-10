@@ -112,6 +112,8 @@
       job: "Pilot"
     }];
 
+    DB.trace(db);
+
     res = db.find().select('*');
     log('Initialized the database with the following data', res.join('<br>'));
 

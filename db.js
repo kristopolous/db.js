@@ -8,19 +8,20 @@
 (function(){
 
   var 
+    // undefined
+    _u,
+
     // prototypes and short cuts
     slice = Array.prototype.slice,  
     toString = Object.prototype.toString,
-
-    _DB,
-
-    // system variables
-    _unsafe = false,
 
     // system caches
     _orderCache = {},
 
     _compProto = {},
+
+    // For computing set differences
+    _stainID = 0,
 
     // type checking system
     _ = {
@@ -103,6 +104,26 @@
      };
    
 
+  function hash(array) {
+    var ret = {};
+
+    each(array, function(index) {
+      ret[index] = true;
+    });
+
+    return ret;
+  }
+
+  function print(arg) {
+    if(_.isStr(arg)) {
+      return '"' + arg.replace(/\"/g, '\\\"') + '"';
+    } else if(_.isNum(arg)) {
+      return arg;
+    } else if(_.isArr(arg)) {
+      return '[' + arg.map(function(param) { return print(param) }).join(',') + ']';
+    }
+  }
+
   // We create basic comparator prototypes to avoid evals
   each('< <= > >= == === != !=='.split(' '), function(which) {
     _compProto[which] = Function(
@@ -110,6 +131,21 @@
       'return function(x){return x' + which + 'rhs}'
     )
   });
+
+  function trace(obj, cb) {
+    obj.__$$tracer$$__ = {};
+
+    each(obj, function(key, value) {
+      if(_.isFun(value)) {
+        obj.__$$tracer$$__[key] = value;
+        obj[key] = function() {
+          console.log.apply(this, [key + ":" ].concat(slice.call(arguments)));
+          if(cb) { cb.apply(this, arguments); }
+          return obj.__$$tracer$$__[key].apply(this, arguments);
+        }
+      }
+    });
+  }
 
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
@@ -168,9 +204,6 @@
       spliceix,
       ix,
 
-      // Cached result
-      cached = {},
-
       // The dataset to compare against
       set = simplecopy(_.isArr(this) ? this : filterList.shift());
 
@@ -185,14 +218,11 @@
       filter = filterList[filterIx];
 
       if(_.isFun(filter)) {
-        var callback = filter.single;
-        cached = {};
+        var callback = filter.single || filter;
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
           which = set[ix];
-          if(which in cached) {
-            if(!cached[which]) { continue }
-          } else if(!(cached[which] = callback(which))) { continue }
+          if(!callback(which)) { continue }
 
           if(end - (ix + 1)) {
             spliceix = ix + 1;
@@ -209,25 +239,23 @@
         each(filter, function(key, value) {
 
           if( _.isFun(value)) {
-            cached = {};
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
               // Check for existence
               if( key in which ) {
                 val = which[key];
+
+                // Permit mutator events
+                if( _.isFun(val) ) { val = val(); }
+
                 if( ! value(val, which) ) { continue }
-                /*
-                if(cached[val] === false) { continue }
-                if(cached[val] === undefined) {
-                  if( !(cached[val] = value(val, which)) ) { continue }
-                }
-                */
 
                 if(end - (ix + 1)) {
                   spliceix = ix + 1;
                   set.splice(spliceix, end - spliceix);
                 }
+
                 end = ix;
               }
             }
@@ -236,8 +264,12 @@
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
               which = set[ix];
 
+              val = which[key];
+
+              if( _.isFun(val) ) { val = val(); }
+
               // Check for existence
-              if( ! (key in which && which[key] === value ) ) {
+              if( ! (key in which && val === value ) ) {
                 continue;
               }
 
@@ -257,10 +289,37 @@
       }
     }
 
+    set.first = set[0];
+    set.last = set[set.length - 1];
+
     return set;
   }
 
+  //
+  // missing
+  //
+  // Missing is to get records that have keys not defined
+  //
+  function missing() {
+    var fieldList = hash(slice.call(arguments));
+
+    return function(record) {
+      for(var field in fieldList) {
+        if(field in record) {
+          return false;
+        }
+      }
+      return true;
+    };
+  }
+
+  // 
+  // isin
+  //
+  // This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
+  // with a static array or a callback
   var isin = (function() {
+    // It has a cache for optimization
     var cache = {};
 
     return function (param1, param2) {
@@ -272,13 +331,11 @@
 
       // If the second argument is an array then we assume that we are looking
       // to see if the value in the database is part of the user supplied funciton
+      if(!_.isArr(compare)) {
+        throw new TypeError("isin's argument is wrong. ", compare);
+      }
       if(compare.length){
-        if(_unsafe && compare.length < 10 ) {
-
-          // This is totally unsafe
-          var regex = new RegExp('^(' + compare.join('|') + ')$');
-          callback = function(x) { return regex.test(x); };
-        } else if(compare.length < 20 && _.isNum(compare[0])) {
+        if(compare.length < 20 && _.isNum(compare[0])) {
           var key = compare.join(',');
 
           // new Function is faster then eval but it's still slow, so we cache
@@ -347,7 +404,7 @@
   }
 
   function deepcopy(from) {
-    //@http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
+    // @http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
     return extend({}, from);
   }
 
@@ -371,17 +428,66 @@
     return ret;
   }
 
+  // These function accept index lists.
   function setdiff(larger, subset) {
-    larger = list2obj(larger);
-    subset = list2obj(subset);
+    var ret = [];
 
-    for(var key in subset) {
-      if(larger[key]) {
-        delete larger[key];
-      }
+    stain(subset);
+
+    for(var ix = 0, len = larger.length; ix < len; ix++) {
+      if (isStained(larger[ix])) { 
+        continue;
+      } 
+      ret.push(larger[ix]);
     }
 
-    return keys(larger);
+    return ret;
+  }
+
+  function update(arg0, arg1) {
+    var key, filter = this;
+
+    // This permits update(key, value) on a chained find
+    if( arg1 !== _u ) {
+
+      // Store the key string
+      key = arg0;
+
+      // The constraint is actually the new value to be
+      // assigned.
+      arg0 = {};
+      arg0[key] = arg1; 
+    }
+
+    if(_.isFun(arg0)) {
+      each(filter, arg0);
+    } else {
+      each(arg0, function(key, value) {
+        if(_.isFun( value )) {
+          // take each item from the filter (filtered results)
+          // and then apply the value function to it, storing
+          // back the results
+          each(filter, function(which) { 
+            if(_.isFun(which[key])) {
+              which[key]( value(which) );
+            } else {
+              which[key] = value(which); 
+            }
+          });
+        } else {
+          // otherwise, assign the static 
+          each(filter, function(which) { 
+            if(_.isFun(which[key])) {
+              which[key]( value );
+            } else {
+              which[key] = value; 
+            }
+          });
+        }
+      });
+    }
+
+    return this;
   }
 
   // Jacked from Resig's jquery 1.5.2
@@ -404,7 +510,7 @@
 
         // Prevent never-ending loop
         if ( target === copy ) {
-           continue;
+          continue;
         }
 
         // Recurse if we're merging plain objects or arrays
@@ -420,7 +526,7 @@
           target[ name ] = extend( clone, copy );
 
         // Don't bring in undefined values
-        } else if ( copy !== undefined ) {
+        } else if ( copy !== _u ) {
           target[ name ] = copy;
         }
       }
@@ -437,6 +543,7 @@
       ret[which[0]] = which[1];
       return ret;
     }
+
     if(which.length == 1) {
       return which[0];
     }
@@ -543,61 +650,31 @@
   }
 
 
-  var unsafe_stain = (function() {
-    var 
-      pub = {},
-      seed = (Math.random() * Math.pow(2, 32)).toString(36),
-      seedid = 1,
-      stainid;
+  // 
+  // "Staining" is my own crackpot algorithm of comparing
+  // two unsorted lists of pointers that reference shared
+  // objects. We go through list one, affixing a unique
+  // constant value to each of the members. Then we go
+  // through list two and see if the value is there.
+  //
+  // This has to be done rather atomically as the value
+  // can easily be replaced by something else.  It's an
+  // N + M cost...
+  //
+  function stain(list) {
+    _stainID++;
 
-    pub.stain = function(list) {
-      seedid++;
-      stainid = seed + seedid; 
-
-      for(var ix = 0, len = list.length; ix < len; ix++) {
-        list[ix][stainid] = true;
-      }
-      return stainid;
+    for(var ix = 0, len = list.length; ix < len; ix++) {
+      list[ix].constructor('i', _stainID);
     }
+  }
 
-    pub.isStained = function(obj) {
-      var ret = obj[stainid];
-
-      if(ret) {
-        delete obj[stainid];
-      }
-
-      return ret;
-    }
-    return pub;
-  })();
-
-
-  var safe_stain = (function() {
-    var 
-      pub = {},
-      stainid = 0;
-
-    pub.stain = function(list) {
-      stainid++;
-
-      for(var ix = 0, len = list.length; ix < len; ix++) {
-        list[ix].constructor('i', stainid);
-      }
-
-      return stainid;
-    }
-
-    pub.isStained = function(obj) {
-      return obj.constructor('i') == stainid;
-    }
-    return pub;
-  })();
-
-  stainer = safe_stain;
+  function isStained(obj) {
+    return obj.constructor('i') == _stainID;
+  }
 
   // the list of functions to chain
-  var chainList = list2obj('has isin group remove update where select find order each like'.split(' '));
+  var chainList = list2obj('has hasKey insert invert missing isin group keyBy remove update where select find sort orderBy order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -608,73 +685,21 @@
   // in a language such as Java or C++ should
   // go above!!!!
   //
-  self.DB = _DB = function(arg0, arg1){
+  self.DB = function(arg0, arg1){
     var 
       constraints = {},
+      constrainCache = {},
       syncList = [],
-      stainer = _unsafe ? unsafe_stain : safe_stain,
-      _indexCache = {},
-      _indexLock = false,
-      _indexQueue = [],
+      bSync = false,
+      _template = false,
+      ret = expression(),
       raw = [];
 
-    raw._indexCache = _indexCache;
-
-    function deindex(objList) {
-      return objList;
-      // not ready yet
-      _indexLock = true;
-      setTimeout(function(){
-        each(objList, function(record) {
-          var ix = record.constructor('x');
-          each(record, function(k, v) {
-            if(! _indexCache[k] ) { return }
-            if(! _indexCache[k][v] ) { return }
-            if( _indexCache[k][v][ix] ) {
-              delete _indexCache[k][v][ix]
-            }
-          });
-        });
-        _indexLock = false;
-
-        while(_indexQueue.length) { (_indexQueue.pop()); }
-      },0);
-      return objList;
-    }
-
-    function reindex(objList) {
-      return objList;
-      // not ready yet
-      setTimeout(function(){
-        function _reindex () {
-          each(objList, function(record) {
-            var ix = record.constructor('x');
-            each(record, function(k, v) {
-              if(! _indexCache[k] ) {
-                _indexCache[k] = {};
-              }
-              if (! _indexCache[k][v] ) {
-                _indexCache[k][v] = {};
-              }
-              if(! _indexCache[k][v][ix] ) {
-                _indexCache[k][v][ix] = true;
-              }
-            });
-          });
-        }
-        if(_indexLock) {
-          _indexQueue.push(_reindex);
-        } else {
-          _reindex();
-        }
-      },0);
-
-      return objList;
-    }
-
     function sync() {
-      for(var i = 0, len = syncList.length; i < len; i++) {
-        syncList[i].call(ret, raw);
+      if(!bSync) {
+        bSync = true;
+        each(syncList, function(which) { which.call(ret, raw); });
+        bSync = false;
       }
     }
 
@@ -696,11 +721,76 @@
       return ret;
     }
 
-    var ret = expression();
-    ret.isin = isin;
-    ret.has = has;
-    ret.like = like;
-    ret.each = eachRun;
+    extend(ret, {
+
+      // This is to constrain the database.  Currently you can enforce a unique
+      // key value through something like `db.constrain('unique', 'somekey')`.
+      // You should probably run this early, as unlike in RDBMSs, it doesn't do
+      // a historical check nor does it create a optimized hash to index by
+      // this key ... it just does a lookup every time as of now.
+      constrain: function() { extend(constraints, kvarg(arguments)); },
+
+      each: eachRun,
+    
+      // This is a shorthand to find for when you are only expecting one result.
+      findFirst: function(){
+        var res = ret.find.apply(this, slice.call(arguments));
+        return res.length ? res[0] : {};
+      },
+
+      has: has,
+
+      // hasKey is to get records that have keys defined
+      hasKey: function() {
+        return ret.find(missing.apply(this, slice.call(arguments))).invert();
+      },
+
+      isin: isin,
+      like: like,
+      invert: function(list) { return chain(setdiff(raw, list || this)); },
+
+      map: eachRun,
+
+      // Missing is to get records that have keys not defined
+      missing: function() { 
+        return ret.find(missing.apply(this, slice.call(arguments))); 
+      },
+
+      // The callbacks in this list are called
+      // every time the database changes with
+      // the raw value of the database.
+      sync: function(callback) { 
+        if(callback) {
+          syncList.push(callback);
+        } else { 
+          sync();
+        }
+      },
+
+      template: {
+        create: function(opt) { _template = opt; },
+        update: function(opt) { extend(_template || {}, opt); },
+        get: function() { return _template },
+        destroy: function() { _template = false }
+      },
+
+      // Update allows you to set newvalue to all
+      // parameters matching constraint where constraint
+      // is either a set of K/V pairs or a result
+      // of find so that you can do something like
+      //
+      // Update also can take a callback.
+      //
+      //   var result = db.find(constraint);
+      //   result.update({a: b});
+      //
+      update: function() {
+        var list = update.apply( _.isArr(this) ? this : ret.find(), slice.call(arguments)) ;
+        sync();
+        return chain (list);
+      }
+
+    });
 
     ret.not = function() {
       var func = ret.apply(this, slice(arguments));
@@ -721,34 +811,38 @@
     // of the rows that match that value.
     //
     ret.group = function(field) {
-      var groupMap = {};
-
-      if(_.isArr(this)) {
-        filter = this;
-      } else {
-        filter = ret.find();
-      }
+      var 
+        groupMap = {},
+        filter = _.isArr(this) ? this : ret.find();                 
 
       each(filter, function(which) {
-        if(! groupMap[which[field]]) {
-          groupMap[which[field]] = [];
+        if(field in which) {
+          if(! groupMap[which[field]]) {
+            groupMap[which[field]] = chain([]);
+          }
+
+          groupMap[which[field]].push(which);
         }
-        groupMap[which[field]].push(which);
       });
       
-      return chain(groupMap);
+      return groupMap;
     } 
 
     //
-    // sync
+    // keyBy
     //
-    // The callbacks in this list are called
-    // every time the database changes with
-    // the raw value of the database.
+    // This is like group above but it just maps as a K/V tuple, with 
+    // the duplication policy of the first match being preferred.
     //
-    ret.sync = function(callback) {
-      syncList.push(callback); 
-    }
+    ret.keyBy = function(field) {
+      var groupResult = ret.group.apply(this, arguments);
+
+      each(groupResult, function(key, value) {
+        groupResult[key] = value[0];
+      });
+
+      return groupResult;
+    } 
 
     //
     // sort
@@ -758,13 +852,13 @@
     //
     // You can also supply a second parameter of a case insensitive "asc" and "desc" like in SQL.
     //
-    ret.order = ret.sort = function (arg0, arg1) {
+    ret.order = ret.sort = ret.orderBy = function (arg0, arg1) {
       var 
         key, 
         fnSort,
         len = arguments.length,
         order,
-        filter;
+        filter = _.isArr(this) ? this : ret.find();                 
 
       if(_.isFun(arg0)) {
         fnSort = arg0;
@@ -776,14 +870,11 @@
         } else if(len == 2) {
 
           if(_.isStr(arg1)) {
-            if(arg1.toLowerCase() == 'asc') {
-              order = 'x-y';
-            } else if(arg1.toLowerCase() == 'desc') {
-              order = 'y-x';
-            } 
-          } 
-
-          if (typeof order == 'undefined') {
+            order = {
+              'asc': 'x-y',
+              'desc': 'y-x'
+            }[arg1.toLowerCase()];
+          } else {
             order = arg1;
           }
         }
@@ -796,70 +887,60 @@
           }
         }
 
-        fnSort = function(a, b) {
-          return order(a[key], b[key]);
-        }
+        eval('fnSort=function(a,b){return order(a.' + key + ', b.' + key + ')}');
       }
 
-      if(_.isArr(this)) {
-        filter = this;
-      } else {
-        filter = ret.find();
-      }
-
-      return filter.sort(fnSort);
-    }
-
-    // 
-    // constrain
-    //
-    // This is to constrain the database.  Currently you can enforce a unique
-    // key value through something like `db.constrain('unique', 'somekey')`.
-    // You should probably run this early, as unlike in RDBMSs, it doesn't do
-    // a historical check nor does it create a optimized hash to index by
-    // this key ... it just does a lookup every time as of now.
-    //
-    ret.constrain = function() {
-      constraints = extend(constraints, kvarg(arguments)); 
-    }
-
-    //
-    // inverse
-    //
-    // Invert a set of results.
-    //
-    ret.inverse = function(list) {
-      if(arguments.length == 0 && _.isArr(this)) {
-        list = this;
-      }
-
-      return chain(setdiff(raw, list));
+      return chain(slice.call(filter).sort(fnSort));
     }
 
     ret.where = ret.find = function() {
-      return chain( 
-        find.apply(this, 
-          arguments.length ? 
-            [raw].concat(slice.call(arguments)) : 
-            [raw]
-          )
-        );
-    }
+      var args = slice.call(arguments || []);
 
-    //
-    // findFirst
-    //
-    // This is a shorthand to find for when you are only expecting one result.
-    //
-    ret.findFirst = function(){
-      var res = ret.find.apply(this, slice.call(arguments));
-
-      if(res.length) { 
-        return res[0];
-      } else {
-        return {};
+      // Addresses test 23 (Finding: Find all elements cascarded, 3 times)
+      if(!_.isArr(this)) {
+        args = [raw].concat(args);
       }
+
+      return chain( find.apply(this, args) );
     }
+
+    //
+    // view 
+    //
+    // Views are an expensive synchronization macro that return 
+    // an object that can be indexed in order to get into the data.
+    //
+    ret.view = function(field) {
+      var obj = {};
+
+      ret.sync(function(data) {
+        var ref = {}, key;
+
+        each(data, function(row) {
+          if(field in row) {
+            ref[row[field]] = row;
+          }
+        });
+
+        for(key in ref) {
+          if( ! ( key in obj ) ) {
+            obj[key] = ref[key];
+          } else if(obj[key] !== ref[key]) {
+            obj[key] = ref[key];
+          }
+        }
+        for(key in obj) {
+          if( ! (key in ref) ) {
+            delete obj[key];
+          }
+        }
+      });
+
+      sync();
+
+      return obj;
+    }
+
 
     //
     // select
@@ -873,8 +954,8 @@
     //
     ret.select = function(field) {
       var 
-        filter,
-        len,
+        filter = _.isArr(this) ? this : ret.find(),
+        fieldCount,
         resultList = {};
 
       if(arguments.length > 1) {
@@ -883,13 +964,7 @@
         field = [field];
       }
 
-      if(_.isArr(this)) {
-        filter = this;
-      } else {
-        filter = ret.find();
-      }
-
-      len = field.length;
+      fieldCount = field.length;
       
       each(field, function(column, iy) {
         if(column == '*') {
@@ -899,7 +974,7 @@
             row = filter[ix];
 
             if(column in row){
-              if(len > 1) {
+              if(fieldCount > 1) {
                 if(!resultList[ix]) {
                   resultList[ix] = [];
                 }
@@ -935,20 +1010,20 @@
         toInsert.push(param);
       } 
 
-      // If the user had opted for a certain field to be unique,
-      // then we find all the matches to that field and create
-      // a block list from them.
-      if(constraints.unique) {
-        each(raw, function(data, index){
-          constraintMap[data[constraints.unique]] = index;
-        });
-      }
-
       each(toInsert, function(which) {
         // If the unique field has been set then we do
         // a hash search through the constraints to 
         // see if it's there.
         if(constraints.unique) {
+          // If the user had opted for a certain field to be unique,
+          // then we find all the matches to that field and create
+          // a block list from them.
+          constraintMap = {};
+
+          each(raw, function(data, index){
+            constraintMap[data[constraints.unique]] = index;
+          });
+
           if(which[constraints.unique] in constraintMap){
             // put on the existing value
             ixList.push(constraintMap[which[constraints.unique]]);
@@ -958,14 +1033,29 @@
 
         var ix = raw.length, data;
 
+        // insert from a template if available
+        if(_template) {
+          var instance = {};
+          
+          // create a template instance that's capable
+          // of holding evaluations
+          each(_template, function(key, value) {
+            if(_.isFun(value)) {
+              instance[ key ] = value();
+            } else {
+              instance[ key ] = value;
+            }
+          });
+
+          // map the values to be inserted upon
+          // the instance of this template
+          which = extend(instance, which);
+        }
+
         try {
-          if(_unsafe) {
-            raw.push(which);
-          } else {
-            data = new (secret(ix))();
-            extend(data, which);
-            raw.push(data);
-          }
+          data = new (secret(ix))();
+          extend(data, which);
+          raw.push(data);
         } catch(ex) {
 
           // Embedded objects, like flash controllers
@@ -973,9 +1063,7 @@
           // properties aren't totally enumerable.  We
           // work around that by slightly changing the 
           // object; hopefully in a non-destructive way.
-          if(!unsafe) {
-            which.constructor = secret(ix);
-          }
+          which.constructor = secret(ix);
           raw.push(which);
         }
 
@@ -984,103 +1072,30 @@
 
       sync();
 
-      return chain(
-        reindex(
-          list2data(ixList)
-        )
-      );
+      return chain(list2data(ixList));
     }
 
     //
-    // update
-    //
-    // Update allows you to set newvalue to all
-    // parameters matching constraint where constraint
-    // is either a set of K/V pairs or a result
-    // of find so that you can do something like
-    //
-    // Update also can take a callback.
-    //
-    //   var result = db.find(constraint);
-    //   result.update({a: b});
-    //
-    ret.update = function(newvalue, param) {
-      var 
-        list,
-        key;
-
-      if(_.isArr(this)) {
-        list = simplecopy(this);
-      } else {
-        list = ret.find();
-      }
-
-      // This permits update(key, value) on a chained find
-      if( arguments.length == 2 && 
-          _.isStr(newvalue)
-        ) {
-
-        // Store the key string
-        key = newvalue;
-
-        // The constraint is actually the new value to be
-        // assigned.
-        newvalue = {};
-        newvalue[key] = param; 
-      }
-
-      deindex(list);
-
-      if(_.isFun(newvalue)) {
-        each(list, newvalue);
-      } else {
-        each(newvalue, function(key, value) {
-          if(_.isFun( value )) {
-            // take eacch item from the list (filtered results)
-            // and then apply the value function to it, storing
-            // back the results
-            each(list, function(which) {
-              which[key] = value(which);
-            });
-          } else {
-            // otherwise, assign the static 
-            each(list, function(which) {
-              which[key] = value;
-            });
-          }
-        });
-      }
-
-      sync();
-
-      return chain(
-        reindex(list)
-      );
-    }
-
     // remove
     // 
     // This will remove the entries from the database but also return them if
     // you want to manipulate them.  You can invoke this with a constraint.
     //
-    ret.remove = function(constraint) {
+    ret.remove = function(arg0, arg1) {
       var 
         end, start,
         list,
         save = [];
 
       if(_.isArr(this)) { list = this; } 
-      else if(_.isArr(constraint)) { list = constraint; } 
-      else if(arguments.length > 0){ list = ret.find(constraint); } 
+      else if(_.isArr(arg0)) { list = arg0; } 
+      else if(arguments.length > 0){ list = ret.find.apply(this, slice.call(arguments)); } 
       else { list = ret.find(); }
 
-      var uid = stainer.stain(list);
+      stain(list);
 
-      // Remove the undefined nodes from the raw table
-      var end = raw.length;
-
-      for(var ix = raw.length - 1; ix >= 0; ix--) {
-        if (stainer.isStained(raw[ix])) { 
+      for(var ix = raw.length - 1, end = raw.length; ix >= 0; ix--) {
+        if (isStained(raw[ix])) { 
           save.push(raw[ix]);
           continue;
         }
@@ -1097,9 +1112,8 @@
       }
 
       sync();
-      return chain(deindex(save));
+      return chain(save.reverse());
     }
-
 
     // The ability to import a database from somewhere
     if (arguments.length == 1) {
@@ -1111,66 +1125,69 @@
       ret.insert(slice.call(arguments));
     }
 
+    // Assign this after initialization
     ret.__raw__ = raw;
-
     return ret;
   }
 
-  _DB.isin = isin;
-  _DB.find = find;
-  _DB.has = has;
-  _DB.each = eachRun;
-  _DB.values = values;
-  _DB.like = like;
-  _DB.unsafe = function() { _unsafe = true; }
-  _DB.deepcopy = deepcopy;
+  extend(DB, {
+    find: find,
+    each: eachRun,
+    like: like,
+    trace: trace,
+    isin: isin,
 
-  //
-  // reduceLeft
-  //
-  // This does a traditional left-reduction on a list
-  // as popular in list comprehension suites common in 
-  // functional programming.
-  //
-  _DB.reduceLeft = function(initial, oper) {
-    var lambda = new Function("y,x", "return y " + oper);
+    objectify: function(keyList, values) {
+      var obj = [];
 
-    return function(list) {
-      var 
-        len = list.length,
-        reduced = initial;
+      each(values, function(row) {
+        var objRow = {};
+        each(keyList, function(key, index) {
+          objRow[key] = row[index];
+        });
 
-      for(var ix = 0; ix < len; ix++) {
-        if(list[ix]) {
-          reduced = lambda(reduced, list[ix]);
+        obj.push(objRow);
+
+      });
+
+      return obj; 
+    },
+
+    findFirst: function(){
+      var res = find.apply(this, slice.call(arguments));
+      return res.length ? res[0] : {};
+    },
+
+    // This does a traditional left-reduction on a list
+    // as popular in list comprehension suites common in 
+    // functional programming.
+    reduceLeft: function(memo, callback) {
+      var lambda = _.isStr(callback) ? new Function("y,x", "return y " + callback) : callback;
+
+      return function(list) {
+        var reduced = memo;
+
+        for(var ix = 0, len = list.length; ix < len; ix++) {
+          if(list[ix]) {
+            reduced = lambda(reduced, list[ix]);
+          }
         }
+
+        return reduced;
       }
+    },
 
-      return reduced;
-    }
-  }
+    // This does a traditional right-reduction on a list
+    // as popular in list comprehension suites common in 
+    // functional programming.
+    //
+    reduceRight: function(memo, callback) {
+      var callback = DB.reduceLeft(memo, callback);
 
-  //
-  // reduceRight
-  //
-  // This does a traditional right-reduction on a list
-  // as popular in list comprehension suites common in 
-  // functional programming.
-  //
-  _DB.reduceRight = function(initial, oper) {
-    var lambda = new Function("y,x", "return y " + oper);
-
-    return function(list) {
-      var 
-        len = list.length,
-        reduced = initial;
-
-      for(var ix = len - 1; ix > 0; ix--) {
-        reduced = lambda(reduced, list[ix]);
+      return function(list) {
+        return callback(list.reverse());
       }
-
-      return reduced;
     }
-  }
+  });
 
 })();
