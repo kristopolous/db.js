@@ -71,8 +71,8 @@
       function(array, cb) {
         var ret = [];
 
-        for ( var i = 0, len = obj.length; i < len; i++ ) { 
-          ret.push(cb(obj[i], i));
+        for ( var i = 0, len = array.length; i < len; i++ ) { 
+          ret.push(cb(array[i], i));
         }
 
         return ret;
@@ -701,6 +701,17 @@
     ret.has = has;
     ret.like = like;
     ret.each = eachRun;
+
+    ret.not = function() {
+      var func = ret.apply(this, slice(arguments));
+
+      return func;
+      /*
+      return function() {
+        return func.apply(this, slice(arguments)) === false;
+      }
+      */
+    }
 
     //
     // group
