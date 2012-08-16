@@ -300,8 +300,8 @@
   //
   // Missing is to get records that have keys not defined
   //
-  function missing() {
-    var fieldList = hash(slice.call(arguments));
+  function missing(arg) {
+    var fieldList = hash(arg);
 
     return function(record) {
       for(var field in fieldList) {
@@ -742,7 +742,7 @@
 
       // hasKey is to get records that have keys defined
       hasKey: function() {
-        return ret.find(missing.apply(this, slice.call(arguments))).invert();
+        return this.find(missing(slice.call(arguments))).invert();
       },
 
       isin: isin,
@@ -753,7 +753,8 @@
 
       // Missing is to get records that have keys not defined
       missing: function() { 
-        return ret.find(missing.apply(this, slice.call(arguments))); 
+        var base = missing(slice.call(arguments));
+        return _.isArr(this) ? this.find(base) : base;
       },
 
       // The callbacks in this list are called
