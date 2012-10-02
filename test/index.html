@@ -876,6 +876,45 @@ module('sync');
 module('view');
 module('each');
 module('order');
+
+  test("Sorting by a numeric key", function(){
+    var db = DB(),
+      list = [],
+      newplace,
+      ix = 0;
+
+    // Create an in-order list of 100 items numbered
+    // sequentially
+    for(ix = 0; ix < 100; ix++) {
+      list[ix] = ix;
+    }
+
+    // Do inplace fisher-yates of the entire set
+    for(ix = 99; ix > 0; ix--) {
+      newplace = Math.floor(Math.random() * (ix - 1));
+      swap = list[newplace];
+      list[newplace] = list[ix];
+      list[ix] = swap;
+    }
+
+    // Now we have a 100 member array of
+    // out of order unique keys
+    for(ix = 0; ix < 100; ix++) {
+      db.insert({key : list[ix]});
+    }
+
+    // Try to sort the new db by the key, ascending
+    var validate = db.find().sort('key', 'asc');
+    console.log(db.find());
+
+    // we start at 1 for a relative comparator
+    for(ix = 1; ix < validate.length; ix++) {
+      // Assert that each index is one more then the previous
+      equal(validate[ix].key - validate[ix - 1].key, 1, "in-order successful")
+    }
+
+  });
+
 module('group');
 });
 </script>
