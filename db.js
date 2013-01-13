@@ -723,6 +723,39 @@
 
     extend(ret, {
 
+      // This isn't a true schema derivation ... it's a spot check
+      // over the data-set to try to show a general schema ... since
+      // this is essentially a schema-less document store there could
+      // be things missing.
+      //
+      schema: function() {
+        // rand() is slow on android (2013-01) and the entropy 
+        // can have some issues so we don't try doing that.
+        // The interwebs claims that every 10th sampling is a good
+        // way to roll, so let's do that.
+        //
+        // Js perf says a trivial double for is the way to roll
+        // with a very slight edge for caching ... although this
+        // makes no sense whatsoever.
+        var 
+          agg = {}, 
+          _u, 
+          len = __raw__.length, 
+          entry;
+
+        for(var i = 0; 
+            i < len; 
+              i += 10, 
+              entry = __raw__[i]
+          ) {
+          for(var key in entry) {
+            agg[key] = _u;
+          }
+        }
+
+        return keys(agg);
+      },
+
       // This is to constrain the database.  Currently you can enforce a unique
       // key value through something like `db.constrain('unique', 'somekey')`.
       // You should probably run this early, as unlike in RDBMSs, it doesn't do
@@ -797,11 +830,6 @@
       var func = ret.apply(this, slice(arguments));
 
       return func;
-      /*
-      return function() {
-        return func.apply(this, slice(arguments)) === false;
-      }
-      */
     }
 
     //
