@@ -740,13 +740,13 @@
         var 
           agg = {}, 
           _u, 
-          len = __raw__.length, 
+          len = raw.length, 
           entry;
 
         for(var i = 0; 
             i < len; 
               i += 10, 
-              entry = __raw__[i]
+              entry = raw[i]
           ) {
           for(var key in entry) {
             agg[key] = _u;
