@@ -180,6 +180,20 @@ is created.
 The template itself is implicit and modal; applying to all insertions until it is
 modified or removed.
 
+<b> Templates can be used to create auto-incrementers. Oh yes, they can.</b> Here's is how you would do it, if you were so inclined:
+
+<code>
+var 
+  index = 0,
+  db = DB();
+
+db.template.create({id: (function(){ return index++; })});
+db.insert([
+  {key: 1},
+  {key: 2}
+]);
+</code>
+ 
 <h5>Creation
 
 To create a template use template.create( fields )
