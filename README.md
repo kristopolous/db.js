@@ -140,6 +140,17 @@ and puts in some type of record keeping information and accounting.
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
 
+#### Inserting by Reference
+
+Normally insert is a copy, but you can also simulate an insert by reference by doing a reassignment:
+
+    data = db.insert(data)[0];
+    data.newkey = value;
+    db.find({newkey: value});
+
+would work.
+
+
 <h3><a name=mutator> insert( lambda ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Values can also be mutators.  This semantically changes what update and find mean.  Value based mutators can be used
 to achieve many aspects of list comprehension. Find will run the mutator with no arguments while update will pass the
