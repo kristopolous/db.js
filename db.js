@@ -725,6 +725,16 @@
 
     extend(ret, {
 
+      transaction: {
+        start: function() {
+          bSync = true;
+        },
+        end: function(){
+          bSync = false;
+          sync();
+        }
+      },
+
       // This isn't a true schema derivation ... it's a spot check
       // over the data-set to try to show a general schema ... since
       // this is essentially a schema-less document store there could

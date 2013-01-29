@@ -48,6 +48,7 @@
 ### <a href=#storage>Storage</a> options to importing and expoting data
 
  * <a href=#sync>sync</a> the database when things are modified
+ * <a href=#transaction>transaction</a> to help reduce expensive indexing
 
 ### <a href=#example>Examples</a>
  
@@ -679,6 +680,12 @@ run, once, once, and once respectively.
 
 If you run sync with no arguments then it will not add an undefined to the function
 stack and then crash on an update; on the contrary, it will run the synchronization function stack; just as one would expect.
+
+<h3><a name=transaction> transaction.[ start | stop ]() </a> [ <a href=#toc>top</a> ] </h3>
+
+This primitive function turns off all the synchronization callbacks after a start, and then restores them after a stop, running them.
+
+This is useful if you have computed views or if you are sync'ing remotely with a data-store.
 
 <h2><a name=example> Examples</a> [ <a href=#toc>top</a> ] </h2>
 

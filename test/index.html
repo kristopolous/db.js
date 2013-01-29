@@ -100,6 +100,24 @@ module("Insertion");
     equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
   });
 
+module('transaction');
+  test("Start a transaction, do 10 operations, end it", function(){
+    var 
+      db = DB(),
+      counter = 0;
+
+    db.sync(function(){
+      equal(counter, 0, "First time here");
+      counter++;
+    });
+
+    db.transaction.start(); {
+      for(var i = 0; i < 10;i ++) {
+        db.insert({k: i});
+      }
+    } db.transaction.end(); 
+ });
+
 module('constrain');
   test("Create a table, constrain by key", function(){
     var db = DB();
