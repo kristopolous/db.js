@@ -1,5 +1,5 @@
 //
-// db.js Javascript Database 0.0.1
+// db.js Javascript Database 
 // https://github.com/kristopolous/db.js
 //
 // Copyright 2011 - 2013, Chris McKenzie
@@ -82,6 +82,8 @@
     // each is a complex one
     each = [].forEach ?
       function (obj, cb) {
+        // Try to return quickly if there's nothing to do.
+        if (obj.length === 0) { return; }
         if (_.isArr(obj)) { 
           obj.forEach(cb);
         } else {
@@ -92,6 +94,8 @@
       } :
 
       function (obj, cb) {
+        // Try to return quickly if there's nothing to do.
+        if (obj.length === 0) { return; }
         if (_.isArr(obj)) {
           for ( var i = 0, len = obj.length; i < len; i++ ) { 
             cb(obj[i], i);
@@ -689,7 +693,7 @@
   //
   self.DB = function(arg0, arg1){
     var 
-      constraints = {},
+      constraints = {addIf:[]},
       constrainCache = {},
       syncList = [],
       bSync = false,
@@ -774,6 +778,14 @@
       // a historical check nor does it create a optimized hash to index by
       // this key ... it just does a lookup every time as of now.
       constrain: function() { extend(constraints, kvarg(arguments)); },
+      
+      // Adds if and only if a function matches a constraint
+      addIf: function( lambda ) {
+        if(lambda) {
+          constraints.addIf.push(lambda);
+        }
+        return constraints.addIf;
+      },
 
       each: eachRun,
     
@@ -1039,40 +1051,72 @@
     //
     ret.insert = function(param) {
       var 
+        ix,
         constraintMap = {},
         toInsert = [],
         ixList = [];
 
+      //
+      // Parse the args put in.  
+      // 
+      // If it's a comma seperated list then make the 
+      // list to insert all the args
       if(arguments.length > 1) {
         toInsert = slice.call(arguments);
+
+        // if it was an array, then just assign it.
       } else if (_.isArr(param)) {
         toInsert = param;
+
+        // otherwise it's one argument and 
+        // we just insert that alone.
       } else {
-        toInsert.push(param);
+        toInsert = [param];
       } 
 
       each(toInsert, function(which) {
+        // We first check to make sure we *should* be adding this.
+        var doAdd = true;
+
         // If the unique field has been set then we do
         // a hash search through the constraints to 
         // see if it's there.
         if(constraints.unique) {
+
           // If the user had opted for a certain field to be unique,
           // then we find all the matches to that field and create
           // a block list from them.
           constraintMap = {};
 
+          // TODO: this looks slow.
           each(raw, function(data, index){
             constraintMap[data[constraints.unique]] = index;
           });
 
+          // This would mean that the candidate to be inserted
+          // should be rejected because it doesn't satisfy the
+          // unique constraint established.
           if(which[constraints.unique] in constraintMap){
+
             // put on the existing value
             ixList.push(constraintMap[which[constraints.unique]]);
-            return;
+            // Toggle our doAdd over to false.
+            doAdd = false;
           }
         }
 
-        var ix = raw.length, data;
+        each(constraints.addIf, function(test) {
+          // Make sure that our candidate passes all tests.
+          doAdd &= test(which);
+        });
+
+        if(!doAdd) {
+          return;
+        }
+
+        // If we get here, then the data is going in.
+        ix = raw.length;
+        var data;
 
         // insert from a template if available
         if(_template) {

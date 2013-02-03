@@ -134,6 +134,75 @@ module('constrain');
     equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
   });
 
+module('AddIf');
+  test("Only add if the key == 2", function(){
+    var db = DB();
+    expect(5);
+
+    db.addIf(function(what) {
+      equal(true, true, "AddIf being run");
+      return what.key == 2;
+    });
+
+    db.insert(
+      { key: 1 },
+      { key: 2 },
+      { key: 3 }
+    );
+
+    equal(db.__raw__.length, 1, "There's only one item in the database");
+    equal(db.__raw__[0].key, 2, "This item has the right value");
+  });
+
+  test("Only add if the key == 2 and value == 3; two functions", function(){
+    var db = DB();
+    expect(8);
+
+    db.addIf(function(what) {
+      equal(true, true, "AddIf being run");
+      return what.key == 2;
+    });
+
+    db.addIf(function(what) {
+      equal(true, true, "AddIf being run");
+      return what.value == 3;
+    });
+
+    db.insert(
+      { key: 1 , value: 2},
+      { key: 2 , value: 3},
+      { key: 2 , value: 2}
+    );
+
+    equal(db.__raw__.length, 1, "There's only one item in the database");
+    equal(db.__raw__[0].key, 2, "This item has the right value");
+  });
+
+  test("Only add if the key == 2, add a value == 3 function, then remove it", function(){
+    var db = DB();
+    expect(5);
+
+    db.addIf(function(what) {
+      equal(true, true, "AddIf being run");
+      return what.key == 2;
+    });
+
+    db.addIf(function(what) {
+      equal(true, true, "AddIf being run");
+      return what.value == 3;
+    });
+
+    db.addIf().pop();
+
+    db.insert(
+      { key: 1 , value: 2},
+      { key: 2 , value: 2},
+      { key: 2 , value: 3}
+    );
+
+    equal(db.__raw__.length, 2, "There's two items in the database");
+    equal(db.__raw__[0].value, 2, "This item has the right value");
+  });
 module("Removal");
   test("Remove all", function(){
     var db = DB(

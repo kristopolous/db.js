@@ -22,6 +22,7 @@
  * <a href=#update>Update</a> exiting records
  * <a href=#remove>Remove</a> records and get a copy of them
  * <a href=#constrain>Constrain</a> insertion by a unique, primary key
+ * <a href=#addif>AddIf</a> and only if something matches a test
 
 ### <a name=toc-finding href=#finding>Finding</a> and searching for data
 
@@ -419,6 +420,13 @@ key value through something like `db.constrain('unique', 'somekey')`.
 You should probably run this early, as unlike in RDBMSs, it doesn't do
 a historical check nor does it create a optimized hash to index by
 this key ... it just does a lookup every time as of now.
+
+<h3><a name=addif> addIf ( function (candidate) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
+Specify a function that will get the candidate object to be added and return either true or false
+specifying (true) to add it or (false) to not.  This feature was added to implement blacklisting.
+
+When you run it with or without arguments you get an array of the functions back.  You can then
+splice, shift, pop, push, or unshift the array to do those respective functions.
 
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
