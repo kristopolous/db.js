@@ -589,13 +589,13 @@
             if(!cache[expr]) {
 
               try {
-                ret = new Function("x,rec", "return x " + expr);
+                ret = new Function("x,rec", "try { return x " + expr + "} catch(e) {return undefined;}");
               } catch(ex) {
                 ret = {};
               }
 
               try {
-                ret.single = new Function("rec", "return " + arg0);
+                ret.single = new Function("rec", "try { return " + arg0 + "} catch(e) {return undefined;}");
               } catch(ex) {}
 
               cache[expr] = ret;
@@ -616,7 +616,7 @@
                 cache[expr] = _compProto[canned[1]](canned[2].replace(/['"]$/, ''));
               } else {      
                 // if not, fall back on it 
-                cache[expr] = new Function("x,rec", "return x " + expr);
+                cache[expr] = new Function("x,rec", "try { return x " + expr + "} catch(e) {return undefined;}");
               }
             } 
             ret[arg0] = cache[expr];

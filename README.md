@@ -2,6 +2,7 @@
 
 ### <a href=#introduction>Introduction</a>
 
+ * <a href=#expressions>Expressions</a>
  * <a href=#buzzword>Buzzword Compliance</a>
  * <a href=#syntax>Syntax notes</a>
  * <a href=#support>Supported Platforms</a>
@@ -92,6 +93,56 @@ Just remember these two simple rules:
 
 1. Do your "SQL where" stuff first.
 2. Everything else second.
+
+<h3><a name=expressions>Expressions</a> [ <a href=#toc>top</a> ] </h3>
+Expressions are the *biggest, most important part here*. 
+
+They are a processing engine where you can toss in things and get matching functions.
+
+For instance, say you want to find out what parts of your complex object datastore has a structure like this:
+
+    { a: { b: anything } } 
+        
+And you have stuff like this:
+
+    { b: 1 }
+    { a: { b: 'hello' } }  *
+    { a: { b: { c: [] } }  *
+    { d: { b: 1 }
+    { a: [ 1, 2, 3] }
+    { a: undefined }
+
+You want the two records with an asterisk
+
+    DB.find(DB('.a.b'));
+
+Gets you there.
+
+Now say you want just the first one:
+
+    DB.find(DB('.a.b == "hello"'));
+
+Gets you there.
+
+There's a lot more to explore, try
+
+    DB(some string).toString()
+
+to peek at the implementation.  You can also try things like this:
+
+    DB(".a.b")({a:{c:1})
+    >> undefined
+
+    DB(".a.b")({a:{b:1})
+    >> 1
+
+    DB(".a.b")({b:{b:1})
+    >> undefined
+
+    DB(".a.b")({a:{b:[1,2,3]})
+    >> [1,2,3]
+
+To debug your expressions. You can use these just about everywhere in this library.
 
 <h3><a name=buzzword>Buzzword Compliance</a> [ <a href=#toc>top</a> ] </h3>
 
