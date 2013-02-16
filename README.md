@@ -161,7 +161,7 @@ Pretend I have an RESTful endpoint `/database`:
 
     $.get("/database", mydb);
 
-And there you go. **Now you can modify stuff in the browser with a remote sync**.  It was 3 lines. That's really all it took.
+And there you go. **Now you can modify stuff in the browser and it automatically does a remote sync**.  It was 3 lines. That's really all it took.
 
 <h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
