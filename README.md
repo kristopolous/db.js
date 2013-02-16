@@ -132,7 +132,7 @@ To debug your expressions. You can use these just about everywhere in this libra
 
 <h3><a name=autoincrement>AutoIncrement</a>[ <a href=#toc>top</a> ] </h3>
 
-<a href=#templates>Templates</a> can be used to create auto-incrementers. Here's is how you would do it, if you were so inclined:
+<a href=#template>Templates</a> can be used to create auto-incrementers. Here's is how you would do it, if you were so inclined:
 
     var 
       index = 0,
