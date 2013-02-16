@@ -52,6 +52,7 @@
  * <a href=#ex-sql>SQL to DB example</a>
  * <a href=#ex-more>More</a>
 
+### Miscellaneous non-awesome stuff
  * <a href=#buzzword>Buzzword Compliance</a>
  * <a href=#syntax>Syntax notes</a>
  * <a href=#support>Supported Platforms</a>
@@ -61,6 +62,7 @@
  * <a href=#contact>Contact</a>
  * <a href=#similar>Similar Projects</a>
  * <a href=#users>Users</a>
+
 <h2><a name=introduction>Introduction</a> [ <a href=#toc>top</a> ] </h2>
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
