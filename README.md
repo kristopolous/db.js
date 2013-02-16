@@ -284,7 +284,7 @@ To help wrap your head around it, the example below adds or subtracts a local va
       }
     })()});
 
-If you run a db.find({key: 0}) on this then the function will be run, returning the value at its initial state.  In this
+If you run a `db.find({key: 0})` on this then the function will be run, returning the value at its initial state.  In this
 case it would be 0.
 
 Semantically, the update will now pass in a value, as mentioned above.  So if you do something like:
@@ -292,10 +292,6 @@ Semantically, the update will now pass in a value, as mentioned above.  So if yo
     db.update({key: 4});
 
 Now the value in the closure will be "4" and a db.find({key: 4}) will return.
-<!--
-<h3>Random set example</h3>
-
-As another example, pretend you want a set of n numbers with a range from min to max.-->
 
 <h3><a name=template> Templates </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Templates permit you to have a set of K/V pairs or K/lambda pairs that act as
@@ -449,18 +445,18 @@ hasKey is simply <a href=#missing>missing</a> followed by an invert.  It's worth
 <h3><a name=has> [chain] has( multi )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This is the reverse of isin.  If you do
 
-db.insert({a: [1, 2, 3]})
+    db.insert({a: [1, 2, 3]})
 
 You can do
 
-db.find({a: db.has(1)})
+    db.find({a: db.has(1)})
 
 <h3><a name=select> [chain] select( field(s) )</a> [ <a href=#toc-finding>top</a> ] </h3>
 This will extract the values of a particular key from the filtered list
 and then return it as an array or an array of arrays, depending on
 which is relevant for the query.
 
-You can also do db.select(' * ') to retrieve all fields, although the 
+You can also do `db.select(' * ')` to retrieve all fields, although the 
 key values of these fields aren't currently being returned.
 
 You can do 
@@ -485,7 +481,7 @@ the key is not defined (but not the undefined JS type).
 
 example:
 
-if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object like so:
+if db was `[{a: 1}, {a: 2}, {a: 3}]`, doing `db.view('a')` will return an object like so:
 
     { 
       1: {a: 1},
