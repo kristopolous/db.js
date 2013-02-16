@@ -1,6 +1,6 @@
 <h1><a name=toc> Javascript Database</a>
 
-### <a href=#Introduction>Tricks and Introduction</a>
+### <a href=#introduction>Tricks and Introduction</a>
  * <a href=#expressions>Expressions</a>
  * <a href=#autoincrement>AutoIncrement</a>
  * <a href=#dom>DOM serialization</a>
