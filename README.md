@@ -163,7 +163,7 @@ Pretend I have an RESTful endpoint `/database`:
 
 And there you go. **Now you can modify stuff in the browser with a remote sync**.  It was 3 lines. That's really all it took.
 
-<h3><a href=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
+<h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
 Pretend I have a backbone model that has some defaults and I want to find an object that has a certain attribute equalling a certain value.
 
