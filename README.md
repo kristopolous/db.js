@@ -154,10 +154,10 @@ You don't need to insert things into a database first, you can just do something
 
 Pretend I have an restful endpoint `/database`:
 
-   var mydb = DB().sync(function(data) {
-     $.put("/database", data);
-   });
-   $.get("/database", mydb);
+     var mydb = DB().sync(function(data) {
+       $.put("/database", data);
+     });
+     $.get("/database", mydb);
 
 And there you go. **Now you can modify stuff in the browser with a remote sync**.  It was 3 lines. That's really all it took.
 
