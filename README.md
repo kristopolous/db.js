@@ -5,6 +5,7 @@
  * <a href=#autoincrement>AutoIncrement</a>
  * <a href=#dom>DOM serialization</a>
  * <a href=#browser>KISS syncing</a>
+ * <a href=#magic>Magical updating hash maps</a>
 
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
@@ -152,14 +153,27 @@ You don't need to insert things into a database first, you can just do something
 
 <h3><a name=browser>KISS syncing in the browser</a>[ <a href=#toc>top</a> ] </h3>
 
-Pretend I have an restful endpoint `/database`:
+Pretend I have an RESTful endpoint `/database`:
 
-     var mydb = DB().sync(function(data) {
-       $.put("/database", data);
-     });
-     $.get("/database", mydb);
+    var mydb = DB().sync(function(data) {
+      $.put("/database", data);
+    });
+
+    $.get("/database", mydb);
 
 And there you go. **Now you can modify stuff in the browser with a remote sync**.  It was 3 lines. That's really all it took.
+
+<h3><a href=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
+
+Pretend I have a backbone model that has some defaults and I want to find an object that has a certain attribute equalling a certain value.
+
+Well we can do this easily here:
+
+    var magicalview = db.view('myattribute');
+
+    magicalview['certainvalue']
+
+Will work.  In fact, **it updates automatically**. How convenient - I can get the whole keyspace and do a bunch of object like things on it. Besides, I always hated to press the shift `()` keys anyway.
 
 <h2><a name=inserting>Inserting and Removing</a> [ <a href=#toc>top</a> ] </h2>
 
