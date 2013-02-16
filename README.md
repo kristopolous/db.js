@@ -150,7 +150,7 @@ You don't need to insert things into a database first, you can just do something
       db.like('innerHTML', 'hello World')
     )
 
-<a href=#browser>KISS syncing in the browser</a>
+<h3><a name=browser>KISS syncing in the browser</a>[ <a href=#toc>top</a> ] </h3>
 
 Pretend I have an restful endpoint `/database`:
 
