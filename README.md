@@ -404,7 +404,7 @@ then the returned object is empty.**
 A macro lambda for find that does a case-insensitive regex search on the values for keys.
 This is similar to the SQL like command and it takes the value and does
 
-   value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
+    value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
 
 <h3><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h3>
 *Also a top level function*
@@ -417,7 +417,7 @@ with a static array or a callback like so:
 
 A usage scenario may be as follows:
 
-db.find({months: db.isin(['jan', 'feb', 'march']));
+    db.find({months: db.isin(['jan', 'feb', 'march']));
 
 <h3><a name=missing> [chain] missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Missing is a macro lambda for find that can either be combined with find or called in a chain.  It will 
