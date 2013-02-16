@@ -1,17 +1,10 @@
 <h1><a name=toc> Javascript Database</a>
 
-### <a href=#introduction>Introduction</a>
-
+### <a href=#Introduction>Tricks and Introduction</a>
  * <a href=#expressions>Expressions</a>
- * <a href=#buzzword>Buzzword Compliance</a>
- * <a href=#syntax>Syntax notes</a>
- * <a href=#support>Supported Platforms</a>
- * <a href=#dependencies>Dependencies</a>
- * <a href=#performance>Performance</a>
- * <a href=#license>License</a>
- * <a href=#contact>Contact</a>
- * <a href=#similar>Similar Projects</a>
- * <a href=#users>Users</a>
+ * <a href=#autoincrement>AutoIncrement</a>
+ * <a href=#dom>DOM serialization</a>
+ * <a href=#browser>KISS syncing</a>
 
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
@@ -29,13 +22,13 @@
 
  * <a href=#find>Find</a> records through an expressive syntax
  * <a href=#findFirst>findFirst</a> record through an easy syntax
- * <a href=#like>like</a> to find records by substring
- * <a href=#isin>isin</a> to find whether the record is in a group
- * <a href=#has>has</a> to look inside a record stored as an array
- * <a href=#missing>missing</a> to get records that have keys not defined
- * <a href=#hasKey>hasKey</a> to get records that have keys defined
+ * <a href=#like>like</a> finds records by substring
+ * <a href=#isin>isin</a> finds whether the record is in a group
+ * <a href=#has>has</a> looks inside a record stored as an array
+ * <a href=#missing>missing</a> records that have keys not defined
+ * <a href=#hasKey>hasKey</a> finds records that have keys defined
  * <a href=#select>select</a> one or more fields from a result
- * <a href=#invert>invert</a> to find the unary inverse of a set of results
+ * <a href=#invert>invert</a> gets the unary inverse of a set of results
  * <a href=#view>view</a> data easily
 
 ### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
@@ -58,19 +51,20 @@
  * <a href=#ex-sql>SQL to DB example</a>
  * <a href=#ex-more>More</a>
 
+ * <a href=#buzzword>Buzzword Compliance</a>
+ * <a href=#syntax>Syntax notes</a>
+ * <a href=#support>Supported Platforms</a>
+ * <a href=#dependencies>Dependencies</a>
+ * <a href=#performance>Performance</a>
+ * <a href=#license>License</a>
+ * <a href=#contact>Contact</a>
+ * <a href=#similar>Similar Projects</a>
+ * <a href=#users>Users</a>
 <h2><a name=introduction>Introduction</a> [ <a href=#toc>top</a> ] </h2>
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
 
-Sure, this may be available as a subsystem in fancy new-age browsers (see below) but what about the other 80% of the market? And what if you want to do things in a javascripty way?
-As a result, it (the library) tries to address specific classes of problems more than be a strict accessor to an SQL sub-system.
-
-Well, look no further comrade, the purpose of this project is to make something that can be described as:
-
-    It's basically SQL, but in the browser.
-
-Let me show you how awesome this can be.
-Take a familiar SQL query like this:
+Let me show you how awesome this can be.  Take a familiar SQL query like this:
 
 `select firstname, age from people where age > 30 order by age desc`
 
@@ -82,17 +76,6 @@ And with a little bit of javascripty magic, we can do this:
       .select('firstname', 'age')
 
 And bam! There you go. Who said life wasn't easy?
-
-Just remember these two simple rules:
-
-1. First filter your search results to the entries you are interested in. In SQL land, this would usually go in the "where" clause.  I call it "find" to make it more of a verb then an proposition. But if you REALLY want to use "where", it's aliased for you cause I hate being imposing.
-
-2. Ok, after you have your items of interest you can now run various operations on those filtered results.  For instance, you can remove them, or update them, or show some records of them.
-
-**tl;dr**
-
-1. Do your "SQL where" stuff first.
-2. Everything else second.
 
 <h3><a name=expressions>Expressions</a> [ <a href=#toc>top</a> ] </h3>
 Expressions are the *biggest, most important part here*. 
@@ -144,141 +127,39 @@ to peek at the implementation.  You can also try things like this:
 
 To debug your expressions. You can use these just about everywhere in this library.
 
-<h3><a name=buzzword>Buzzword Compliance</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=autoincrement>AutoIncrement</a>[ <a href=#toc>top</a> ] </h3>
 
-#### Visitor Pattern
-So there's quite a bit of [that](http://en.wikipedia.org/wiki/Visitor_pattern) here.
-For instance, there's a right reduce, which is really just a left reduce with the list inverted.
+<a href=#templates>Templates</a> can be used to create auto-incrementers. Here's is how you would do it, if you were so inclined:
 
-So to pull this off, 
+    var 
+      index = 0,
+      db = DB();
 
- 1. We call reduceLeft which returns a function, we'll call that the left-reducer.
- 2. We wrap the left-reducer in another function, that will be returned, which takes the arguments coming in, and reverses them.
+    db.template.create({id: (function(){ return index++; })});
+    db.insert([
+      {key: 1},
+      {key: 2}
+    ]);
 
-This means that all it really is, (unoptimized) is this:
+<h3><a name=dom>DOM serialization</a>[ <a href=#toc>top</a> ] </h3>
 
-    function reduceRight(memo, callback) {
-      return function(list) {
-        return (
-          (reduceLeft(memo, callback))
-          (list.reverse())
-        );
-      }
-    }
+You don't need to insert things into a database first, you can just do something like this:
 
-#### Strategy Pattern
-No DB would be complete without a [strategy](http://en.wikipedia.org/wiki/Strategy_pattern). An example of this would be isin, which
-creates different macro functions depending on the arguments.
+    DB.find(
+      document.getElementsByTagName(' * '), 
+      db.like('innerHTML', 'hello World')
+    )
 
-Of course, isin returns a function which can then be applied to find. This has another name.
+<a href=#browser>KISS syncing in the browser</a>
 
-#### Command Pattern
-So almost everything can take functions and this includes other functions. So for instance, pretend we had an object whitelist and
-we wanted to find elements within it.  Here's a way to do it:
+Pretend I have an restful endpoint `/database`:
 
-    var whitelistFinder = db.isin({key: "whitelist"});
-    setInterval(function(){
-      db.find(whitelistFinder);
-    }, 100);
+   var mydb = DB().sync(function(data) {
+     $.put("/database", data);
+   });
+   $.get("/database", mydb);
 
-Let's go over this.  By putting whitelist in quotes, isin thinks it's an expression that needs to be evaluated.  This means that a
-function is created:
-
-    function(test) {
-      return indexOf(whitelist, test) > -1;
-    }  
-
-indexOf works on array like objects (has a .length and a [], similar to Array.prototype). So it works on those generics.
-
-Ok, moving on. So what we almost get is a generic function. But this goes one step further, it binds things to data ... after all this is
-a "database". The invocation style
-
-    db.isin({key: "whitelist"});
-
-Means that it will actually return
-
-    {key: function...}
-
-Which then is a valid thing to stuff into almost everything else.
-
-
-<h3><a name=syntax>Syntax Notes</a> [ <a href=#toc>top</a> ] </h3>
-Great lengths have been taken to have a flexible and expressive API that
-conforms to dynamic coding styles.
-
-For instance, if you wanted to update 'key' to be 'value' for all records
-in the database, you could do it like
-
-db.update('key', 'value')
-
-or
-
-db.update({key: 'value'})
-
-or you can chain this under a find if you want to only update some records
-
-db.find({key: 'value'}).update({key: 'somethingelse'})
-
-etc...
-
-The basic idea is that **you are using this API because you want life
-to be painless and easy**.  You certainly don't want to wade through
-a bunch of documentation or have to remember strange nuances of how
-to invoke something.  You should be able to take the cavalier approach and
-*Get Shit Done(tm)*.
-
-
-Also, please note:
-### Every command is not only chainable, but also returns a standard javascript array of results.
-
-What I mean by this is that you can do 
-
-    var result = db.find({processed: true});
-    alert([ 
-      result.length,
-      result[result.length - 1],
-      result.pop(),
-      result.shift()
-    ].join('\n'));
-
-    result.find({hasError: true}).remove();
-    
-Note that my arrays are pure magic here and I do not beligerently append
-arbitrary functions to Array.prototype.  
-
-
-<h3><a name=support>Supported Platforms</a> [ <a href=#toc>top</a> ] </h3>
-
-This has been tested and is known to work on
-
- * IE 5.5+
- * Firefox 2+
- * Chrome 8+
- * Safari 2+
- * Opera 7+
-
-<h3><a name=dependencies>Dependencies</a> [ <a href=#toc>top</a> ] </h3>
-none.
-
-<h3><a name=performance>Performance</a> [ <a href=#toc>top</a> ] </h3>
-Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
-
-<h3><a name=license>License</a> [ <a href=#toc>top</a> ] </h3>
-Dual-Licensed under MIT and GPL.
-
-<h3><a name=contact>Contact</a> [ <a href=#toc>top</a> ] </h3>
-[Join the mailing list](http://groups.google.com/group/dbjs).
-
-<h3><a name=similar>Similar Projects</a> [ <a href=#toc>top</a> ] </h3>
-Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
-
-<h3><a name=users>Users</a> [ <a href=#toc>top</a> ] </h3>
-If you use this library, let me know on the mailing list or through github!
-
-Current users:
-
- * [iizuu](http://www.iizuu.com) uses the library extensively
- * [ytmix](https://github.com/kristopolous/ytmix) a data drive youtube application
+And there you go. **Now you can modify stuff in the browser with a remote sync**.  It was 3 lines. That's really all it took.
 
 <h2><a name=inserting>Inserting and Removing</a> [ <a href=#toc>top</a> ] </h2>
 
@@ -308,13 +189,6 @@ For instance, this works:
       .find({name: 'something else'})
       .select('node')
 
-
-Along with this:
-
-    DB.find(
-      document.getElementsByTagName(' * '), 
-      db.like('innerHTML', 'hello World')
-    )
 
 There is also a routine named `DB.objectify` which takes a set of keys and values and
 emits an object.  For instance, if you had a flat data structure, say, from CSV, like this:
@@ -416,17 +290,6 @@ is created.
 The template itself is implicit and modal; applying to all insertions until it is
 modified or removed.
 
-<b> Templates can be used to create auto-incrementers. Oh yes, they can.</b> Here's is how you would do it, if you were so inclined:
-
-    var 
-      index = 0,
-      db = DB();
-
-    db.template.create({id: (function(){ return index++; })});
-    db.insert([
-      {key: 1},
-      {key: 2}
-    ]);
  
 <h5>Creation
 
@@ -715,7 +578,7 @@ There's another example in the test.html file at around line 414
 <h3><a name=keyBy> [map] keyBy( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is similar to the <a href=#group>group</a> feature except that the values are never
 arrays and are instead just a single entry.  If there are multiple values, then the first
-one acts as te value.  This should probably be done on unique keys (or columns if you will)
+one acts as the value.  This should probably be done on unique keys (or columns if you will)
 
 <h2><a name=storage> Storage </a> [ <a href=#toc>top</a> ] </h2>
 What if you have an existing database from somewhere and you want to import
@@ -791,3 +654,138 @@ both fields in.  We can do this a few ways:
 
 More examples can be found in the index.html in git repository.
 
+<h3><a name=buzzword>Buzzword Compliance</a> [ <a href=#toc>top</a> ] </h3>
+
+#### Visitor Pattern
+So there's quite a bit of [that](http://en.wikipedia.org/wiki/Visitor_pattern) here.
+For instance, there's a right reduce, which is really just a left reduce with the list inverted.
+
+So to pull this off, 
+
+ 1. We call reduceLeft which returns a function, we'll call that the left-reducer.
+ 2. We wrap the left-reducer in another function, that will be returned, which takes the arguments coming in, and reverses them.
+
+This means that all it really is, (unoptimized) is this:
+
+    function reduceRight(memo, callback) {
+      return function(list) {
+        return (
+          (reduceLeft(memo, callback))
+          (list.reverse())
+        );
+      }
+    }
+
+#### Strategy Pattern
+No DB would be complete without a [strategy](http://en.wikipedia.org/wiki/Strategy_pattern). An example of this would be isin, which
+creates different macro functions depending on the arguments.
+
+Of course, isin returns a function which can then be applied to find. This has another name.
+
+#### Command Pattern
+So almost everything can take functions and this includes other functions. So for instance, pretend we had an object whitelist and
+we wanted to find elements within it.  Here's a way to do it:
+
+    var whitelistFinder = db.isin({key: "whitelist"});
+    setInterval(function(){
+      db.find(whitelistFinder);
+    }, 100);
+
+Let's go over this.  By putting whitelist in quotes, isin thinks it's an expression that needs to be evaluated.  This means that a
+function is created:
+
+    function(test) {
+      return indexOf(whitelist, test) > -1;
+    }  
+
+indexOf works on array like objects (has a .length and a [], similar to Array.prototype). So it works on those generics.
+
+Ok, moving on. So what we almost get is a generic function. But this goes one step further, it binds things to data ... after all this is
+a "database". The invocation style
+
+    db.isin({key: "whitelist"});
+
+Means that it will actually return
+
+    {key: function...}
+
+Which then is a valid thing to stuff into almost everything else.
+
+
+<h3><a name=syntax>Syntax Notes</a> [ <a href=#toc>top</a> ] </h3>
+Great lengths have been taken to have a flexible and expressive API that
+conforms to dynamic coding styles.
+
+For instance, if you wanted to update 'key' to be 'value' for all records
+in the database, you could do it like
+
+db.update('key', 'value')
+
+or
+
+db.update({key: 'value'})
+
+or you can chain this under a find if you want to only update some records
+
+db.find({key: 'value'}).update({key: 'somethingelse'})
+
+etc...
+
+The basic idea is that **you are using this API because you want life
+to be painless and easy**.  You certainly don't want to wade through
+a bunch of documentation or have to remember strange nuances of how
+to invoke something.  You should be able to take the cavalier approach and
+*Get Shit Done(tm)*.
+
+
+Also, please note:
+### Every command is not only chainable, but also returns a standard javascript array of results.
+
+What I mean by this is that you can do 
+
+    var result = db.find({processed: true});
+    alert([ 
+      result.length,
+      result[result.length - 1],
+      result.pop(),
+      result.shift()
+    ].join('\n'));
+
+    result.find({hasError: true}).remove();
+    
+Note that my arrays are pure magic here and I do not beligerently append
+arbitrary functions to Array.prototype.  
+
+
+<h3><a name=support>Supported Platforms</a> [ <a href=#toc>top</a> ] </h3>
+
+This has been tested and is known to work on
+
+ * IE 5.5+
+ * Firefox 2+
+ * Chrome 8+
+ * Safari 2+
+ * Opera 7+
+
+<h3><a name=dependencies>Dependencies</a> [ <a href=#toc>top</a> ] </h3>
+none.
+
+<h3><a name=performance>Performance</a> [ <a href=#toc>top</a> ] </h3>
+Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
+
+<h3><a name=license>License</a> [ <a href=#toc>top</a> ] </h3>
+Dual-Licensed under MIT and GPL.
+
+<h3><a name=contact>Contact</a> [ <a href=#toc>top</a> ] </h3>
+[Join the mailing list](http://groups.google.com/group/dbjs).
+
+<h3><a name=similar>Similar Projects</a> [ <a href=#toc>top</a> ] </h3>
+Read [this comparison](https://github.com/danstocker/jorder/wiki/Benchmarks) by Dan Stocker. 
+
+<h3><a name=users>Users</a> [ <a href=#toc>top</a> ] </h3>
+If you use this library, let me know on the mailing list or through github!
+
+Current users:
+
+ * [iizuu](http://www.iizuu.com) uses the library extensively
+ * [ytmix](https://github.com/kristopolous/ytmix) a data drive youtube application

@@ -823,6 +823,7 @@
         } else { 
           sync();
         }
+        return pub;
       },
 
       template: {
