@@ -388,9 +388,9 @@ The arguments passed in for the functional style are either the whole record if 
 in the style of find( lambda ) or the key being argument 0 and the record being argument 1
 in the style of find({key: lambda}).  Therein you can have something like 
 
-   find(function(record) {
-      return record.key1 > record.key2;
-   });
+    find(function(record) {
+       return record.key1 > record.key2;
+    });
 
 
 <h3><a name=findFirst> [chain] findFirst( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
