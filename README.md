@@ -66,7 +66,10 @@
 
 <h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
 
-We will follow two groups in our exploration. Two time travellers from the 1700s and a set of spys that are out to get them.
+We will follow two groups in our exploration: 
+
+  * Two time travellers from the 1700s 
+  * A secret agency of spys that are out to get them.
 
 The time travellers have hacked into the spy's communication systems, but only have a browser to work with.  The schema is a mess and they must make sense of it and find out what the spys know in order to escape their wrath.
 
