@@ -5,6 +5,26 @@
 // Copyright 2011 - 2013, Chris McKenzie
 // Dual licensed under the MIT or GPL Version 2 licenses.
 //
+// Looking under the hood are you? What a fun place to be.
+//
+// Let's break this down:
+//
+// 1. since there are no dependencies, I have to have nice
+//    underscore and jquery like things myself.
+//
+// 2. A few database specific tricks.
+//
+// 3. Trace and debug handlers
+//
+// 4. Now we get into the core top level functions. These
+//    run agnostic of a specific database and work
+//    holistically. They include things like find.
+//
+// 5. The database instance.
+//
+// 6. Finally a hook that exposes the internal functions
+//    outward, plus a few other inline ones that don't get
+//    used internally.
 (function(){
 
   var 
@@ -64,6 +84,16 @@
       return ret;
     },
 
+    values = function (obj) {
+      var ret = [];
+
+      for(var key in obj) {
+        ret.push(obj[key]);
+      }
+
+      return ret;
+    },
+
     map = [].map ?
       function(array, cb) { 
         return array.map(cb) 
@@ -107,6 +137,64 @@
         }
      };
    
+  // Jacked from Resig's jquery 1.5.2
+  // The code has been modified to not rely on jquery and stripped
+  // to not be so safe and general
+  function extend(o1, o2) {
+    var 
+      options, src, copy, copyIsArray, clone,
+      target = o1,
+      len = arguments.length;
+
+    for (var i = 0 ; i < len; i++ ) {
+      // Only deal with non-null/undefined values
+      options = arguments[ i ];
+
+      // Extend the base object
+      for (var name in options ) {
+        src = target[ name ];
+        copy = options[ name ];
+
+        // Prevent never-ending loop
+        if ( target === copy ) {
+          continue;
+        }
+
+        // Recurse if we're merging plain objects or arrays
+        if ( copy && ( copy.constructor == Object || (copyIsArray = (_.isArr(copy))) ) ) {
+          if ( copyIsArray ) {
+            copyIsArray = false;
+            clone = src && (_.isArr(constructor)) ? src : [];
+          } else {
+            clone = src && (src.constructor == Object) ? src : {};
+          }
+
+          // Never move original objects, clone them
+          target[ name ] = extend( clone, copy );
+
+        // Don't bring in undefined values
+        } else if ( copy !== _u ) {
+          target[ name ] = copy;
+        }
+      }
+    }
+ 
+    // Return the modified object
+    return target;
+  }
+
+  function kvarg(which){
+    var ret = {};
+
+    if(which.length == 2) {
+      ret[which[0]] = which[1];
+      return ret;
+    }
+
+    if(which.length == 1) {
+      return which[0];
+    }
+  }
 
   function hash(array) {
     var ret = {};
@@ -151,6 +239,67 @@
     });
   }
 
+  function deepcopy(from) {
+    // @http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
+    return extend({}, from);
+  }
+
+  function simplecopy(obj) {
+    // we need to call slice for array-like objects, such as the dom
+    return obj.length ? slice.call(obj) : values(obj);
+  }
+
+  function list2obj(list) {
+    var ret = {};
+
+    each(list, function(which) {
+      ret[which] = true;
+    });
+
+    return ret;
+  }
+
+
+  // These function accept index lists.
+  function setdiff(larger, subset) {
+    var ret = [];
+
+    stain(subset);
+
+    for(var ix = 0, len = larger.length; ix < len; ix++) {
+      if (isStained(larger[ix])) { 
+        continue;
+      } 
+      ret.push(larger[ix]);
+    }
+
+    return ret;
+  }
+
+
+  // 
+  // "Staining" is my own crackpot algorithm of comparing
+  // two unsorted lists of pointers that reference shared
+  // objects. We go through list one, affixing a unique
+  // constant value to each of the members. Then we go
+  // through list two and see if the value is there.
+  //
+  // This has to be done rather atomically as the value
+  // can easily be replaced by something else.  It's an
+  // N + M cost...
+  //
+  function stain(list) {
+    _stainID++;
+
+    for(var ix = 0, len = list.length; ix < len; ix++) {
+      list[ix].constructor('i', _stainID);
+    }
+  }
+
+  function isStained(obj) {
+    return obj.constructor('i') == _stainID;
+  }
+
   // The first parameter, if exists, is assumed to be the value in the database,
   // which has a content of arrays, to search.
   // The second parameter is the index to search
@@ -187,11 +336,6 @@
     } else {
       return callback;
     }
-  }
-
-  function simplecopy(obj) {
-    // we need to call slice for array-like objects, such as the dom
-    return obj.length ? slice.call(obj) : values(obj);
   }
 
   function find() {
@@ -409,47 +553,6 @@
     };
   }
 
-  function deepcopy(from) {
-    // @http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
-    return extend({}, from);
-  }
-
-  function list2obj(list) {
-    var ret = {};
-
-    each(list, function(which) {
-      ret[which] = true;
-    });
-
-    return ret;
-  }
-
-  function values(obj) {
-    var ret = [];
-
-    for(var key in obj) {
-      ret.push(obj[key]);
-    }
-
-    return ret;
-  }
-
-  // These function accept index lists.
-  function setdiff(larger, subset) {
-    var ret = [];
-
-    stain(subset);
-
-    for(var ix = 0, len = larger.length; ix < len; ix++) {
-      if (isStained(larger[ix])) { 
-        continue;
-      } 
-      ret.push(larger[ix]);
-    }
-
-    return ret;
-  }
-
   function update(arg0, arg1) {
     var key, filter = this;
 
@@ -496,64 +599,6 @@
     return this;
   }
 
-  // Jacked from Resig's jquery 1.5.2
-  // The code has been modified to not rely on jquery and stripped
-  // to not be so safe and general
-  function extend(o1, o2) {
-    var 
-      options, src, copy, copyIsArray, clone,
-      target = o1,
-      len = arguments.length;
-
-    for (var i = 0 ; i < len; i++ ) {
-      // Only deal with non-null/undefined values
-      options = arguments[ i ];
-
-      // Extend the base object
-      for (var name in options ) {
-        src = target[ name ];
-        copy = options[ name ];
-
-        // Prevent never-ending loop
-        if ( target === copy ) {
-          continue;
-        }
-
-        // Recurse if we're merging plain objects or arrays
-        if ( copy && ( copy.constructor == Object || (copyIsArray = (_.isArr(copy))) ) ) {
-          if ( copyIsArray ) {
-            copyIsArray = false;
-            clone = src && (_.isArr(constructor)) ? src : [];
-          } else {
-            clone = src && (src.constructor == Object) ? src : {};
-          }
-
-          // Never move original objects, clone them
-          target[ name ] = extend( clone, copy );
-
-        // Don't bring in undefined values
-        } else if ( copy !== _u ) {
-          target[ name ] = copy;
-        }
-      }
-    }
- 
-    // Return the modified object
-    return target;
-  }
-
-  function kvarg(which){
-    var ret = {};
-
-    if(which.length == 2) {
-      ret[which[0]] = which[1];
-      return ret;
-    }
-
-    if(which.length == 1) {
-      return which[0];
-    }
-  }
 
   var expression = (function(){
     var 
@@ -653,30 +698,6 @@
     } 
 
     return ret;
-  }
-
-
-  // 
-  // "Staining" is my own crackpot algorithm of comparing
-  // two unsorted lists of pointers that reference shared
-  // objects. We go through list one, affixing a unique
-  // constant value to each of the members. Then we go
-  // through list two and see if the value is there.
-  //
-  // This has to be done rather atomically as the value
-  // can easily be replaced by something else.  It's an
-  // N + M cost...
-  //
-  function stain(list) {
-    _stainID++;
-
-    for(var ix = 0, len = list.length; ix < len; ix++) {
-      list[ix].constructor('i', _stainID);
-    }
-  }
-
-  function isStained(obj) {
-    return obj.constructor('i') == _stainID;
   }
 
   // the list of functions to chain
@@ -823,7 +844,7 @@
         } else { 
           sync();
         }
-        return pub;
+        return ret;
       },
 
       template: {
