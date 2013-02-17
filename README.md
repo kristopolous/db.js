@@ -68,7 +68,7 @@
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
 
-Let me show you how awesome this can be.  Take a familiar SQL query like this:
+Take a familiar everyday SQL query such as:
 
     select spyname, location
       from hitlist
@@ -172,7 +172,7 @@ To debug your expressions. You can use these just about everywhere in this libra
 
     >> db.find()
     
-      {id: 0, key: "Alice Smith"},
+      {id: 0, key: "Alice Cooper"},
       {id: 1, key: "Bobby '); DROP TABLE Students;-- "}
 
 <h3><a name=dom>DOM serialization</a>[ <a href=#toc>top</a> ] </h3>
@@ -333,8 +333,7 @@ Now the value in the closure will be "4" and a db.find({key: 4}) will return.
 <h3><a name=template> Templates </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Templates permit you to have a set of K/V pairs or K/lambda pairs that act as a baseline for record insertion.  You can create, update, get, and destroy templates.  They are not retroactive and only affect insertions that are done after the template is created.
 
-The template itself is implicit and modal; applying to all insertions until it is
-modified or removed.
+The template itself is implicit and modal; applying to all insertions until it is modified or removed.
 
  
 <h5>Creation
@@ -395,12 +394,12 @@ splice, shift, pop, push, or unshift the array to do those respective functions.
 This is like the "where" clause in SQL.  You
 can invoke it one of the following ways:
 
- * by Object: find({key: 'value'})
- * by ArgList: find('key', 'value')
- * by record Function: find(function(record) { return record.value < 10; })
- * by key Function: find({key: function(value) { return value < 10; })
- * by key Expression: find({key: db('< 10')})
- * by anonymous Expression: find(db('key', '< 10'))
+ * by Object: `find({key: 'value'})`
+ * by ArgList: `find('key', 'value')`
+ * by record Function: find(function(record) { return record.value < 10; })`
+ * by key Function: `find({key: function(value) { return value < 10; })`
+ * by key Expression: `find({key: db('< 10')})`
+ * by anonymous Expression: `find(db('key', '< 10'))`
 
 <h3>About the arguments</h3>
 It can receive multiple arguments for multiple constraints.  For instance, you can
@@ -433,7 +432,14 @@ then the returned object is empty.**
 A macro lambda for find that does a case-insensitive regex search on the values for keys.
 This is similar to the SQL like command and it takes the value and does
 
-    value.toString().toLowerCase().search(query.toString().toLowerCase) > -1
+    value
+      .toString()
+      .toLowerCase()
+      .search(
+        query
+          .toString()
+          .toLowerCase
+      ) > -1
 
 <h3><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h3>
 *Also a top level function*
