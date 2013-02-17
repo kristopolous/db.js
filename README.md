@@ -66,9 +66,11 @@
 
 <h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
 
-Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
+Have you ever thought <blockquote>"Dear me, Sir Frederick, this data manipulation dilemma is proving to be quite intractible. If only, I had, at my immediate disposal, an expressive syntax like that of SQL, for my uses in the Browser or in other Javascript environments, we could resolve the issues, that are contained within this problem, with a great ease, that of which, would be immeasurable, and truly beneficial to the cause at hand"</blockquote>.
 
-Take a familiar everyday SQL query such as:
+Well hipster from 1876, look no further. 
+
+Let's take a familiar everyday SQL query such as:
 
     select spyname, location
       from hitlist
