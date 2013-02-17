@@ -66,7 +66,7 @@
 
 <h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
 
-Have you ever thought <blockquote>"Dear me, Sir Frederick, this data manipulation dilemma is proving to be quite intractible. If only, I had, at my immediate disposal, an expressive syntax like that of SQL, for my uses in the Browser or in other Javascript environments, we could resolve the issues, that are contained within this problem, with a great ease, that of which, would be immeasurable, and truly beneficial to the cause at hand"</blockquote>.
+Have you ever thought <blockquote>Why dearest me, Sir Frederick, this data manipulation dilemma is truly proving to be quite intractible. If only I or one such as me had for our immediate disposal and use *an expressive and flexible* syntax; much akin to SQL - for the use in the Browser or in other Javascript environments: then, we could resolve the issues that are contained within this problem with a great ease - indeed, that of which would be immeasurable and truly beneficial to the cause at hand.</blockquote>
 
 Well hipster from 1876, look no further. 
 
