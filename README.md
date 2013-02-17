@@ -69,9 +69,9 @@
 We will follow two groups in our exploration: 
 
   * Two time travellers from the 1700s 
-  * A secret agency of spys that are out to get them.
+  * A secret agency of spies that are out to get them.
 
-The time travellers have hacked into the spy's communication systems, but only have a browser to work with.  The schema is a mess and they must make sense of it and find out what the spys know in order to escape their wrath.
+The time travellers have hacked into the spy's communication systems, but only have a browser to work with.  The schema is a mess and they must make sense of it and find out what the spies know in order to escape their wrath.
 
 We start our story shortly after they have discovered the large dataset.
 
