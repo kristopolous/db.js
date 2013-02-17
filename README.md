@@ -72,22 +72,29 @@ Let me show you how awesome this can be.  Take a familiar SQL query like this:
 
     select firstname, age 
       from people 
-      where age > 30 
+      where age < 24 
       order by age desc
 
 Mindfuck it around a bit...
 
     from people 
-      where age > 30 
+      where age < 24 
       order by age desc
       select firstname, age 
 
 Add some commas, a few parenthesis, lots of black magic, and here we go:
 
     people
-      .where('age > 30')
+      .where('age < 24')
       .order('age', 'desc')
       .select('firstname', 'age')
+      .each(function(row) {
+        console.log(
+          row.firstname + ", you're young baby. At " +
+          age + " you have the best years ahead! " +
+          "Live in wonder." 
+        );
+      });
 
 Who said life wasn't easy?
 
