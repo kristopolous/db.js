@@ -148,7 +148,6 @@ Agnes and Frederick have found this:
       },
       { 'name': "Agent 99",
         'role': 'spy',
-        'todo': 'nothing today'
         'backup-for': ['Agent 86', 'Agent Orange']
       },
       { 'name': "Frederick",
@@ -156,10 +155,6 @@ Agnes and Frederick have found this:
         'location': 'Starbucks',
         'kill-date': 'today',
         'hitmen' : ['Agent 86', 'Agent Orange']
-      },
-      { 'name': "Agent 99",
-        'role': 'spy',
-        'todo': { 'murder': 'President of Zombia' }
       },
       { 'name': "Agent 007",
         'role': 'spy',
