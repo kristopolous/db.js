@@ -66,9 +66,9 @@
 
 <h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
 
-Have you ever thought <blockquote>Why dearest me, Sir Frederick, this data manipulation dilemma is truly proving to be quite intractible. If only I or one such as me had for our immediate disposal and use *an expressive and flexible* syntax; much akin to SQL - for the use in the Browser or in other Javascript environments: then, we could resolve the issues that are contained within this problem with a great ease - indeed, that of which would be immeasurable and truly beneficial to the cause at hand.</blockquote>
-
-Well hipster from 1876, look no further. 
+Have you ever thought 
+<blockquote>
+Agnest: Why dearest me, Sir Frederick, this data manipulation dilemma is truly proving to be quite intractible. If only I or one such as me had for our immediate disposal and use **an expressive and flexible** syntax; much akin to SQL - for the use in the Browser or in other Javascript environments: then, we could resolve the issues that are contained within this problem with a great ease - indeed, that of which would be immeasurable and truly beneficial to the cause at hand.</blockquote>
 
 Let's take a familiar everyday SQL query such as:
 
@@ -105,12 +105,21 @@ Add some commas, a few parenthesis, lots of black magic, and here we go:
         );
       });
 
-Who said life wasn't easy?
+Who said life wasn't easy, my dear Frederick?
 
 <h3><a name=expressions>Expressions</a> [ <a href=#toc>top</a> ] </h3>
 Expressions are the *biggest, most important part here*. 
 
-They are a processing engine where you can toss in things and get matching functions.
+Let's go back to our coders. They have now looked at a bunch of underscore, jquery, and backbone mess of select, without, uniq, and other weird things to manipulate their data.
+
+One of them says:
+
+<blockquote>
+Agnes: Sir Frederick, whilst looking at the code, one is apt to imagine that she is perusing some ill-written tale or romance, which instead of natural and agreeable images, exhibits to the mind nothing but frightful and distorted shapes "Gorgons, hydras, and chimeras dire"; discoloring and disfiguring whatever it represents, and transforming everything it touches into a monster.</blockquote>
+
+Let's clean up that mess.
+
+Expressions are a processing engine where you can toss in things and get matching functions.
 
 For instance, say you want to find out what parts of your complex object datastore has a structure like this:
 
