@@ -208,15 +208,19 @@ You don't need to insert things into a database first, you can just do something
 
 <h3><a name=browser>KISS syncing in the browser</a>[ <a href=#toc>top</a> ] </h3>
 
-Pretend I have an RESTful endpoint `/government-secrets`:
+Our heros are now finally getting somewhere. They can bring down their data, and manipulate it with ease.
 
-    var my_leaks = DB().sync(function(espionage_dataset) {
+<blockquote>Frederick: A world of hope is but a few keystrokes away for us Agnes. However, I haven't uncovered a painless way to remove our true information, place in plausibly fraudulant information, and then automatically update the remote database with ease --- surely, there must be a way to trigger a function when our data-bank is manipulated.</blockquote>
+
+Going to the documentation, they find a convenient <a href=#sync>sync</a> function that is designed to do just that. Returning to their [laptop](http://24.media.tumblr.com/tumblr_lokdial9rE1r01d4bo1_1280.jpg):
+
+    var what_it_is_that_we_know = DB().sync(function(espionage_dataset) {
       $.put("/government-secrets", espionage_dataset);
     });
 
-    $.get("/government-secrets", my_leaks);
+    $.get("/government-secrets", what_it_is_that_we_know);
 
-And there you go. **Now you can modify stuff in the browser and it automatically does a remote sync**.  It was 3 lines. That's really all it took.
+And it's done. **Now Agnes and Frederick can modify stuff in the browser and it automatically does a remote sync**.  It was 4 lines. That's really all it took.
 
 <h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
