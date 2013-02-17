@@ -128,35 +128,78 @@ Expressions are a processing engine where you can toss in things and get matchin
 
 For instance, say you want to find out what parts of your complex object datastore has a structure like this:
 
-    { 'oh': { 'my': <string> } } 
+    { 'todo': { 'murder': <string> } } 
         
-And you have a really messy database written by people that make youtube comments, like this:
+Agnes and Frederick have found this:
 
-      { 'ho be all like': 1337 }
-    * { 'oh': { 'my': 'god, becky' } } 
-    * { 'oh': { 'my': 'dayum' } } 
-      { 'my': { 'ohm': { c: [] } }  *
-      { 'oh': { 'yum': 'this dougnut is delicious' }
-      { 'let\'s count to a million': [ 1, 2, 3, 3, 4, 5, 6, 7, 'fuck this', 8, 9, 10] }
-      { 'what is a computer': undefined }
+      { 'name': "Agnes",
+        'location': 'Starbucks',
+        'role': 'target',
+        'kill-date': 'today',
+        'hitmen' : ['Agent 86']
+      },
+      { 'name': "Agent 86",
+        'role': 'spy',
+        'distance': 80000,
+        'todo': { 'murder': 'Agnes' }
+      },
+      { 'name': "Agent 99",
+        'role': 'spy',
+        'todo': 'nothing today'
+        'backup-for': ['Agent 86', 'Agent Orange']
+      },
+      { 'name': "Frederick",
+        'role': 'target',
+        'location': 'Starbucks',
+        'kill-date': 'today',
+        'hitmen' : ['Agent 86', 'Agent Orange']
+      },
+      { 'name': "Agent 99",
+        'role': 'spy',
+        'todo': { 'murder': 'President of Zombia' }
+      },
+      { 'name': "Agent 007",
+        'role': 'spy',
+        'todo': { 'sleep-with': 'spy' }
+      },
+      { 'name': "Agent Orange",
+        'distance': 10000,
+        'role': 'spy',
+        'todo': { 'murder' : 'Frederick' },
+      },
 
-You want the two records with an asterisk
+We want to find out a few things:
 
-    DB.find(DB('.oh.my'));
+    DB.find([
+      DB('.todo.murder == "Frederick"),
+      DB('.todo.murder == "Agnes")
+    ])
 
-Gets you there.
+Gets you there, the Array means OR. Now they want to manipulate it further.
 
-Now say you want just the first one:
+    DB.find({
+      'role': 'target',
+      'kill-date': 'today'
+    }).update({
+      'location': 'across town'
+    }); 
 
-    DB.find(DB('.oh.my == "god, becky"'));
+There's a backup agent, Agent 99, to be used in case the other two fail. Agnes and Frederick want to foil her:
 
-Gets you there.
+    DB.find({
+      'backup-for': DB.find(
+        DB('.todo.murder.indexOf(["Frederick", "Agnes"]) > -1')
+      ).select('name')
+    ).update(function(who) {
+      delete who['backup-for'];
+      who.todo = 'lie around and sun bathe';
+    });
 
-There's a lot more to explore, try
+They find that there is a lot more to explore, try
 
     DB(some string).toString()
 
-to peek at the implementation.  You can also try things like this:
+to peek at the implementation.  This is how they got started:
 
     DB(".a.b")({a:{c:1})
     >> undefined
@@ -170,7 +213,7 @@ to peek at the implementation.  You can also try things like this:
     DB(".a.b")({a:{b:[1,2,3]})
     >> [1,2,3]
 
-To debug your expressions. You can use these just about everywhere in this library.
+To debug their expressions. Much to their delight, they found they can use these expressions and data manipulations just about everywhere in this library of black magic.
 
 <h3><a name=autoincrement>AutoIncrement</a>[ <a href=#toc>top</a> ] </h3>
 
