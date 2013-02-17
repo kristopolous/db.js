@@ -114,7 +114,7 @@ And you have a really messy database written by people that make youtube comment
     * { 'oh': { 'my': 'dayum' } } 
       { 'my': { 'ohm': { c: [] } }  *
       { 'oh': { 'yum': 'this dougnut is delicious' }
-      { 'let's count to a million': [ 1, 2, 3, 3, 4, 5, 6, 7, 'fuck this', 8, 9, 10] }
+      { 'let\'s count to a million': [ 1, 2, 3, 3, 4, 5, 6, 7, 'fuck this', 8, 9, 10] }
       { 'what is a computer': undefined }
 
 You want the two records with an asterisk
@@ -159,9 +159,14 @@ To debug your expressions. You can use these just about everywhere in this libra
 
     db.template.create({id: (function(){ return index++; })});
     db.insert([
-      {key: 1},
-      {key: 2}
+      {key: "Alice Cooper"},
+      {key: "Bobby '); DROP TABLE Students;-- "}
     ]);
+
+    >> db.find()
+    
+      {id: 0, key: "Alice Smith"},
+      {id: 1, key: "Bobby '); DROP TABLE Students;-- "}
 
 <h3><a name=dom>DOM serialization</a>[ <a href=#toc>top</a> ] </h3>
 
@@ -319,10 +324,7 @@ Semantically, the update will now pass in a value, as mentioned above.  So if yo
 Now the value in the closure will be "4" and a db.find({key: 4}) will return.
 
 <h3><a name=template> Templates </a> [ <a href=#toc-inserting>top</a> ] </h3>
-Templates permit you to have a set of K/V pairs or K/lambda pairs that act as
-a baseline for record insertion.  You can create, update, get, and destroy templates.
-They are not retroactive and only affect insertions that are done after the template
-is created.
+Templates permit you to have a set of K/V pairs or K/lambda pairs that act as a baseline for record insertion.  You can create, update, get, and destroy templates.  They are not retroactive and only affect insertions that are done after the template is created.
 
 The template itself is implicit and modal; applying to all insertions until it is
 modified or removed.
@@ -330,20 +332,19 @@ modified or removed.
  
 <h5>Creation
 
-To create a template use template.create( fields )
+To create a template use `template.create( fields )`
 
 <h5>Update
 
-Updating overwrite previous values as specified whilst retaining the old values of
-those which are not.  To update a template use template.update( fields )
+Updating overwrite previous values as specified whilst retaining the old values of those which are not.  To update a template use `template.update( fields )`
 
 <h5>Getting
 
-You can get the current template with template.get()
+You can get the current template with `template.get()`
 
 <h5>Destroy
 
-You can destroy a template with template.destroy()
+You can destroy a template with `template.destroy()`
 
 <h3><a name=update> [chain] update( object | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all parameters matching a constraint.  
