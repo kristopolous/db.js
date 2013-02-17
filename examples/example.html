@@ -345,7 +345,7 @@ After all those steps are done, then you can <button onclick=performance()>try</
     var 
       lineList = get(url).split('\n'),
       db = DB(),
-      re = new RegExp('(?:"[^"]*")|(?:[^,]+)', "g"),
+      re = new RegExp('^(?:(?:"((?:""|[^"])+)"|([^,]*))(?:$|,))+$', "g"),
       record,
       match,
       field = 0,

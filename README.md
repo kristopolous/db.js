@@ -156,13 +156,13 @@ You don't need to insert things into a database first, you can just do something
 
 <h3><a name=browser>KISS syncing in the browser</a>[ <a href=#toc>top</a> ] </h3>
 
-Pretend I have an RESTful endpoint `/database`:
+Pretend I have an RESTful endpoint `/government-secrets`:
 
-    var mydb = DB().sync(function(data) {
-      $.put("/database", data);
+    var my_leaks = DB().sync(function(espionage_dataset) {
+      $.put("/government-secrets", espionage_dataset);
     });
 
-    $.get("/database", mydb);
+    $.get("/government-secrets", my_leaks);
 
 And there you go. **Now you can modify stuff in the browser and it automatically does a remote sync**.  It was 3 lines. That's really all it took.
 
@@ -409,8 +409,8 @@ This is similar to the SQL like command and it takes the value and does
 A macro lambda for find which tests for set membership. This is like the SQL "in" operator.  You can invoke it either
 with a static array or a callback like so:
 
- * db.isin('months', ['jan','feb','march'])
- * db.isin('months', function(){ ... })
+ * `db.isin('months', ['jan','feb','march'])`
+ * `db.isin('months', function(){ ... })`
 
 A usage scenario may be as follows:
 
@@ -462,12 +462,12 @@ key values of these fields aren't currently being returned.
 
 You can do 
 
- * select('one', 'two')
- * select(['one', 'two'])
+ * `select('one', 'two')`
+ * `select(['one', 'two'])`
 
 But not:
 
-select('one,two')
+    select('one,two')
 
 Since ',' is actually a valid character for keys in objects.  Yeah,
 it's the way it is. Sorry.
@@ -596,16 +596,19 @@ one acts as the value.  This should probably be done on unique keys (or columns 
 <h2><a name=storage> Storage </a> [ <a href=#toc>top</a> ] </h2>
 What if you have an existing database from somewhere and you want to import
 your data when you load the page.  You can supply the data to be imported
-as an initialization variable.  For instance, say you are using [jStorage](http://www.jstorage.info/)
-you could initialize the database as follows:
+as an initialization variable.  For instance, say you are using localStorage you could initialize the database as follows:
 
-var db = DB($.jStorage.get('government-secrets'));
+    var db = DB(
+      JSON.parse(localStorage['government-secrets'])
+    );
 
 <h3><a name=sync> [handle] sync( callback ) </a> [ <a href=#toc>top</a> ] </h3>
 To store the data when it is updated, you define a "sync" function.  Using our
 jStorage example from above, we would 'sync' back to by doing the following:
 
-db.sync( function(data) { $.jStorage.set('government-secrets', data); } )
+    db.sync(function(data) { 
+      $.put("/government-secrets", data); 
+    })
 
 The example file includes a synchronization function that logs to screen
 when it is run so you can see when this function would be called.  Basically
@@ -633,7 +636,7 @@ just add the object `{key: value}` into it.
 
 Now let's say we want to insert `{one: 1, two: 2}` into it
 
-db.insert({one: 1, two: 2})
+    db.insert({one: 1, two: 2})
 
 Alright, let's say that we want to do this all over again and now insert
 both fields in.  We can do this a few ways:
@@ -732,15 +735,17 @@ conforms to dynamic coding styles.
 For instance, if you wanted to update 'key' to be 'value' for all records
 in the database, you could do it like
 
-db.update('key', 'value')
+    db.update('key', 'value')
 
 or
 
-db.update({key: 'value'})
+    db.update({key: 'value'})
 
 or you can chain this under a find if you want to only update some records
 
-db.find({key: 'value'}).update({key: 'somethingelse'})
+    db
+      .find({key: 'value'})
+      .update({key: 'somethingelse'})
 
 etc...
 
