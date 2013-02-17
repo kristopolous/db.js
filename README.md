@@ -70,16 +70,26 @@ Have you ever thought "gee this problem is tough. if only I had an SQL database 
 
 Let me show you how awesome this can be.  Take a familiar SQL query like this:
 
-`select firstname, age from people where age > 30 order by age desc`
+   select firstname, age 
+      from people 
+      where age > 30 
+      order by age desc
 
-And with a little bit of javascripty magic, we can do this:
+Mindfuck it around a bit...
+
+   from people 
+      where age > 30 
+      order by age desc
+      select firstname, age 
+
+Add some commas, a few parenthesis, lots of black magic, and here we go:
 
     people
-      .find(DB('age', '> 30'))
+      .where('age > 30')
       .order('age', 'desc')
       .select('firstname', 'age')
 
-And bam! There you go. Who said life wasn't easy?
+Who said life wasn't easy?
 
 <h3><a name=expressions>Expressions</a> [ <a href=#toc>top</a> ] </h3>
 Expressions are the *biggest, most important part here*. 
