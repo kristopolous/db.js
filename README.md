@@ -1,4 +1,4 @@
-<h1><a name=toc> Javascript Database</a>
+<h1><a name=toc> Javascript `Databank`</a>
 
 ### <a href=#introduction>Tricks and Introduction</a>
  * <a href="http://qaa.ath.cx/ytwatch1">The Project This is Primarily Built For</a>
@@ -64,35 +64,42 @@
  * <a href=#similar>Similar Projects</a>
  * <a href=#users>Users</a>
 
-<h2><a name=introduction>Introduction</a> [ <a href=#toc>top</a> ] </h2>
+<h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
 
 Have you ever thought "gee this problem is tough. if only I had an SQL database to run queries on, in the browser, like an SQLite for JS, life would be easy".
 
 Let me show you how awesome this can be.  Take a familiar SQL query like this:
 
-    select firstname, age 
-      from people 
-      where age < 24 
-      order by age desc
+    select spyname, location
+      from hitlist
+      where 
+        target_time < NOW() and
+        alive == true
+      order by distance desc
 
 Mindfuck it around a bit...
 
-    from people 
-      where age < 24 
-      order by age desc
-      select firstname, age 
+    from hitlist
+      where 
+        target_time < NOW() and
+        alive == true
+      order by distance desc
+      select spyname, location
 
 Add some commas, a few parenthesis, lots of black magic, and here we go:
 
-    people
-      .where('age < 24')
-      .order('age', 'desc')
-      .select('firstname', 'age')
+    hitlist
+      .where(
+        'target_time < new Date()',
+        'alive == true'
+      )
+      .order('distance', 'desc')
+      .select('spyname', 'location')
       .each(function(row) {
         console.log(
-          row.firstname + ", you're young baby. At " +
-          age + " you have the best years ahead! " +
-          "Live in wonder." 
+          row.spyname + ", you have moments to live." +
+          "They know you are at " + row.location "." +
+          "Use rule 37."
         );
       });
 
