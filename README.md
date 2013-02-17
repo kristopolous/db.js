@@ -5,8 +5,10 @@
  * <a href=#browser>KISS syncing</a>
  * <a href=#autoincrement>AutoIncrement</a>
  * <a href=#mutation>Restructuring data</a>
+<!--
  * <a href=#magic>Magical updating hash maps</a>
  * <a href=#dom>DOM serialization</a>
+-->
  * <a href="http://qaa.ath.cx/ytwatch1">The Project This is Primarily Built For</a>
 
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
@@ -307,6 +309,7 @@ Now they are getting somewhere they say:
 
 They become quite pleased with how easy it is to do things.
 
+<!--
 <h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
 Pretend I have a backbone model that has some defaults and I want to find an object that has a certain attribute equalling a certain value.
@@ -334,7 +337,7 @@ You don't need to insert things into a database first, you can just do something
 
     );
 
-
+-->
 <h2><a name=inserting>Inserting and Removing</a> [ <a href=#toc>top</a> ] </h2>
 
 <h3><a name=initialization> DB() </a> [ <a href=#toc-inserting>top</a> ] </h3>
