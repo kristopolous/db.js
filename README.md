@@ -66,9 +66,14 @@
 
 <h2><a name=introduction></a>Intro<a href=https://www.youtube.com/watch?v=eZ0hECn5Jak>ducing</a> [ <a href=#toc>top</a> ] </h2>
 
-Have you ever thought 
+We will follow two groups in our exploration. Two time travellers from the 1700s and a set of spys that are out to get them.
+
+The time travellers have hacked into the spy's communication systems, but only have a browser to work with.  The schema is a mess and they must make sense of it and find out what the spys know in order to escape their wrath.
+
+We start our story shortly after they have discovered the large dataset.
+
 <blockquote>
-Agnest: Why dearest me, Sir Frederick, this data manipulation dilemma is truly proving to be quite intractible. If only I or one such as me had for our immediate disposal and use **an expressive and flexible** syntax; much akin to SQL - for the use in the Browser or in other Javascript environments: then, we could resolve the issues that are contained within this problem with a great ease - indeed, that of which would be immeasurable and truly beneficial to the cause at hand.</blockquote>
+Agnes: Why dearest me, Sir Frederick, this data manipulation dilemma is truly proving to be quite intractible. If only I or one such as me had for our immediate disposal and use **an expressive and flexible** syntax; much akin to SQL - for the use in the Browser or in other Javascript environments: then, we could resolve the issues that are contained within this problem with a great ease - indeed, that of which would be immeasurable and truly beneficial to the cause at hand.</blockquote>
 
 Let's take a familiar everyday SQL query such as:
 
@@ -110,7 +115,7 @@ Who said life wasn't easy, my dear Frederick?
 <h3><a name=expressions>Expressions</a> [ <a href=#toc>top</a> ] </h3>
 Expressions are the *biggest, most important part here*. 
 
-Let's go back to our coders. They have now looked at a bunch of underscore, jquery, and backbone mess of select, without, uniq, and other weird things to manipulate their data.
+Let's go back to our coders. They have now created a bunch of underscore, jquery, and backbone mess of select, without, uniq, and other weird things to manipulate their data.  They are getting nowhere.
 
 One of them says:
 
