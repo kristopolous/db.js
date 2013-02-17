@@ -1,15 +1,18 @@
 <h1><a name=toc> Javascript `Databank`</a>
 
-### <a href=#introduction>Agnes and Frederick</a>
+### <a href=#introduction>The adventures of Agnes and Frederick</a>
  * <a href=#expressions>Expressions</a>
  * <a href=#browser>KISS syncing</a>
  * <a href=#autoincrement>AutoIncrement</a>
  * <a href=#mutation>Restructuring data</a>
+ * <a href="http://qaa.ath.cx/ytwatch1">The Project This is Primarily Built For</a>
+
+
+
 <!--
  * <a href=#magic>Magical updating hash maps</a>
  * <a href=#dom>DOM serialization</a>
 -->
- * <a href="http://qaa.ath.cx/ytwatch1">The Project This is Primarily Built For</a>
 
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
@@ -236,7 +239,7 @@ And it's done. **Now Agnes and Frederick can modify stuff in the browser and it 
 
 Agnes and Frederick are in the clear for now. However, this isn't to last long
 
-<blockquote>Agnes: Wouldn't it be a wonderful, and I do me quite a pleasant reality if we had a more organized way of dealing with this immensely distraught set of information.  If we could automatically decorate the data for our own purposes; through auto-incrementing or other things. This would make our lives easier.</blockquote>
+<blockquote>Agnes: Wouldn't it be a wonderful, and I do mean quite a pleasant reality if we had a more organized way of dealing with this immensely distraught set of information.  If we could automatically decorate the data for our own purposes; through auto-incrementing or other things. This would make our lives easier.</blockquote>
 
 Reading through the docs, Frederick finds that <a href=#template>Templates</a> can be used to create auto-incrementers. 
 
