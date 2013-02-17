@@ -70,14 +70,14 @@ Have you ever thought "gee this problem is tough. if only I had an SQL database 
 
 Let me show you how awesome this can be.  Take a familiar SQL query like this:
 
-   select firstname, age 
+    select firstname, age 
       from people 
       where age > 30 
       order by age desc
 
 Mindfuck it around a bit...
 
-   from people 
+    from people 
       where age > 30 
       order by age desc
       select firstname, age 
