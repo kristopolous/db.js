@@ -666,7 +666,7 @@ if db was `[{a: 1}, {a: 2}, {a: 3}]`, doing `db.view('a')` will return an object
    * The table is recreated.
    * This is about as expensive as it sounds.
 
-<h3><a name=view> [function] lazyView( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
+<h3><a name=lazyView> [function] lazyView( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
 lazyViews are views that don't update automatically.  Their invocation style is the same as views and they return a function with properties that correspond to the view. That means that you can use it the same way but in order to update it you have to call it as a function. Because of this they should be more performant.
 
 
