@@ -36,7 +36,7 @@
  * <a href=#hasKey>hasKey</a> to get records that have keys defined
  * <a href=#select>select</a> one or more fields from a result
  * <a href=#invert>invert</a> to find the unary inverse of a set of results
- * <a href=#view>view</a> data easily
+ * <a href=#view>view</a> data easily (or <a href=#lazyView>lazily</a>)
 
 ### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
 
@@ -600,13 +600,11 @@ it's the way it is. Sorry.
 Invert a set of results.
 
 <h3><a name=view> [object] view( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
-Views are an expensive, unoptimized, naively implemented synchronization macro that return an object that can be indexed
-in order to get into the data.  Don't use views if performance is required.  If keys aren't unique, then the value for 
-the key is not defined (but not the undefined JS type).
+Views are an expensive, unoptimized, naively implemented synchronization macro that return an object that can be indexed in order to get into the data.  Don't use views if performance is required.  If keys aren't unique, then the value for the key is not defined (but not the undefined JS type).
 
 example:
 
-if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object like so:
+if db was `[{a: 1}, {a: 2}, {a: 3}]`, doing db.view('a') will return an object like so:
 
     { 
       1: {a: 1},
@@ -626,6 +624,9 @@ if db was [{a: 1}, {a: 2}, {a: 3}], doing db.view('a') will return an object lik
    * The entire dataset is gone over linearly
    * The table is recreated.
    * This is about as expensive as it sounds.
+
+<h3><a name=view> [function] lazyView( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
+lazyViews are views that don't update automatically.  Their invocation style is the same as views and they return a function with properties that correspond to the view. That means that you can use it the same way but in order to update it you have to call it as a function. Because of this they should be more performant.
 
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>

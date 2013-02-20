@@ -994,6 +994,31 @@
       return obj;
     }
 
+    //
+    // lazyView
+    //
+    // lazyViews are a variation of views that have to be explicitly rebuilt
+    // on demand with ()
+    //
+    ret.lazyView = function(field) {
+      function update() {
+        var ref = {};
+
+        each(raw, function(row) {
+          if(field in row) {
+            ref[row[field]] = update[row[field]] = row;
+          }
+        });
+
+        for(var key in update) {
+          if( ! (key in ref) ) {
+            delete update[key];
+          }
+        }
+      }
+      update();
+      return update;
+    },
 
     //
     // select

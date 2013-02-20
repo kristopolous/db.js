@@ -961,6 +961,95 @@ module('sync');
     equal(data.length, 4, 'One item returned');
   });
 module('view');
+  test("Create a view", function(){
+    var 
+      db = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 'value2',
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 'value3',
+          key: "valuethree" 
+        }),
+
+      view = db.view('index');
+
+    equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
+  });
+
+  test("Update a view", function(){
+    var 
+      db = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 'value2',
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 'value3',
+          key: "valuethree" 
+        }),
+
+      view = db.view('index');
+
+    db.find({index: 'value2'}).update({index: 'value4'});
+
+    equal(view.value2, undefined, 'Old index was deleted');
+    equal(view.value4.key, 'valuetwo', 'new index was created');
+  });
+
+module('lazyView');
+  test("Create a lazyView", function(){
+    var 
+      db = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 'value2',
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 'value3',
+          key: "valuethree" 
+        }),
+
+      view = db.lazyView('index');
+
+    equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
+  });
+  test("Update a lazyView", function(){
+    var 
+      db = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 'value2',
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 'value3',
+          key: "valuethree" 
+        }),
+
+      view = db.lazyView('index');
+
+    db.find({index: 'value2'}).update({index: 'value4'});
+
+    equal(view.value2.key, 'valuetwo', 'No synchronization was run so view is out of date');
+    view();
+
+    equal(view.value2, undefined, 'Old index was deleted');
+    equal(view.value4.key, 'valuetwo', 'new index was created');
+  });
+
 module('each');
 module('order');
 
@@ -992,7 +1081,6 @@ module('order');
 
     // Try to sort the new db by the key, ascending
     var validate = db.find().sort('key', 'asc');
-    console.log(db.find());
 
     // we start at 1 for a relative comparator
     for(ix = 1; ix < validate.length; ix++) {
