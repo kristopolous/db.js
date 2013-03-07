@@ -1264,6 +1264,7 @@
 
   extend(DB, {
     find: find,
+    diff: setdiff,
     each: eachRun,
     like: like,
     trace: trace,
