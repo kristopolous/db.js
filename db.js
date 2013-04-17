@@ -365,7 +365,18 @@
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
       filter = filterList[filterIx];
 
-      if(_.isFun(filter)) {
+      // if we are looking at an array, then this acts as an OR, which means
+      // that we just recursively do this.
+      if(_.isArr(filter)) {
+        // If we just pass the inner array, this would be wrong because
+        // then it would operate as an AND so we need to do things individually.
+        var result = [], remaining = set;
+        for(ix = 0; ix < filter.length; ix++) {
+          result = result.concat(find(remaining, filter[ix]));
+          remaining = setdiff(remaining, result);
+        }
+        set = result;
+      } else if(_.isFun(filter)) {
         var callback = filter.single || filter;
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
@@ -871,12 +882,6 @@
       }
 
     });
-
-    ret.not = function() {
-      var func = ret.apply(this, slice(arguments));
-
-      return func;
-    }
 
     //
     // group

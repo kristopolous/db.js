@@ -387,7 +387,7 @@ module("Finding");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
-  test("Find all elements cascarded, 3 times", function(){
+  test("Find all elements cascaded, 3 times", function(){
     var 
       db = DB(
         { key1: 0 }, 
@@ -552,6 +552,38 @@ module("Finding");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find using the or operator", function(){
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([{key: 1}, {key: 3}]);
+
+    equal(res.length, 2, "I got two record");
+    equal(res[0].key, 1, "It is the right first");
+    equal(res[1].key, 3, "It is the right last");
+  });
+
+  test("Find using the or operator part2", function(){
+    var 
+      db = DB(),
+      filter = [],
+      res,
+      ix;
+
+    for(ix = 0; ix < 20; ix++) {
+      db.insert({key: ix});
+      if(ix % 2) {
+        filter.push({key: ix});
+      }
+    }
+
+    res = db.find(filter);
+
+    equal(res.length, filter.length, "I got the expected number of record");
+  });
 module("FindFirst");
   test("First element by Object", function(){
     var 
