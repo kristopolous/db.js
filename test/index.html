@@ -327,6 +327,49 @@ module("Removal - syntax check");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+module("unset");
+  test("Unset a single key", function(){
+    var 
+      db = DB(
+        { key1: 0, key2: 1 }, 
+        { key2: 'value2', key3: false }, 
+        { key1: 'value3', key2: null }
+      );
+
+    db.unset('key2');
+
+    equal('key2' in db.__raw__[0], false, "key2 not in the first record");
+    equal('key2' in db.__raw__[1], false, "key2 also not in the second record");
+  });
+
+  test("Unset a single key in a find chain", function(){
+    var 
+      db = DB(
+        { key1: 0, key2: 1 }, 
+        { key2: 'value2', key3: false }, 
+        { key1: 'value3', key2: null }
+      );
+
+    db.find({key1: 0}).unset('key2');
+
+    equal('key2' in db.__raw__[0], false, "key2 not in the first record");
+    equal('key2' in db.__raw__[1], true, "key2 in the second record still");
+  });
+
+  test("Unset a list of keys", function(){
+    var 
+      db = DB(
+        { key1: 0, key2: 1 }, 
+        { key2: 'value2', key3: false }, 
+        { key1: 'value3', key2: null }
+      );
+
+    db.unset(['key2', 'key1']);
+    equal('key1' in db.__raw__[0], false, "key1 not in the first record");
+    equal('key2' in db.__raw__[0], false, "key2 also not in first result");
+    equal('key3' in db.__raw__[1], true, "key3 still in second result");
+  });
+
 module("update");
   test("Add a Key/Value pair by Object", function(){
     var 

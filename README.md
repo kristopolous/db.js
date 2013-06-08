@@ -21,7 +21,8 @@
  * <a href=#insert>Insert</a> new records
  * <a href=#mutator>Mutator</a> functions as values
  * <a href=#template>Template</a> based insertion
- * <a href=#update>Update</a> exiting records
+ * <a href=#update>Update</a> existing records
+ * <a href=#unset>Unset</a> existing keys
  * <a href=#remove>Remove</a> records and get a copy of them
  * <a href=#constrain>Constrain</a> insertion by a unique, primary key
  * <a href=#addif>AddIf</a> and only if something matches a test
@@ -495,6 +496,9 @@ And lastly, you can do static assignment two ways:
 
     db.find().update({ key: 'value' });
     db.find().update('key', 'value');
+
+<h3><a name=unset> [chain] unset( key | [key1, key2, ... keyN] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
+Unsets the keys in the find clause or over the entire db. Returns a chain.
 
 <h3><a name=remove> [chain] remove( object | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 This will remove the entries from the database but also return them if
