@@ -1082,6 +1082,33 @@ module('lazyView');
     equal(view.value4.key, 'valuetwo', 'new index was created');
   });
 
+module("indexBy");
+  test("re-ordering", function(){
+    var db = DB([
+      {key: 5},
+      {key: 3},
+      {key: 7},
+      {key: 2}
+    ]);
+
+    equal(db.__raw__.length, 4, "The database has 4 elements");
+    equal(db.__raw__[0].key, 5, "The first element is 5");
+    equal(db.__raw__[1].key, 3, "The second element is 3");
+
+    db.indexBy('key', 'asc');
+    equal(db.__raw__.length, 4, "The database still has 4 elements");
+    equal(db.__raw__[0].key, 2, "The first element is 2");
+    equal(db.__raw__[1].key, 3, "The second element is 3");
+    equal(db.__raw__[2].key, 5, "The third element is 5");
+    equal(db.__raw__[3].key, 7, "The fourth element is 7");
+
+    db.indexBy('key', 'desc');
+    equal(db.__raw__.length, 4, "The database still has 4 elements");
+    equal(db.__raw__[0].key, 7, "The first element is 7");
+    equal(db.__raw__[1].key, 5, "The second element is 5");
+    equal(db.__raw__[2].key, 3, "The third element is 3");
+    equal(db.__raw__[3].key, 2, "The fourth element is 2");
+  });
 module('each');
 module('order');
 

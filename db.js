@@ -712,7 +712,7 @@
   }
 
   // the list of functions to chain
-  var chainList = list2obj('has hasKey insert invert missing isin group keyBy remove update where select find sort orderBy order each like'.split(' '));
+  var chainList = list2obj('has hasKey insert invert missing isin group keyBy indexBy remove update where select find sort orderBy order each like'.split(' '));
 
   // --- START OF AN INSTANCE ----
   //
@@ -925,6 +925,22 @@
     } 
 
     //
+    // indexBy is just a sort without a chaining of the args
+    ret.indexBy = function () {
+      // alias chain away
+      var _chain = chain; 
+
+      // make chain a dummy function
+      chain = function(m) { return m; }
+
+      // set the order output to the raw
+      ret.__raw__ = raw = ret.order.apply(this, arguments);
+
+      // and then re-assign chain back to the proper place
+      chain = _chain; 
+    }
+
+    //
     // sort
     //
     // This is like SQLs orderby function.  If you pass it just a field, then
@@ -969,7 +985,6 @@
 
         eval('fnSort=function(a,b){return order(a.' + key + ', b.' + key + ')}');
       }
-
       return chain(slice.call(filter).sort(fnSort));
     }
 
