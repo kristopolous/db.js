@@ -38,6 +38,7 @@
  * <a href=#select>select</a> one or more fields from a result
  * <a href=#invert>invert</a> gets the unary inverse of a set of results
  * <a href=#view>view</a> data easily (or <a href=#lazyView>lazily</a>)
+ * <a href=#indexBy>indexBy</a> to re-index the database by a sort constraint.
 
 ### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
 
@@ -669,6 +670,13 @@ if db was `[{a: 1}, {a: 2}, {a: 3}]`, doing `db.view('a')` will return an object
 <h3><a name=lazyView> [function] lazyView( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
 lazyViews are views that don't update automatically.  Their invocation style is the same as views and they return a function with properties that correspond to the view. That means that you can use it the same way but in order to update it you have to call it as a function. Because of this they should be more performant.
 
+<h3><a name=indexBy> [void] indexBy( sortConstraint )</a> [ <a href=#toc>top</a> ] </h2>
+
+ * Re-orders the raw index for the DB by the specified sort constraint.  For instance:
+
+   `db.indexBy('key', 'asc')` 
+
+Or, any other style that sorting and orderBy support
 
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
