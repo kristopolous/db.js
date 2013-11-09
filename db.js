@@ -94,6 +94,19 @@
       return ret;
     },
 
+    Filter = function(obj, iterator, context) {
+      var results = [];
+      if (obj == null) return results;
+      if ([].filter) return obj.filter(iterator, context);
+
+      each(obj, function(value, index, list) {
+        if (iterator.call(context, value, index, list)) {
+          results[results.length] = value
+        };
+      });
+      return results;
+    },
+ 
     map = [].map ?
       function(array, cb) { 
         return array.map(cb) 
@@ -708,7 +721,7 @@
       }
     } 
 
-    return ret;
+    return Filter(ret, function(m) { return m !== undefined } );
   }
 
   // the list of functions to chain
