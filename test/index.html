@@ -900,9 +900,25 @@ module('select');
       ),
       res = db.select('key1');
 
-    equal(res.length, 2, "I got one record");
+    equal(res.length, 2, "I got two records");
     equal(res[0], 0, "It is the right one");
     equal(res[1], 'value3', "It is the right one");
+  });
+
+  test("Select records by two keys", function(){
+    var 
+      db = DB(
+        { key1: 0 }, 
+        { key2: 'value2' }, 
+        { key1: 'value3' }
+      ),
+      res = db.select(['key1', 'key2']);
+
+    // The result should be something like:
+    // [0, undefined], [undefined, value2], [value3, undefined]
+    equal(res.length, 3, "I got three record");
+    equal(res[0][0], 0, "It is the right one");
+    equal(res[1][1], 'value2', "It is the right one");
   });
 
 module('invert');
