@@ -890,6 +890,19 @@ module('hasKey');
   });
 
 module('has');
+  test("Search amongst an array", function(){
+    var
+      db = DB(
+        {a: [1, 2, 3]},
+        {a: [2, 3, 4]},
+        {b: [0, 1, 2]}
+      ),
+      res = db.find({a: db.has(1)});
+
+    equal(res.length, 1, "I got one record");
+    equal(res[0].a[0], 1, "It's the right one");
+  });
+
 module('select');
   test("Select records by a single key", function(){
     var 

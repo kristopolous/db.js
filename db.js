@@ -69,7 +69,7 @@
         for(var i = array.length - 1; 
           (i != -1) && (item != array[i]);
           i--
-        );
+        ) {};
 
         return i;
       },
