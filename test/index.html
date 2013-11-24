@@ -1236,6 +1236,21 @@ module('order');
   });
 
 module('group');
+  test("Grouping by department (from the readme)", function(){
+    expect(3);
+
+    var db = DB(
+      { department: "accounting", name: "Alice" },
+      { department: "accounting", name: "Bob" },
+      { department: "IT", name: "Eve" }
+    );
+
+    var toTest = db.find().group('department');
+
+    equal(Object.keys(toTest).sort().join(' '), 'IT accounting', "Keys are right");
+    equal(toTest.accounting.length, 2, "Accounting length is right");
+    equal(toTest.IT.length, 1, "IT length is right");
+  });
 });
 </script>
 
