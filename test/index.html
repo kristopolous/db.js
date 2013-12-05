@@ -1182,7 +1182,7 @@ module("indexBy");
     equal(db.__raw__[3].key, 2, "The fourth element is 2");
   });
 module('each');
-  test("Select 4 elements from a database, run a test on each of them", function(){
+  test("Select 4 pairs from a database, run a test on each of them", function(){
     expect(4);
     var db = DB([
       {key: 5},
@@ -1193,6 +1193,20 @@ module('each');
 
     db.find().each(function(what) {
       equal(!([5,3,7,2].indexOf(what.key) + 1), false, "The function is run");
+    });
+  });
+
+  test("Select 4 values from a database, make sure that it's a one dimensional array", function(){
+    expect(4);
+    var db = DB([
+      {key: 5},
+      {key: 3},
+      {key: 7},
+      {key: 2}
+    ]);
+
+    db.find().select('key').each(function(what) {
+      equal(!([5,3,7,2].indexOf(what) + 1), false, "The function is run");
     });
   });
 
