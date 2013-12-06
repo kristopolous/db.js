@@ -905,6 +905,7 @@ module('has');
 
 module('select');
   test("Select records by a single key", function(){
+    expect(3);
     var 
       db = DB(
         { key1: 0 }, 
@@ -919,6 +920,7 @@ module('select');
   });
 
   test("Select records by two keys", function(){
+    expect(3);
     var 
       db = DB(
         { key1: 0 }, 
@@ -932,6 +934,20 @@ module('select');
     equal(res.length, 3, "I got three record");
     equal(res[0][0], 0, "It is the right one");
     equal(res[1][1], 'value2', "It is the right one");
+  });
+
+  test("Select records by a key that is not present", function(){
+    var 
+      db = DB(
+        { key1: 0 }, 
+        { key2: 'value2' }, 
+        { key1: 'value3' }
+      ),
+      res = db.select(['key3', 'key4']);
+
+    // The result should be something like:
+    // [0, undefined], [undefined, value2], [value3, undefined]
+    equal(res.length, 0, "I got zero record");
   });
 
 module('invert');
