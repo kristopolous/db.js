@@ -137,7 +137,7 @@ module('constrain');
 module('AddIf');
   test("Only add if the key == 2", function(){
     var db = DB();
-    expect(5);
+    expect(6);
 
     db.addIf(function(what) {
       equal(true, true, "AddIf being run");
@@ -152,11 +152,12 @@ module('AddIf');
 
     equal(db.__raw__.length, 1, "There's only one item in the database");
     equal(db.__raw__[0].key, 2, "This item has the right value");
+    equal(db.addIf().length, 1, "There is one constraint");
   });
 
   test("Only add if the key == 2 and value == 3; two functions", function(){
     var db = DB();
-    expect(8);
+    expect(9);
 
     db.addIf(function(what) {
       equal(true, true, "AddIf being run");
@@ -176,11 +177,12 @@ module('AddIf');
 
     equal(db.__raw__.length, 1, "There's only one item in the database");
     equal(db.__raw__[0].key, 2, "This item has the right value");
+    equal(db.addIf().length, 2, "There are two constraints");
   });
 
   test("Only add if the key == 2, add a value == 3 function, then remove it", function(){
     var db = DB();
-    expect(5);
+    expect(7);
 
     db.addIf(function(what) {
       equal(true, true, "AddIf being run");
@@ -192,6 +194,7 @@ module('AddIf');
       return what.value == 3;
     });
 
+    equal(db.addIf().length, 2, "There are two constraints");
     db.addIf().pop();
 
     db.insert(
@@ -202,6 +205,7 @@ module('AddIf');
 
     equal(db.__raw__.length, 2, "There's two items in the database");
     equal(db.__raw__[0].value, 2, "This item has the right value");
+    equal(db.addIf().length, 1, "There is one constraint");
   });
 module("Removal");
   test("Remove all", function(){

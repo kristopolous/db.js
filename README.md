@@ -518,6 +518,21 @@ specifying (true) to add it or (false) to not.  This feature was added to implem
 When you run it with or without arguments you get an array of the functions back.  You can then
 splice, shift, pop, push, or unshift the array to do those respective functions.
 
+<b>Example:</b>
+
+`
+db.addIf(function(what) {
+  return ('key' in what);
+});
+
+db.insert(
+  {key: 'value'}, // This will go in
+  {foo: 'bar'} // This will not.
+);
+
+db.addIf().pop(); // This will remove the constraint
+`
+
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
 <h3><a name=find> [chain] find( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
