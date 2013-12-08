@@ -520,18 +520,16 @@ splice, shift, pop, push, or unshift the array to do those respective functions.
 
 <b>Example:</b>
 
-`
-db.addIf(function(what) {
-  return ('key' in what);
-});
+    db.addIf(function(what) {
+      return ('key' in what);
+    });
 
-db.insert(
-  {key: 'value'}, // This will go in
-  {foo: 'bar'} // This will not.
-);
+    db.insert(
+      {key: 'value'}, // This will go in
+      {foo: 'bar'} // This will not.
+    );
 
-db.addIf().pop(); // This will remove the constraint
-`
+    db.addIf().pop(); // This will remove the constraint
 
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
