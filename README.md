@@ -505,11 +505,33 @@ This will remove the entries from the database but also return them if
 you want to manipulate them.  You can invoke this with a constraint.
 
 <h3><a name=constrain> constrain( type, value ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
-This is to constrain the database.  Currently you can enforce a unique
-key value through something like `db.constrain('unique', 'somekey')`.
+This is to constrain the database.  Only unique types are supported.
+
+You can enforce a unique key value through something like `db.constrain('unique', 'somekey')`.
 You should probably run this early, as unlike in RDBMSs, it doesn't do
 a historical check nor does it create a optimized hash to index by
 this key ... it just does a lookup every time as of now.
+
+Additionally, if a failure to insert happens, then the insert returns the *conflicting* entry (see below)
+<b>Example:</b>
+
+    db.constrain('unique', 'uuid');
+
+    var val = db.insert(
+      {uuid: '1384e53d', data: 'xyz'}, // This will go in
+      {uuid: '1384e53d', data: 'abc'} // This will not.
+    );
+
+    // Now val will be
+    val = [
+      // This was inserted correctly
+      {uuid: '1384e53d', data: 'xyz'}, 
+
+      // The second value was not inserted - it conflicted with the 
+      // first value, which is here:
+      {uuid: '1384e53d', data: 'xyz'}
+    ];
+
 
 <h3><a name=addif> addIf ( function (candidate) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Specify a function that will get the candidate object to be added and return either true or false

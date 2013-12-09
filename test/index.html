@@ -121,17 +121,20 @@ module('transaction');
 module('constrain');
   test("Create a table, constrain by key", function(){
     var db = DB();
+
     db.constrain('unique', 'key1');
-    db.insert( 
+
+    var val = db.insert( 
       { key1: 0, a:0 }, 
       { key2: 'value2', a:1 }, 
       { key1: 0, a:2 }
     );
-    db.find();
 
-    equal(db.__raw__.length, 2, "Three items were inserted");
+    equal(db.__raw__.length, 2, "Two items were inserted");
     equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
     equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    equal(val.length, 3, "Three things were returned");
+    equal(val[2].a, 0, "The third thing has the first value");
   });
 
 module('AddIf');
