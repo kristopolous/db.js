@@ -101,8 +101,8 @@
 
       each(obj, function(value, index, list) {
         if (iterator.call(context, value, index, list)) {
-          results[results.length] = value
-        };
+          results[results.length] = value;
+        }
       });
       return results;
     },
@@ -185,16 +185,6 @@
     return ret;
   }
 
-  function print(arg) {
-    if(_.isStr(arg)) {
-      return '"' + arg.replace(/\"/g, '\\\"') + '"';
-    } else if(_.isNum(arg)) {
-      return arg;
-    } else if(_.isArr(arg)) {
-      return '[' + arg.map(function(param) { return print(param) }).join(',') + ']';
-    }
-  }
-
   // We create basic comparator prototypes to avoid evals
   each('< <= > >= == === != !=='.split(' '), function(which) {
     _compProto[which] = Function(
@@ -204,15 +194,15 @@
   });
 
   function trace(obj, cb) {
-    obj.__$$tracer$$__ = {};
+    obj.__trace__ = {};
 
     each(obj, function(key, value) {
       if(_.isFun(value)) {
-        obj.__$$tracer$$__[key] = value;
+        obj.__trace__[key] = value;
         obj[key] = function() {
           console.log([key + ":" ].concat(slice.call(arguments)));
           if(cb) { cb.apply(this, arguments); }
-          return obj.__$$tracer$$__[key].apply(this, arguments);
+          return obj.__trace__[key].apply(this, arguments);
         }
       }
     });
@@ -222,17 +212,6 @@
     // we need to call slice for array-like objects, such as the dom
     return obj.length ? slice.call(obj) : values(obj);
   }
-
-  function list2obj(list) {
-    var ret = {};
-
-    each(list, function(which) {
-      ret[which] = true;
-    });
-
-    return ret;
-  }
-
 
   // These function accept index lists.
   function setdiff(larger, subset) {
@@ -686,7 +665,7 @@
   }
 
   // the list of functions to chain
-  var chainList = list2obj([
+  var chainList = hash([
     'each',
     'find',
     'group',
