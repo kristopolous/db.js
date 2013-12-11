@@ -853,6 +853,14 @@
         return constraints.addIf;
       },
 
+      // beforeAdd allows you to mutate data prior to insertion.
+      // It's really an addIf that returns true
+      beforeAdd: function( lambda ) {
+        return lambda ? 
+            ret.addIf(function() { lambda.apply(0, arguments); return true; })
+          : ret.addIf();
+      },
+
       unset: function(key) {
         if(_.isArr(key)) {
           return each(key, arguments.callee);

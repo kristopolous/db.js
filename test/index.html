@@ -210,6 +210,25 @@ module('AddIf');
     equal(db.__raw__[0].value, 2, "This item has the right value");
     equal(db.addIf().length, 1, "There is one constraint");
   });
+
+module('beforeAdd');
+  test("Run a test and increment a value before insertion", function(){
+    var db = DB();
+
+    db.beforeAdd(function(what) {
+      equal(true, true, "beforeAdd being run");
+      what.key ++;
+    });
+
+    db.insert(
+      { key: 1 }
+    );
+
+    equal(db.__raw__.length, 1, "There's only one item in the database");
+    equal(db.__raw__[0].key, 2, "This item has the right value");
+    equal(db.beforeAdd().length, 1, "There is one constraint");
+  });
+
 module("Removal");
   test("Remove all", function(){
     var db = DB(

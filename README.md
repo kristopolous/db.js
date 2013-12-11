@@ -7,13 +7,6 @@
  * <a href=#mutation>Restructuring data</a>
  * <a href="http://9ol.es/ytwatch1">The Project This is Primarily Built For</a>
 
-
-
-<!--
- * <a href=#magic>Magical updating hash maps</a>
- * <a href=#dom>DOM serialization</a>
--->
-
 ### <a name=toc-inserting href=#inserting>Inserting and Removing</a> records
 
  * <a href=#initialization>Initialization</a> a new database
@@ -26,6 +19,7 @@
  * <a href=#remove>Remove</a> records and get a copy of them
  * <a href=#constrain>Constrain</a> insertion by a unique, primary key
  * <a href=#addif>AddIf</a> and only if something matches a test
+ * <a href=#beforeadd>BeforeAdd</a> to sanitize and cleanup data prior to insertion
 
 ### <a name=toc-finding href=#finding>Finding</a> and searching for data
 
@@ -537,10 +531,10 @@ Additionally, if a failure to insert happens, then the insert returns the *confl
 Specify a function that will get the candidate object to be added and return either true or false
 specifying (true) to add it or (false) to not.  This feature was added to implement blacklisting.
 
-When you run it with or without arguments you get an array of the functions back.  You can then
+When you run addIf with or without arguments you get an array of the functions back.  You can then
 splice, shift, pop, push, or unshift the array to do those respective functions.
 
-<b>Example:</b>
+<h4>Example:</h4>
 
     db.addIf(function(what) {
       return ('key' in what);
@@ -553,6 +547,34 @@ splice, shift, pop, push, or unshift the array to do those respective functions.
 
     db.addIf().pop(); // This will remove the constraint
 
+<h3><a name=addif> beforeAdd ( function ( entry ) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
+beforeAdd allows you to mutate (or modify) data prior to inserting it.  This is effectively an event
+or a 'middleware' that permits you to do things like type casting or OOB accounting prior to something
+existing in the database.  See <a href=#sync>Syncing</a> for after-style events.
+
+<h4>Implementation Notes</h4>
+beforeAdd is a light wrapper around <a href=#addif>addif</a> which exploits the fact that candidates come in as
+a reference and can be modified.  It provides a semantically distinct function at a level that is nearly equivalent
+in implementation.
+
+<h4>Example:</h4>
+
+    db.beforeAdd(function(what) {
+      what.length = parseInt(what.length, 10);
+      what.name = unescape(what.name);
+    });
+
+    db.insert({
+      length: "123",
+      name: "Alice%20and%20Bob"
+    });
+
+    db.find() ->
+      [ {
+          length: 123,
+          name: "Alice and Bob"
+      } ]
+ 
 <h2><a name=finding> Finding </a> [ <a href=#toc>top</a> ] </h2>
 
 <h3><a name=find> [chain] find( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
