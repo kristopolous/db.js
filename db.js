@@ -94,19 +94,6 @@
       return ret;
     },
 
-    Filter = function(obj, iterator, context) {
-      var results = [];
-      if (obj == null) return results;
-      if ([].filter) return obj.filter(iterator, context);
-
-      each(obj, function(value, index, list) {
-        if (iterator.call(context, value, index, list)) {
-          results[results.length] = value;
-        }
-      });
-      return results;
-    },
- 
     map = [].map ?
       function(array, cb) { 
         return array.map(cb) 
@@ -598,13 +585,13 @@
             if(!cache[expr]) {
 
               try {
-                ret = new Function("x,rec", "try { return x " + expr + "} catch(e) {return undefined;}");
+                ret = new Function("x,rec", "try { return x " + expr + "} catch(e) {}");
               } catch(ex) {
                 ret = {};
               }
 
               try {
-                ret.single = new Function("rec", "try { return " + arg0 + "} catch(e) {return undefined;}");
+                ret.single = new Function("rec", "try { return " + arg0 + "} catch(e) {}");
               } catch(ex) {}
 
               cache[expr] = ret;
@@ -625,7 +612,7 @@
                 cache[expr] = _compProto[canned[1]](canned[2].replace(/['"]$/, ''));
               } else {      
                 // if not, fall back on it 
-                cache[expr] = new Function("x,rec", "try { return x " + expr + "} catch(e) {return undefined;}");
+                cache[expr] = new Function("x,rec", "try { return x " + expr + "} catch(e) {}");
               }
             } 
             ret[arg0] = cache[expr];
@@ -656,12 +643,12 @@
 
       for(var key in filter) {
         if(!_.isFun(filter[key])) {
-          ret[key] = callback.call(this, filter[key]);
+          ret[key] = callback.call(0, filter[key]);
         }
       }
     } 
 
-    return Filter(ret, function(m) { return m !== undefined } );
+    return ret;
   }
 
   // the list of functions to chain
@@ -762,7 +749,6 @@
         // makes no sense whatsoever.
         var 
           agg = {}, 
-          _u, 
           len = raw.length, 
           entry;
 

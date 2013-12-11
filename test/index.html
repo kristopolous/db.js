@@ -105,7 +105,6 @@ module("Insertion");
     var db = DB();
 
     db.insert(document.getElementsByTagName('*'));
-    console.log(db.find());
     equal(true, true, "Got past");
   });
 
@@ -114,7 +113,6 @@ module("Insertion");
     var db = DB(
       DB.values(document)
     );
-    console.log(db.find());
 
     equal(true, true, "Got past");
   });
@@ -1289,6 +1287,21 @@ module('each');
     db.find().select('key').each(function(what) {
       equal(!([5,3,7,2].indexOf(what) + 1), false, "The function is run");
     });
+  });
+
+  test("Select 4 values from a database, make sure return values get propogated", function(){
+    var db = DB([
+      {key: false},
+      {longkey: 3},
+      {key: 7},
+      {key: 2}
+    ]);
+
+    var res = db.find().select('key').each(function(what) {
+      return what;
+    });
+
+    equal(res.join(','), 'false,7,2', "The right data came back");
   });
 
 module('order');
