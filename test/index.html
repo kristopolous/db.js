@@ -102,6 +102,7 @@ module("Insertion");
 
 module('transaction');
   test("Start a transaction, do 10 operations, end it", function(){
+    expect(1);
     var 
       db = DB(),
       counter = 0;
@@ -116,6 +117,25 @@ module('transaction');
         db.insert({k: i});
       }
     } db.transaction.end(); 
+ });
+
+  test("Start a transaction, do 10 operations, end it, do 10 more", function(){
+    expect(11);
+    var db = DB();
+
+    db.sync(function(){
+      equal(true, true, "counting number of times run");
+    });
+
+    db.transaction.start(); {
+      for(var i = 0; i < 10;i ++) {
+        db.insert({k: i});
+      }
+    } db.transaction.end(); 
+
+    for(var i = 0; i < 10;i ++) {
+      db.insert({k: i});
+    }
  });
 
 module('constrain');

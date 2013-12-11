@@ -858,7 +858,18 @@ stack and then crash on an update; on the contrary, it will run the synchronizat
 
 This primitive function turns off all the synchronization callbacks after a start, and then restores them after a stop, running them.
 
-This is useful if you have computed views or if you are sync'ing remotely with a data-store.
+This is useful if you have computed views or if you are sync'ing remotely with a data-store. 
+
+This is a binary system. That is to say that transactions can't be nested.  
+
+<h4>Example:</h4>
+
+    // Sync will only run after the end
+    db.transaction.start(); {
+      for(var i = 0; i < 10;i ++) {
+        db.insert({k: i});
+      }
+    } db.transaction.end(); 
 
 <h2><a name=example> Examples</a> [ <a href=#toc>top</a> ] </h2>
 

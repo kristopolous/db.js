@@ -762,16 +762,16 @@
       constraints = {addIf:[]},
       constrainCache = {},
       syncList = [],
-      bSync = false,
+      syncLock = false,
       _template = false,
       ret = expression(),
       raw = [];
 
     function sync() {
-      if(!bSync) {
-        bSync = true;
+      if(!syncLock) {
+        syncLock = true;
         each(syncList, function(which) { which.call(ret, raw); });
-        bSync = false;
+        syncLock = false;
       }
     }
 
@@ -797,10 +797,11 @@
 
       transaction: {
         start: function() {
-          bSync = true;
+          syncLock = true;
         },
         end: function(){
-          bSync = false;
+          // Have to turn the syncLock off prior to attempting it.
+          syncLock = false;
           sync();
         }
       },
@@ -908,6 +909,10 @@
       // The callbacks in this list are called
       // every time the database changes with
       // the raw value of the database.
+      //
+      // Note that this is different from the internal
+      // definition of the sync function, which does the
+      // actual synchronization
       sync: function(callback) { 
         if(callback) {
           syncList.push(callback);
