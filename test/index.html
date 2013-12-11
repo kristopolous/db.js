@@ -100,6 +100,25 @@ module("Insertion");
     equal(db.__raw__[2].key1, "value3", "the third has a string value 'value3'");
   });
 
+  test("Data from the DOM", function(){
+    expect(1);
+    var db = DB();
+
+    db.insert(document.getElementsByTagName('*'));
+    console.log(db.find());
+    equal(true, true, "Got past");
+  });
+
+  test("Data from the document object", function(){
+    expect(1);
+    var db = DB(
+      DB.values(document)
+    );
+    console.log(db.find());
+
+    equal(true, true, "Got past");
+  });
+
 module('transaction');
   test("Start a transaction, do 10 operations, end it", function(){
     expect(1);

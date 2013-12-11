@@ -150,50 +150,16 @@
         }
      };
    
-  // Jacked from Resig's jquery 1.5.2
-  // The code has been modified to not rely on jquery and stripped
-  // to not be so safe and general
-  function extend(o1, o2) {
-    var 
-      options, src, copy, copyIsArray, clone,
-      target = o1,
-      len = arguments.length;
-
-    for (var i = 0 ; i < len; i++ ) {
-      // Only deal with non-null/undefined values
-      options = arguments[ i ];
-
-      // Extend the base object
-      for (var name in options ) {
-        src = target[ name ];
-        copy = options[ name ];
-
-        // Prevent never-ending loop
-        if ( target === copy ) {
-          continue;
-        }
-
-        // Recurse if we're merging plain objects or arrays
-        if ( copy && ( copy.constructor == Object || (copyIsArray = (_.isArr(copy))) ) ) {
-          if ( copyIsArray ) {
-            copyIsArray = false;
-            clone = src && (_.isArr(constructor)) ? src : [];
-          } else {
-            clone = src && (src.constructor == Object) ? src : {};
-          }
-
-          // Never move original objects, clone them
-          target[ name ] = extend( clone, copy );
-
-        // Don't bring in undefined values
-        } else if ( copy !== _u ) {
-          target[ name ] = copy;
+  // This is from underscore. It's a <<shallow>> object merge.
+  function extend(obj) {
+    each(slice.call(arguments, 1), function(source) {
+      if (source) {
+        for (var prop in source) {
+          obj[prop] = source[prop];
         }
       }
-    }
- 
-    // Return the modified object
-    return target;
+    });
+    return obj;
   }
 
   function kvarg(which){
@@ -250,11 +216,6 @@
         }
       }
     });
-  }
-
-  function deepcopy(from) {
-    // @http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-a-javascript-object
-    return extend({}, from);
   }
 
   function simplecopy(obj) {
@@ -372,7 +333,7 @@
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
-      filterList = [deepcopy(which)];
+      filterList = [which];
     } 
 
     for(filterIx = 0; filterIx < filterList.length; filterIx++) {
@@ -1275,10 +1236,10 @@
         } catch(ex) {
 
           // Embedded objects, like flash controllers
-          // will bail on JQuery's extend because the
-          // properties aren't totally enumerable.  We
-          // work around that by slightly changing the 
-          // object; hopefully in a non-destructive way.
+          // will bail on extend because the properties 
+          // aren't totally enumerable.  We work around 
+          // that by slightly changing the object;
+          // hopefully in a non-destructive way.
           which.constructor = secret(ix);
           raw.push(which);
         }
@@ -1352,6 +1313,7 @@
     each: eachRun,
     like: like,
     trace: trace,
+    values: values,
     isin: isin,
 
     objectify: function(keyList, values) {
