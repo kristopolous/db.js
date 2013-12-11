@@ -731,7 +731,7 @@ if db was `[{a: 1}, {a: 2}, {a: 3}]`, doing `db.view('a')` will return an object
 <h3><a name=lazyView> [function] lazyView( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
 lazyViews are views that don't update automatically.  Their invocation style is the same as views and they return a function with properties that correspond to the view. That means that you can use it the same way but in order to update it you have to call it as a function. Because of this they should be more performant.
 
-<h3><a name=indexBy> [void] indexBy( sortConstraint )</a> [ <a href=#toc>top</a> ] </h2>
+<h3><a name=indexBy> [void] indexBy( sortConstraint )</a> [ <a href=#toc>top</a> ] </h3>
 
  * Re-orders the raw index for the DB by the specified sort constraint.  For instance:
 
@@ -1040,5 +1040,4 @@ If you use this library, let me know on the mailing list or through github!
 
 Current users:
 
- * [iizuu](http://www.iizuu.com) uses the library extensively
  * [ytmix](https://github.com/kristopolous/ytmix) a data drive youtube application
