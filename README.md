@@ -547,7 +547,7 @@ splice, shift, pop, push, or unshift the array to do those respective functions.
 
     db.addIf().pop(); // This will remove the constraint
 
-<h3><a name=addif> beforeAdd ( function ( entry ) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
+<h3><a name=beforeadd> beforeAdd ( function ( entry ) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 beforeAdd allows you to mutate (or modify) data prior to inserting it.  This is effectively an event
 or a 'middleware' that permits you to do things like type casting or OOB accounting prior to something
 existing in the database.  See <a href=#sync>Syncing</a> for after-style events.
