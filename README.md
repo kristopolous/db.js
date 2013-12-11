@@ -854,9 +854,9 @@ run, once, once, and once respectively.
 If you run sync with no arguments then it will not add an undefined to the function
 stack and then crash on an update; on the contrary, it will run the synchronization function stack; just as one would expect.
 
-<h3><a name=transaction> transaction.[ start | stop ]() </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=transaction> transaction.[ start | end ]() </a> [ <a href=#toc>top</a> ] </h3>
 
-This primitive function turns off all the synchronization callbacks after a start, and then restores them after a stop, running them.
+This primitive function turns off all the synchronization callbacks after a start, and then restores them after a end, running them.
 
 This is useful if you have computed views or if you are sync'ing remotely with a data-store. 
 
