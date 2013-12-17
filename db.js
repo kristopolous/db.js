@@ -661,6 +661,7 @@
     'indexBy',
     'insert',
     'invert',
+    'slice',
     'isin',
     'keyBy',
     'like',
@@ -721,6 +722,12 @@
     }
 
     extend(ret, {
+
+      slice: function() {
+        var filter = _.isArr(this) ? this : ret.find()
+
+        return(chain( slice.apply(filter, arguments) ) );
+      },
 
       transaction: {
         start: function() {
@@ -809,7 +816,7 @@
     
       // This is a shorthand to find for when you are only expecting one result.
       findFirst: function(){
-        var res = ret.find.apply(this, slice.call(arguments));
+        var res = ret.find.apply(this, arguments);
         return res.length ? res[0] : {};
       },
 
@@ -866,7 +873,7 @@
       //   result.update({a: b});
       //
       update: function() {
-        var list = update.apply( _.isArr(this) ? this : ret.find(), slice.call(arguments)) ;
+        var list = update.apply( _.isArr(this) ? this : ret.find(), arguments) ;
         sync();
         return chain (list);
       }
@@ -1231,7 +1238,7 @@
 
       if(_.isArr(this)) { list = this; } 
       else if(_.isArr(arg0)) { list = arg0; } 
-      else if(arguments.length > 0){ list = ret.find.apply(this, slice.call(arguments)); } 
+      else if(arguments.length > 0){ list = ret.find.apply(this, arguments); } 
       else { list = ret.find(); }
 
       stain(list);
@@ -1298,7 +1305,7 @@
     },
 
     findFirst: function(){
-      var res = find.apply(this, slice.call(arguments));
+      var res = find.apply(this, arguments);
       return res.length ? res[0] : {};
     },
 
