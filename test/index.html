@@ -1013,6 +1013,35 @@ module('select');
     equal(res.length, 0, "I got zero record");
   });
 
+module('slice');
+  test("Slice the first 4 records", function(){
+    expect(2);
+    var 
+      db = DB([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+      res = db.slice(0, 4);
+
+    equal(res.length, 4, "I got four records");
+    equal(db.find().length, 10, "I have 10 total records");
+  });
+  test("Slice the first 4 records - method 2", function(){
+    expect(2);
+    var 
+      db = DB([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+      res = db.find().slice(0, 4);
+
+    equal(res.length, 4, "I got four records");
+    equal(db.find().length, 10, "I have 10 total records");
+  });
+  test("Slice the first 4 records - method 3", function(){
+    expect(2);
+    var 
+      db = DB([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]),
+      res = db.find().select('*').slice(0, 4);
+
+    equal(res.length, 4, "I got four records");
+    equal(db.find().length, 10, "I have 10 total records");
+  });
+
 module('invert');
   test("Find one element by Object, invert results", function(){
     var 
