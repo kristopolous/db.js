@@ -23,7 +23,7 @@
 
 ### <a name=toc-finding href=#finding>Finding</a> and searching for data
 
- * <a href=#find>Find</a> records through an expressive syntax
+ * <a href=#find>find</a> records through an expressive syntax
  * <a href=#findFirst>findFirst</a> record through an easy syntax
  * <a href=#like>like</a> finds records by substring
  * <a href=#isin>isin</a> finds whether the record is in a group
@@ -32,8 +32,8 @@
  * <a href=#hasKey>hasKey</a> finds records that have keys defined
  * <a href=#select>select</a> one or more fields from a result
  * <a href=#invert>invert</a> gets the unary inverse of a set of results
+ * <a href=#slice>slice</a> the records while maintaining the function chain
  * <a href=#view>view</a> data easily (or <a href=#lazyView>lazily</a>)
- * <a href=#indexBy>indexBy</a> to re-index the database by a sort constraint.
 
 ### <a name=toc-manipulating href=#manipulating>Manipulating</a> retrieved data
 
@@ -43,6 +43,7 @@
  * <a href=#order>order</a> or <a href=#order>sort</a> results given some function or expression
  * <a href=#group>group</a> results by some key
  * <a href=#keyBy>keyBy</a> a certain key to make a 1-to-1 map
+ * <a href=#indexBy>indexBy</a> to re-index the database by a sort constraint.
 
 ### <a href=#storage>Storage</a> options to importing and expoting data
 
@@ -701,6 +702,18 @@ it's the way it is. Sorry.
 
 <h3><a name=invert> [chain] invert( list )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Invert a set of results.
+
+<h3><a name=slice> [chain] slice( [Array.prototype.slice options] )</a> [ <a href=#toc-finding>top</a> ] </h3>
+This is a direct map of slice from Array.prototype with the addition of permitting a chaining of events after the slice.
+This is useful if for example, you want to apply a function to only the first 10 results of a find.
+
+<h4>Example:</h4>
+
+    db.find({
+      condition: true
+    }).select('field')
+      .slice(0, 10)
+      .each(some_operation);
 
 <h3><a name=view> [object] view( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Views are an expensive, unoptimized, naively implemented synchronization macro that return an object that can be indexed in order to get into the data.  Don't use views if performance is required.  If keys aren't unique, then the value for the key is not defined (but not the undefined JS type).
