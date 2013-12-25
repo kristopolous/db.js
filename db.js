@@ -195,7 +195,7 @@
     });
   }
 
-  function simplecopy(obj) {
+  function copy(obj) {
     // we need to call slice for array-like objects, such as the dom
     return obj.length ? slice.call(obj) : values(obj);
   }
@@ -293,7 +293,7 @@
       ix,
 
       // The dataset to compare against
-      set = simplecopy(_.isArr(this) ? this : filterList.shift());
+      set = copy(_.isArr(this) ? this : filterList.shift());
 
     if( filterList.length == 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
@@ -1287,6 +1287,11 @@
     trace: trace,
     values: values,
     isin: isin,
+
+    // expensive basic full depth copying.
+    copy: function(data) {
+      return JSON.parse(JSON.stringify(data));
+    },
 
     objectify: function(keyList, values) {
       var obj = [];
