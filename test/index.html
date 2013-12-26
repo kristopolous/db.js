@@ -117,6 +117,18 @@ module("Insertion");
     equal(true, true, "Got past");
   });
 
+module('copy');
+  test("Start a transaction, do 10 operations, end it", function(){
+    var 
+      db = DB({a: 1}),
+      db1 = DB(DB.copy(db.find()));
+
+    db1.find()[0].a = 100;
+    equal(db.find()[0].a, 1, "Copy modifies independent data");
+    equal(db1.find()[0].a, 100, "Copy modifies independent data");
+
+  });
+
 module('transaction');
   test("Start a transaction, do 10 operations, end it", function(){
     expect(1);

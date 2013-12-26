@@ -1290,7 +1290,9 @@
 
     // expensive basic full depth copying.
     copy: function(data) {
-      return JSON.parse(JSON.stringify(data));
+      return map(data, function(what) {
+        return extend({}, what);
+      });
     },
 
     objectify: function(keyList, values) {
