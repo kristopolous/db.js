@@ -118,7 +118,7 @@ module("Insertion");
   });
 
 module('copy');
-  test("Start a transaction, do 10 operations, end it", function(){
+  test("Trivial copy", function(){
     var 
       db = DB({a: 1}),
       db1 = DB(DB.copy(db.find()));
@@ -129,6 +129,20 @@ module('copy');
 
   });
 
+  test("Multi index copy", function(){
+    var 
+      db = DB([{a: 1}, {a: 2}, {a: 3}]),
+      db1 = DB(DB.copy(db.find()));
+
+    db1.find()[1].a = 100;
+    equal(db.find()[1].a, 2, "Copy modifies independent data");
+    equal(db1.find()[1].a, 100, "Copy modifies independent data");
+
+    db1.find()[0].a = 103;
+    equal(db.find()[0].a, 1, "Copy modifies independent data");
+    equal(db1.find()[0].a, 103, "Copy modifies independent data");
+
+  });
 module('transaction');
   test("Start a transaction, do 10 operations, end it", function(){
     expect(1);
@@ -490,6 +504,31 @@ module("update");
     equal(db.__raw__[2].key4, 0, "Checks out");
   });
 
+  test("Add a Key/Value pair by keyed Function with global variables", function(){
+    self.i = 0;
+    var 
+      db = DB({}, {}, {}, {})
+      res = db.update({a: DB('i++')});
+
+    equal(db.__raw__[0].a, 0, "Checks out");
+    equal(db.__raw__[1].a, 1, "Checks out");
+    equal(db.__raw__[2].a, 2, "Checks out");
+    equal(db.__raw__[3].a, 3, "Checks out");
+
+    self.i = 0xBADC0DE;
+  });
+
+  test("Add a Key/Value pair by keyed Function with local variables", function(){
+    var 
+      i = 0,
+      db = DB({}, {}, {}, {})
+      res = db.update({a: eval(DB.local('i++'))});
+
+    equal(db.__raw__[0].a, 0, "Checks out");
+    equal(db.__raw__[1].a, 1, "Checks out");
+    equal(db.__raw__[2].a, 2, "Checks out");
+    equal(db.__raw__[3].a, 3, "Checks out");
+  });
 module("Finding");
   test("Find all elements", function(){
     var 

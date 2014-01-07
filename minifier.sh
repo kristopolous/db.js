@@ -13,5 +13,5 @@ curl -s \
 after=`stat -c %s $out`
 afterCompress=`gzip -c $out | wc -c`
 
-echo "$before -> $after"
-echo "$beforeCompress -> $afterCompress"
+echo "raw: $before -> $after"
+echo "gzip: $beforeCompress -> $afterCompress"
