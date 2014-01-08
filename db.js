@@ -660,6 +660,7 @@
   var chainList = hash([
     'each',
     'find',
+    'findFirst',
     'group',
     'has',
     'hasKey',
