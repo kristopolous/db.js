@@ -529,6 +529,16 @@ module("update");
     equal(db.__raw__[2].a, 2, "Checks out");
     equal(db.__raw__[3].a, 3, "Checks out");
   });
+
+  test("Insert an element into an existing db, chain an update and make sure only that element is updated", function(){
+    var db = DB({a: 1, b: 1});
+
+    db.insert({a: 2}).update({b: 3});
+
+    equal(db.__raw__[0].b, 1, "b value maintained");
+    equal(db.__raw__[1].b, 3, "new b value assigned");
+
+  });
 module("Finding");
   test("Find all elements", function(){
     var 
