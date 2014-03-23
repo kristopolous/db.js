@@ -1433,6 +1433,49 @@ module('order');
 
   });
 
+  test("Sorting by a numeric key (2)", function(){
+    var 
+      db = DB(),
+      // have some post-insertion records
+      ins =[
+        {b:2},
+        {b:2},
+        {b:2}
+      ],
+      start = 2;
+
+    // drop some ordinal records in
+    db.insert(
+      {id:1,a:1},
+      {id:2,a:1},
+      {id:3,a:1},
+      {id:4,a:1}
+    );
+
+    // increment the existing entries by ins.length which
+    // are past $start
+    db 
+      .find({id: db('> ' + start)})
+      .update(function(e){ e.id += ins.length });
+
+    // insert our post records and give it the gap
+    db.insert(ins).update(function(e) { 
+      start++;
+      e.id = start;
+    });
+
+    // Try to sort the new db by the key, ascending
+    var validate = db.find().sort('id', 'asc');
+
+    console.log(validate);
+
+    // we start at 1 for a relative comparator
+    for(ix = 1; ix < validate.length; ix++) {
+      // Assert that each index is one more then the previous
+      equal(validate[ix].id - validate[ix - 1].id, 1, "in-order successful")
+    }
+  });
+
 module('group');
   test("Grouping by department (from the readme)", function(){
     expect(3);
