@@ -637,7 +637,7 @@ can invoke it one of the following ways:
 find returns a reference to the objects in the table in an array.  As a convenience two additional
 properties are always set:
 
- * first: corresponding to the first result, ie, [0]
+ * first: corresponding to the first result, ie, `[0]`
  * last: corresponding to the last result, ie, `slice(-1)[0]`
 
 <h4>Booleans</h4>
