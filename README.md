@@ -654,7 +654,7 @@ For instance, if you want to find things where "a = 1" **OR** "b = 1" you could 
       ]
     );
 
-<h4>Not</h4>
+<b>Not</b>
 Not is handled in its own <a href=#not>wrapper function</a>
 
 <h4>Xor</h4>
