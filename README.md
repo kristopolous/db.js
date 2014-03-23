@@ -640,7 +640,7 @@ properties are always set:
  * first: corresponding to the first result, ie, [0]
  * last: corresponding to the last result, ie, `slice(-1)[0]`
 
-<h4>Booleans</h3>
+<h4>Booleans</h4>
 
 <h5>And</h5>
 In order for things to match multiple conditions, provide those conditions as arguments to find.  
