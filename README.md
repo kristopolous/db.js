@@ -91,7 +91,7 @@ Let's take a familiar everyday SQL query such as:
         alive == true
       order by distance desc
 
-Mindfuck it around a bit...
+Dance around a bit...
 
     from hitlist
       where 
@@ -501,19 +501,19 @@ Templates permit you to have a set of K/V pairs or K/lambda pairs that act as a 
 The template itself is implicit and modal; applying to all insertions until it is modified or removed.
 
  
-<h5>Creation
+<h5>Creation</h5>
 
 To create a template use `template.create( fields )`
 
-<h5>Update
+<h5>Update</h5>
 
 Updating overwrite previous values as specified whilst retaining the old values of those which are not.  To update a template use `template.update( fields )`
 
-<h5>Getting
+<h5>Getting</h5>
 
 You can get the current template with `template.get()`
 
-<h5>Destroy
+<h5>Destroy</h5>
 
 You can destroy a template with `template.destroy()`
 
@@ -637,8 +637,8 @@ can invoke it one of the following ways:
 find returns a reference to the objects in the table in an array.  As a convenience two additional
 properties are always set:
 
- * first - corresponding to the first result, ie, [0]
- * last - corresponding to the last result, ie, slice(-1)[0]
+ * first: corresponding to the first result, ie, [0]
+ * last: corresponding to the last result, ie, `slice(-1)[0]`
 
 <h4>Booleans</h3>
 
