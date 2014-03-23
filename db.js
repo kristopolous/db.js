@@ -2,7 +2,7 @@
 // db.js Javascript Database 
 // https://github.com/kristopolous/db.js
 //
-// Copyright 2011 - 2013, Chris McKenzie
+// Copyright 2011 - 2014, Chris McKenzie
 // Dual licensed under the MIT or GPL Version 2 licenses.
 //
 // Looking under the hood are you? What a fun place to be.
@@ -553,6 +553,11 @@
     return this;
   }
 
+  function not( lambda ) {
+    return function() {
+      return !lambda.apply(this, arguments);
+    }
+  }
 
   var expression = (function(){
     var 
@@ -820,6 +825,7 @@
       },
 
       each: eachRun,
+      not: not,
     
       // This is a shorthand to find for when you are only expecting one result.
       findFirst: function(){
@@ -1123,6 +1129,7 @@
     ret.insert = function(param) {
       var 
         ix,
+        existing = [],
         constraintMap = {},
         toInsert = [],
         ixList = [];
@@ -1169,8 +1176,12 @@
           // unique constraint established.
           if(which[constraints.unique] in constraintMap){
 
+            // Create a reference list so we know what was existing
+            existing.push(constraintMap[which[constraints.unique]]);
+
             // put on the existing value
             ixList.push(constraintMap[which[constraints.unique]]);
+
             // Toggle our doAdd over to false.
             doAdd = false;
           }
@@ -1228,7 +1239,10 @@
 
       sync();
 
-      return chain(list2data(ixList));
+      return extend(
+        chain(list2data(ixList)),
+        {existing: existing}
+      );
     }
 
     //
@@ -1290,6 +1304,7 @@
     find: find,
     diff: setdiff,
     each: eachRun,
+    not: not,
     like: like,
     trace: trace,
     values: values,

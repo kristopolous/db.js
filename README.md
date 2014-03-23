@@ -25,6 +25,7 @@
 
  * <a href=#find>find</a> records through an expressive syntax
  * <a href=#findFirst>findFirst</a> record through an easy syntax
+ * <a href=#not>not</a> records that match the condition
  * <a href=#like>like</a> finds records by substring
  * <a href=#isin>isin</a> finds whether the record is in a group
  * <a href=#has>has</a> looks inside a record stored as an array
@@ -416,6 +417,46 @@ and puts in some type of record keeping information and accounting.
 Instead of doing a JQuery $.extend or other magic, you can simply insert
 the data you want, then update it with more data.
 
+#### Inserting on a database with constraints
+
+If you have a constrained unique key and are inserting entries which 
+would conflict with the key, the return value is the inserted data
+intersperesed with existing data and a list of the fields which caused
+a failed to insert.
+
+For example, if there was a unique constraint of "id" and the existing
+data was
+
+  db = [
+    { id: 1, a:1 }
+    { id: 2, a:1 }
+    { id: 3, a:1 }
+  ]
+
+And we run
+
+  var ret = db.insert([
+    { id: 0, b:1 },
+    { id: 1, b:1 },
+    { id: 2, b:1 },
+    { id: 3, b:1 },
+    { id: 5, b:1 }
+  ]); 
+
+Then ret.existing would have the content of
+
+    [1, 2]
+
+And ret itself would be:
+
+    { id: 0, b:1 },
+
+    { id: 1, a:1 }, << the existing record.
+    { id: 2, a:1 }, << the existing record.
+
+    { id: 3, b:1 },
+    { id: 5, b:1 }
+
 #### Inserting by Reference
 
 Normally insert is a copy, but you can also simulate an insert by reference by doing a reassignment:
@@ -591,6 +632,34 @@ can invoke it one of the following ways:
  * by key Expression: `find({key: db('< 10')})`
  * by anonymous Expression: `find(db('key', '< 10'))`
 
+<h3>Booleans</h3>
+
+<h4>And</h4>
+In order for things to match multiple conditions, provide those conditions as arguments to find.  
+For instance, if you want to find things where "a = 1" **AND** "b = 1" you could do:
+
+    find(
+      {a: 1},
+      {b: 1}
+    );
+
+<h4>Or</h4>
+Or is nearly identical to And but you wrap the arguments in an array. 
+For instance, if you want to find things where "a = 1" **OR** "b = 1" you could do:
+
+    find(
+      [
+        {a: 1},
+        {b: 1}
+      ]
+    );
+
+<h4>Not</h4>
+Not is handled in its own <a href=#not>wrapper function</a>
+
+<h4>Xor</h4>
+lol, yeah right. what would that even mean?
+
 <h3>About the arguments</h3>
 It can receive multiple arguments for multiple constraints.  For instance, you can
 use an object style filter followed by a functional one, e.g.
@@ -630,6 +699,16 @@ This is similar to the SQL like command and it takes the value and does
           .toString()
           .toLowerCase
       ) > -1
+
+<h3><a name=not> [chain] not( lambda )</a> [ <a href=#toc-finding>top</a> ] </h3>
+A wrapper function that returns the boolean inverse of the function passed in.  You can use it in combination with many
+other function like so:
+
+  db.find({
+    a: db.not(
+      db.isin([ 1, 2, 3 ])
+    )
+  })
 
 <h3><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h3>
 *Also a top level function*
