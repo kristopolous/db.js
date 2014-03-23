@@ -632,9 +632,17 @@ can invoke it one of the following ways:
  * by key Expression: `find({key: db('< 10')})`
  * by anonymous Expression: `find(db('key', '< 10'))`
 
-<h3>Booleans</h3>
+<h4>Return value</h4>
 
-<h4>And</h4>
+find returns a reference to the objects in the table in an array.  As a convenience two additional
+properties are always set:
+
+ * first - corresponding to the first result, ie, [0]
+ * last - corresponding to the last result, ie, slice(-1)[0]
+
+<h4>Booleans</h3>
+
+<h5>And</h5>
 In order for things to match multiple conditions, provide those conditions as arguments to find.  
 For instance, if you want to find things where "a = 1" **AND** "b = 1" you could do:
 
@@ -643,7 +651,11 @@ For instance, if you want to find things where "a = 1" **AND** "b = 1" you could
       {b: 1}
     );
 
-<h4>Or</h4>
+which is equivalent to
+
+    find({a: 1}).find({b: 1})
+
+<h5>Or</h5>
 Or is nearly identical to And but you wrap the arguments in an array. 
 For instance, if you want to find things where "a = 1" **OR** "b = 1" you could do:
 
@@ -657,18 +669,8 @@ For instance, if you want to find things where "a = 1" **OR** "b = 1" you could 
 <b>Not</b>
 Not is handled in its own <a href=#not>wrapper function</a>
 
-<h4>Xor</h4>
+<b>Xor</b>
 lol, yeah right. what would that even mean?
-
-<h3>About the arguments</h3>
-It can receive multiple arguments for multiple constraints.  For instance, you can
-use an object style filter followed by a functional one, e.g.
-
-    find( {key: value}, lambdaFilter );
-
-These operate together as an "AND" and is equivalent to doing something like:
-
-    find( {key: value} ).find( lambdaFilter );
 
 <h3>About the callback function style</h3>
 The arguments passed in for the functional style are either the whole record if invoked
