@@ -8,7 +8,7 @@ curl -s \
         -d output_format=text \
         -d output_info=compiled_code \
         --data-urlencode "js_code@${in}" \
-        http://closure-compiler.appspot.com/compile \
+        http://marijnhaverbeke.nl/uglifyjs \
         > $out
 after=`stat -c %s $out`
 afterCompress=`gzip -c $out | wc -c`
