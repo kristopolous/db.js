@@ -342,14 +342,14 @@
           // this permits mongo-like invocation
           if( _.isObj(value)) {
             var 
-              key = keys(value)[0],
-              fn = key.slice(1);
+              _key = keys(value)[0],
+              _fn = _key.slice(1);
 
             // see if the routine asked for exists
-            if(fn in DB) {
-              value = DB[fn](value[key]);
+            if(_fn in DB) {
+              value = DB[_fn](value[_key]);
             } else {
-              throw new Error(fn + " is an unknown function");
+              throw new Error(_fn + " is an unknown function");
             }
           } else if( _.isArr(value)) {
           // a convenience isin short-hand.
