@@ -826,11 +826,12 @@
         var 
           agg = {}, 
           len = raw.length, 
+          skip = Math.ceil(Math.min(10, len / 3)),
           entry;
 
         for(var i = 0; 
             i < len; 
-              i += 10, 
+              i += skip, 
               entry = raw[i]
           ) {
           for(var key in entry) {
