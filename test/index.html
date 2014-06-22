@@ -763,6 +763,72 @@ module("Finding");
     equal(res[1].key, 3, "It is the right last");
   });
 
+  test("Find using the OR operator with an AND operation - base", function(){
+    var 
+      db = DB(
+        {a: 1, b: 1},
+        {a: 1, b: 2},
+        {a: 1, b: 3},
+
+        {a: 2, b: 1},
+        {a: 2, b: 2},
+        {a: 2, b: 3}
+      ),
+      res = db.find({a: 1}, []);
+
+    equal(res.length, 3, "I got three record");
+    equal(res[0].a, 1, "It is the right first");
+    equal(res[0].b, 1, "It is the right first");
+    equal(res[2].a, 1, "It is the right last");
+    equal(res[2].b, 3, "It is the right last");
+  });
+
+  test("Find using the OR operator with an AND operation - two ORs", function(){
+    var 
+      db = DB(
+        {a: 1, b: 1},
+        {a: 1, b: 2},
+        {a: 1, b: 3},
+
+        {a: 2, b: 1},
+        {a: 2, b: 2},
+        {a: 2, b: 3}
+      ),
+      res = db.find(
+        {a: 1}, 
+        [{b: 1}, {b: 2}]
+      );
+
+    equal(res.length, 2, "I got two record");
+    equal(res[0].a, 1, "It is the right first");
+    equal(res[0].b, 1, "It is the right first");
+    equal(res[1].a, 1, "It is the right last");
+    equal(res[1].b, 2, "It is the right last");
+  });
+
+  test("Find using the OR operator with an AND operation - inverted", function(){
+    var 
+      db = DB(
+        {a: 1, b: 1},
+        {a: 1, b: 2},
+        {a: 1, b: 3},
+
+        {a: 2, b: 1},
+        {a: 2, b: 2},
+        {a: 2, b: 3}
+      ),
+      res = db.find(
+        [{b: 1}, {b: 2}],
+        {a: 1}
+      );
+
+    equal(res.length, 2, "I got two record");
+    equal(res[0].a, 1, "It is the right first");
+    equal(res[0].b, 1, "It is the right first");
+    equal(res[1].a, 1, "It is the right last");
+    equal(res[1].b, 2, "It is the right last");
+  });
+
   test("Find using the or operator - duplicate conditions shouldn't yield duplicate results", function(){
     var 
       db = DB(
