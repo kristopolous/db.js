@@ -468,11 +468,14 @@
     // It has a cache for optimization
     var cache = {};
 
+    // todo: typecheck each element and then extract functions 
     return function (param1, param2) {
       var 
         callback,
         len = arguments.length,
         compare = len == 1 ? param1 : (param2 || []),
+        dynamicList = [],
+        staticList = [],
         obj = {};
 
       // If the second argument is an array then we assume that we are looking
@@ -481,22 +484,22 @@
         throw new TypeError("isin's argument is wrong. ", compare);
       }
       if(compare.length){
-        if(compare.length < 20 && _.isNum(compare[0])) {
-          var key = compare.join(',');
-
-          // new Function is faster then eval but it's still slow, so we cache
-          // the output of them and then pass them down the pipe if we need them
-          // again
-          if(! cache[key]) {
-            callback = cache[key] = new Function('x', 'return x==' + compare.join('||x=='));
+        each(compare, function(what) {
+          if(_.isFun(what)) {
+            dynamicList.push(what);
           } else {
-            callback = cache[key];
+            staticList.push(what);
           }
-        } else if(_.isStr(compare)) {
-          callback = new Function('x', 'return indexOf(' + compare + ', x) > -1');
-        } else {
-          callback = function(x) { return indexOf(compare, x) > -1; };
-        }
+        });
+
+        callback = function(x) { 
+          var res = indexOf(staticList, x) > -1; 
+          for(var ix = 0; ix < dynamicList.length; ix++) {
+            if(res) { break; }
+            res = dynamicList[ix](x);
+          }
+          return res;
+        };
       } else if (_.isFun(compare)) {
         callback = function(x) { return indexOf(compare(), x) > -1; };
       } else {
