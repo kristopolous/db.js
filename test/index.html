@@ -1095,6 +1095,48 @@ module("isin");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find records with a value in a list based on a function-callback + array convention", function(){
+    var 
+      db = DB(
+        { key: 'apple' }, 
+        { key: 'bananas' },
+        { key: 'red apple' },
+        { key: 'apple pie' },
+        { key: 'blueberries' }
+      ),
+      res = db.find({key: [db.like('apple')]});
+
+    equal(res.length, 3, "I got three records");
+  });
+
+  test("Find records with a value in a list based on a mixed-use + array convention", function(){
+    var 
+      db = DB(
+        { key: 'apple' }, 
+        { key: 'bananas' },
+        { key: 'red apple' },
+        { key: 'apple pie' },
+        { key: 'blueberries' }
+      ),
+      res = db.find({key: [db.like('apple pie'), 'apple']});
+
+    equal(res.length, 2, "I got two records");
+  });
+
+  test("Find records with a value in a list based on a multi-functional + array convention", function(){
+    var 
+      db = DB(
+        { key: 'apple' }, 
+        { key: 'bananas' },
+        { key: 'red apple' },
+        { key: 'apple pie' },
+        { key: 'blueberries' }
+      ),
+      res = db.find({key: [db.like('apple pie'), db.like('red apple')]});
+
+    equal(res.length, 2, "I got two records");
+  });
+
   test("Find records with a value in a list based on argList convention", function(){
     var 
       db = DB(
