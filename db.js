@@ -536,6 +536,9 @@
     query = query.toString().toLowerCase();
 
     compare = function(x) { 
+      if(x === null) {
+        return false;
+      }
       return x.toString().toLowerCase().search(query) > -1; 
     }
 

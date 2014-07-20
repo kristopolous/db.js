@@ -956,6 +956,20 @@ module("like");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find records on a table with null values", function(){
+    var 
+      db = DB(
+        { key: 'abcde' }, 
+        { key:  null }, 
+        { key:  null }, 
+        { key: 'cdee' }
+      ),
+      res = db.find({key: db.like('cd')});
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 'cdee', "It is the right one");
+  });
+
   test("Find records based on argList convention", function(){
     var 
       db = DB(
