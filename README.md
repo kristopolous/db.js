@@ -675,10 +675,24 @@ previous query could have been written as
     );
 
 <b>Not</b>
+
 Not is handled in its own <a href=#not>wrapper function</a>
 
 <b>Xor</b>
+
 lol, yeah right. what would that even mean?
+
+<h5>isArray</h5>
+
+Normally a query such as `find({key: ['v1', 'v2', 'v3']});` is treated as "is key one of either v1, v2, or v3".  If, instead,
+you'd like to look for the array `['v1', 'v2', 'v3']` use `DB.isArray`, for instance:
+
+    var db = DB({key: [1,2,3]});
+
+    db.find({key: [1,2,3]})  -> false
+
+    db.find({key: DB.isArray([1,2,3])}) -> true
+
 
 <h3>About the callback function style</h3>
 The arguments passed in for the functional style are either the whole record if invoked
@@ -732,6 +746,11 @@ with a static array or a callback like so:
 A usage scenario may be as follows:
 
     db.find({months: db.isin(['jan', 'feb', 'march']));
+
+There's also a shortcut available by just providing an array as an argument. The previous query could have 
+been written as:
+
+    db.find({months: ['jan', 'feb', 'march']});
 
 <h3><a name=missing> [chain] missing( argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Missing is a macro lambda for find that can either be combined with find or called in a chain.  It will 

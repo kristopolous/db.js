@@ -513,6 +513,13 @@
     }
   })();
 
+  function isArray(what) {
+    var asString = what.sort().join('');
+    return function(param) {
+      return param.sort().join('') === asString;
+    }
+  }
+
   function like(param1, param2) {
     var 
       compare,
@@ -1356,6 +1363,7 @@
     trace: trace,
     values: values,
     isin: isin,
+    isArray: isArray,
 
     // like expr but for local functions
     local: function(){

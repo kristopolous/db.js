@@ -507,7 +507,7 @@ module("update");
   test("Add a Key/Value pair by keyed Function with global variables", function(){
     self.i = 0;
     var 
-      db = DB({}, {}, {}, {})
+      db = DB({}, {}, {}, {}),
       res = db.update({a: DB('i++')});
 
     equal(db.__raw__[0].a, 0, "Checks out");
@@ -521,7 +521,7 @@ module("update");
   test("Add a Key/Value pair by keyed Function with local variables", function(){
     var 
       i = 0,
-      db = DB({}, {}, {}, {})
+      db = DB({}, {}, {}, {}),
       res = db.update({a: eval(DB.local('i++'))});
 
     equal(db.__raw__[0].a, 0, "Checks out");
@@ -539,6 +539,7 @@ module("update");
     equal(db.__raw__[1].b, 3, "new b value assigned");
 
   });
+
 module("Finding");
   test("Find all elements", function(){
     var 
@@ -793,6 +794,23 @@ module("Finding");
 
     equal(res.length, filter.length, "I got the expected number of record");
   });
+
+  test("Find an array using isArray", function(){
+    var 
+      db = DB({key: [1,2,3]}),
+      res;
+
+    // this should return nothing.
+    res = db.find({key: [1,2,3]});
+    equal(res.length, 0, "I failed to find the array using the isin short syntax. Good!");
+
+    res = db.find({key: DB.isArray([1,2,3])});
+    equal(res.length, 1, "I succeeded to find the array using the isArray method");
+
+    res = db.find({key: DB.isArray([1,2])});
+    equal(res.length, 0, "I failed to find the array using the isArray method with a bad query");
+  });
+
 module("FindFirst");
   test("First element by Object", function(){
     var 
@@ -962,6 +980,20 @@ module("isin");
         { key: 2 }
       ),
       res = db.find({key: db.isin([0,2])});
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 2, "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find records with a value in a list based on KV convention using the short syntax", function(){
+    var 
+      db = DB(
+        { key: 0 }, 
+        { key: 1 }, 
+        { key: 2 }
+      ),
+      res = db.find({key: [0,2]});
 
     equal(res.length, 2, "I got two records");
     equal(res[1].key, 2, "It is the right one");
