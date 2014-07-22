@@ -97,6 +97,12 @@
       return ret;
     },
 
+    obj = function(key, value) {
+      var ret = {};
+      ret[key] = value;
+      return ret;
+    },
+
     map = [].map ?
       function(array, cb) { 
         return array.map(cb) 
@@ -322,6 +328,18 @@
           set = remaining;
         } else {
 
+          // Wanting to do DB.find(['field1', 'field2'], condition) 
+          // seems convenient enough.
+          if(
+            !_.isObj(filter[0]) &&
+            filterList.length == 2
+          ) {
+            var _condition = filterList.pop();
+            filter = map(filter, function(row) {
+              return obj(row, _condition);
+            });
+          }
+       
           for(ix = 0; ix < filter.length; ix++) {
             result = result.concat(find(remaining, filter[ix]));
             remaining = setdiff(remaining, result);

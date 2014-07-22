@@ -666,6 +666,14 @@ For instance, if you want to find things where "a = 1" **OR** "b = 1" you could 
       ]
     );
 
+You can also use the Or semantics to find multiple keys equaling a value at once.  For instance, the 
+previous query could have been written as 
+
+    find(
+      [ 'a', 'b' ],
+      1
+    );
+
 <b>Not</b>
 Not is handled in its own <a href=#not>wrapper function</a>
 

@@ -761,6 +761,20 @@ module("Finding");
     equal(res[1].key, 2, "It is the right last");
   });
 
+  test("Find using the or operator - array in first arg + condition", function(){
+    var 
+      db = DB(
+        { key1: 1, key2: 2 },
+        { key1: 2, key2: 1 },
+        { key1: 3, key2: 2 }
+      ),
+      res = db.find(['key1', 'key2'], 1);
+
+    equal(res.length, 2, "I got two record");
+    equal(res[0].key1, 1, "It is the right first");
+    equal(res[1].key2, 1, "It is the right last");
+  });
+
   test("Find using the or operator part2", function(){
     var 
       db = DB(),
