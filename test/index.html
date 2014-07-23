@@ -747,6 +747,20 @@ module("Finding");
     equal(res[1].key, 3, "It is the right last");
   });
 
+  test("Find using the or operator - duplicate conditions shouldn't yield duplicate results", function(){
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([{key: 1}, {key: 2}, {key: 1}, {key: 1}, {key: 2}]);
+
+    equal(res.length, 2, "I got two record");
+    equal(res[0].key, 1, "It is the right first");
+    equal(res[1].key, 2, "It is the right last");
+  });
+
   test("Find using the or operator part2", function(){
     var 
       db = DB(),
