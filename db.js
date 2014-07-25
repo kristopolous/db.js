@@ -336,6 +336,10 @@
         }
       } else {
         each(filter, function(key, value) {
+          // a convenience isin short-hand.
+          if( _.isArr(value)) {
+            value = isin(value);
+          }
 
           if( _.isFun(value)) {
             for(end = set.length, ix = end - 1; ix >= 0; ix--) {
