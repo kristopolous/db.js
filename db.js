@@ -206,7 +206,7 @@
 
   function copy(obj) {
     // we need to call slice for array-like objects, such as the dom
-    return obj.length ? slice.call(obj) : values(obj);
+    return 'length' in obj ? slice.call(obj) : values(obj);
   }
 
   // These function accept index lists.

@@ -572,6 +572,21 @@ module("Finding");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find an empty set, then do a second find", function(){
+    var 
+      db = DB(
+        { key1: 0 }, 
+        { key2: 'value2' }, 
+        { key1: 'value3' }
+      ),
+      res = db.find({something: 'invalid'});
+
+    equal(res.length, 0, "I got zero records");
+
+    res = res.find();
+    equal(res.length, 0, "After a second find, I still have zero records");
+  });
+
   test("Find one element by Object", function(){
     var 
       db = DB(
