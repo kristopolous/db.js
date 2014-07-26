@@ -53,6 +53,9 @@
       // } end underscore.js
       // from jquery 1.5.2's type
       isObj: function( obj ){
+        if(_.isFun(obj) || _.isStr(obj) || _.isNum(obj) || _.isArr(obj)) {
+          return false;
+        }
         return obj == null ? 
           String( obj ) == 'object' : 
           toString.call(obj) === '[object Object]' || true ;
@@ -336,8 +339,20 @@
         }
       } else {
         each(filter, function(key, value) {
+          // this permits mongo-like invocation
+          if( _.isObj(value)) {
+            var 
+              key = keys(value)[0],
+              fn = key.slice(1);
+
+            // see if the routine asked for exists
+            if(fn in DB) {
+              value = DB[fn](value[key]);
+            } else {
+              throw new Error(fn + " is an unknown function");
+            }
+          } else if( _.isArr(value)) {
           // a convenience isin short-hand.
-          if( _.isArr(value)) {
             value = isin(value);
           }
 
