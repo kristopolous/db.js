@@ -313,12 +313,22 @@
       if(_.isArr(filter)) {
         // If we just pass the inner array, this would be wrong because
         // then it would operate as an AND so we need to do things individually.
-        var result = [], remaining = set;
-        for(ix = 0; ix < filter.length; ix++) {
-          result = result.concat(find(remaining, filter[ix]));
-          remaining = setdiff(remaining, result);
+        var 
+          result = [], 
+          remaining = set;
+
+        // TODO: this feels wrong.
+        if (filter.length === 0) {
+          set = remaining;
+        } else {
+
+          for(ix = 0; ix < filter.length; ix++) {
+            result = result.concat(find(remaining, filter[ix]));
+            remaining = setdiff(remaining, result);
+          }
+
+          set = result;
         }
-        set = result;
       } else if(_.isFun(filter)) {
         var callback = filter;
 

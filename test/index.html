@@ -719,6 +719,20 @@ module("Finding");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find using the or operator - empty base case", function(){
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([]);
+
+    equal(res.length, 3, "I got three record");
+    equal(res[0].key, 1, "It is the right first");
+    equal(res[2].key, 3, "It is the right last");
+  });
+
   test("Find using the or operator", function(){
     var 
       db = DB(
