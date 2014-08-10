@@ -427,21 +427,21 @@ a failed to insert.
 For example, if there was a unique constraint of "id" and the existing
 data was
 
-  db = [
-    { id: 1, a:1 }
-    { id: 2, a:1 }
-    { id: 3, a:1 }
-  ]
+    db = [
+      { id: 1, a:1 }
+      { id: 2, a:1 }
+      { id: 3, a:1 }
+    ]
 
 And we run
 
-  var ret = db.insert([
-    { id: 0, b:1 },
-    { id: 1, b:1 },
-    { id: 2, b:1 },
-    { id: 3, b:1 },
-    { id: 5, b:1 }
-  ]); 
+    var ret = db.insert([
+      { id: 0, b:1 },
+      { id: 1, b:1 },
+      { id: 2, b:1 },
+      { id: 3, b:1 },
+      { id: 5, b:1 }
+    ]); 
 
 Then ret.existing would have the content of
 
@@ -589,10 +589,31 @@ splice, shift, pop, push, or unshift the array to do those respective functions.
 
     db.addIf().pop(); // This will remove the constraint
 
-<h3><a name=beforeadd> beforeAdd ( function ( entry ) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
+<h3><a name=beforeadd> [array] beforeAdd ( function ( entry ) ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 beforeAdd allows you to mutate (or modify) data prior to inserting it.  This is effectively an event
 or a 'middleware' that permits you to do things like type casting or OOB accounting prior to something
 existing in the database.  See <a href=#sync>Syncing</a> for after-style events.
+
+It returns a list of the callbacks that are being run ... 
+
+<h4>Example:</h4>
+
+Say we get dates from a database as string values and want to convert them to javascript Dates prior to insertion (so that we 
+can sort and filter by them).  Here is how you may achieve that (this is taken from a project using laravel blade templating
+on a table with timestamps enabled):
+
+    @section('js')
+    var db = DB();
+     
+    db.beforeAdd(function(entry) {
+      _.each(['created_at','updated_at'], function(what) {
+        entry[what] = new Date(entry[what]);
+      }); 
+    });
+     
+    db.insert({{ $data }});
+    @endsection
+
 
 <h4>Implementation Notes</h4>
 beforeAdd is a light wrapper around <a href=#addif>addif</a> which exploits the fact that candidates come in as
