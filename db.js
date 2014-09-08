@@ -1358,10 +1358,15 @@
 
     // Assign this after initialization
     ret.__raw__ = raw;
+    
+    // Register this instance.
+    DB.all.push(ret);
+
     return ret;
   }
 
   extend(DB, {
+    all: [],
     find: find,
     diff: setdiff,
     each: eachRun,
