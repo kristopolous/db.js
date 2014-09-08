@@ -963,6 +963,9 @@ Example:
       ]
     }
 
+If the values of the field are an array, then the keys of the array are respected as the
+values.
+
 There's another example in the test.html file at around line 414
 
 <h3><a name=keyBy> [map] keyBy( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>

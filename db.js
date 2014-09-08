@@ -125,6 +125,8 @@
         if (obj.length === 0) { return; }
         if (_.isArr(obj)) { 
           obj.forEach(cb);
+        } else if(_.isStr(obj)) {
+          cb(obj);
         } else {
           for( var key in obj ) {
             cb(key, obj[key]);
@@ -968,11 +970,15 @@
 
       each(filter, function(which) {
         if(field in which) {
-          if(! groupMap[which[field]]) {
-            groupMap[which[field]] = chain([]);
-          }
+          each(which[field], function(what) {
+            // if it's an array, then we do each one.
 
-          groupMap[which[field]].push(which);
+            if(! groupMap[what]) {
+              groupMap[what] = chain([]);
+            }
+
+            groupMap[what].push(which);
+          });
         }
       });
       
