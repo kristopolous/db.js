@@ -741,6 +741,7 @@
     'order',
     'orderBy',
     'remove',
+    'schema',
     'select',
     'slice',
     'sort',
@@ -830,14 +831,15 @@
         // makes no sense whatsoever.
         var 
           agg = {}, 
-          len = raw.length, 
+          list = _.isArr(this) ? this : ret.find(),
+          len = list.length, 
           skip = Math.ceil(Math.min(10, len / 3)),
           entry;
 
         for(var i = 0; 
             i < len; 
               i += skip, 
-              entry = raw[i]
+              entry = list[i]
           ) {
           for(var key in entry) {
             agg[key] = _u;
