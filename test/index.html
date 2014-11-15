@@ -3,7 +3,7 @@
 <head>
   <title>db.js test suite</title>
   <link rel=stylesheet href=qunit.css>
-  <script src="http://code.jquery.com/jquery-latest.js"></script>
+  <script src="jquery.js"></script>
   <script src=../db.js > </script>
   <script src=qunit.js > </script>
 </head>
@@ -1740,6 +1740,19 @@ module('group');
     equal(Object.keys(toTest).sort().join(' '), 'IT accounting', "Keys are right");
     equal(toTest.accounting.length, 2, "Accounting length is right");
     equal(toTest.IT.length, 1, "IT length is right");
+  });
+  test("Grouping by number", function(){
+    expect(2);
+
+    var db = DB(
+      { department: 1, name: "Alice" },
+      { department: 1, name: "Bob" }
+    );
+
+    var toTest = db.group('department');
+
+    equal(Object.keys(toTest).sort().join(' '), '1', "Keys are right");
+    equal(toTest[1].length, 2, "Accounting length is right");
   });
 });
 </script>
