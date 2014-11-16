@@ -839,11 +839,9 @@
           skip = Math.ceil(Math.min(10, len / 3)),
           entry;
 
-        for(var i = 0; 
-            i < len; 
-              i += skip, 
-              entry = list[i]
-          ) {
+        for(var i = 0; i < len; i += skip ) {
+          entry = list[i];
+
           for(var key in entry) {
             agg[key] = _u;
           }
