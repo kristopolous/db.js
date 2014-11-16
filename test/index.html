@@ -1724,6 +1724,14 @@ module('schema');
     schema = db.schema().sort().join('');
     equal(schema, 'f0f1f2f3f4' , "schema is right!");
   });
+  test('Getting a schema with 1 record', function(){
+    var 
+      db = DB([{key1: 'value', key2: 'value'}]), 
+      schema;
+
+    schema = db.schema().sort().join('');
+    equal(schema, 'key1key2' , "schema is right!");
+  });
 
 module('group');
   test("Grouping by department (from the readme)", function(){
