@@ -319,6 +319,18 @@ module("Removal");
     equal(db.__raw__[0].key2, "value2", "The first one has the expected value");
   });
 
+  test("Remove first element by KV - find pattern", function(){
+    var db = DB(
+      { key1: 0 }, 
+      { key2: 'value2' }, 
+      { key1: 'value3' }
+    );
+
+    db.find({key1: 0}).remove();
+    equal(db.__raw__.length, 2, "There's two elements left");
+    equal(db.__raw__[0].key2, "value2", "The first one has the expected value");
+  });
+
   test("Remove middle element by KV", function(){
     var db = DB(
       { key1: 0 }, 
