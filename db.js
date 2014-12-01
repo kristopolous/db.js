@@ -440,9 +440,6 @@
       }
     }
 
-    set.first = set[0];
-    set.last = set[set.length - 1];
-
     return set;
   }
 
@@ -785,6 +782,9 @@
       for(var func in chainList) {
         list[func] = ret[func];
       }
+
+      list.first = list[0];
+      list.last = list[list.length - 1];
 
       return list;
     }
