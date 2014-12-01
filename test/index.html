@@ -4,7 +4,7 @@
   <title>db.js test suite</title>
   <link rel=stylesheet href=qunit.css>
   <script src="jquery.js"></script>
-  <script src=../db.js > </script>
+  <script src=../db.min.js > </script>
   <script src=qunit.js > </script>
 </head>
 <body>
@@ -894,6 +894,7 @@ module("Finding");
 
 module("FindFirst");
   test("First element by Object", function(){
+    expect(1);
     var 
       db = DB(
         { key1: 0 }, 
@@ -901,6 +902,34 @@ module("FindFirst");
         { key1: 'value3' }
       ),
       res = db.findFirst({key1: 0});
+
+    equal(res.key1, 0, "It is the right one");
+  });
+
+  test("First element by Object - pointer", function(){
+    expect(1);
+    var 
+      db = DB(
+        { key1: 0 }, 
+        { key2: 'value2' }, 
+        { key1: 'value3' }
+      ),
+      res = db.find({key1: 0});
+
+    equal(res.first.key1, 0, "It is the right one");
+  });
+
+  test("First element by Object - pointer self-assign", function(){
+    expect(1);
+    var 
+      res = 0;
+      db = DB(
+        { key1: 0 }, 
+        { key2: 0 }, 
+        { key1: 'value3' }
+      );
+
+    res = db.find({key1: res}).first;
 
     equal(res.key1, 0, "It is the right one");
   });
