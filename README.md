@@ -902,6 +902,12 @@ The y parameter is the iterated reduction and the x parameter is the record to r
 lambda function can either be a partial expression which will be evaluated to ('y = ' + expression) or it can
 be a passed in lambda.
 
+Example:
+
+    DB.reduceLeft(0, '+x.time')(dbLog);
+
+In the above example, the `reduceLeft` returns a function which then takes the parameter `dbLog` as its argument, summing the `.time` over the set.
+
 <h3><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
 
