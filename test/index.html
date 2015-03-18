@@ -1078,6 +1078,21 @@ module("like");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find records based on KV convention - malformed regex", function(){
+    var 
+      db = DB(
+        { key: 'ab[cde' }, 
+        { key: 'cd]efg' }, 
+        { key: 'efb[c]gh' }, 
+        { key: 'aceg' }
+      ),
+      res = db.find({key: db.like('b[c')});
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 'efb[c]gh', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
   test("Find records on a table with null values", function(){
     var 
       db = DB(

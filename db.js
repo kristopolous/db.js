@@ -535,6 +535,7 @@
       compare,
       len = arguments.length,
       query,
+      queryRE,
       obj = {};
 
     if(len == 1) {
@@ -543,7 +544,7 @@
       query = param2;
     } 
 
-    query = query.toString().toLowerCase();
+    query = query.toString();
 
     compare = function(x) { 
       if(x === null) {
@@ -551,12 +552,12 @@
       }
 
       try {
-        query = new RegExp(query, 'img');
+        queryRE = new RegExp(query, 'img');
       } catch (ex) {
-        query = new RegExp(escapeRegExp(query), 'img');
+        queryRE = new RegExp(escapeRegExp(query), 'img');
       }
 
-      return x.toString().search(query) > -1;
+      return x.toString().search(queryRE) > -1;
     }
 
     if(len == 2) {
