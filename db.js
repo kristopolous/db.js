@@ -151,6 +151,11 @@
         }
      };
    
+  // from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_Expressions
+  function escapeRegExp(string){
+    return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
   // This is from underscore. It's a <<shallow>> object merge.
   function extend(obj) {
     each(slice.call(arguments, 1), function(source) {
@@ -544,7 +549,14 @@
       if(x === null) {
         return false;
       }
-      return x.toString().toLowerCase().search(query) > -1; 
+
+      try {
+        query = new RegExp(query, 'img');
+      } catch (ex) {
+        query = new RegExp(escapeRegExp(query), 'img');
+      }
+
+      return x.toString().search(query) > -1;
     }
 
     if(len == 2) {
