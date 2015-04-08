@@ -106,20 +106,20 @@
       return ret;
     },
 
+    mapSoft = function(array, cb) {
+      var ret = [];
+
+      for ( var i = 0, len = array.length; i < len; i++ ) { 
+        ret.push(cb(array[i], i));
+      }
+
+      return ret;
+    },
+
     map = [].map ?
       function(array, cb) { 
         return array.map(cb) 
-      } : 
-
-      function(array, cb) {
-        var ret = [];
-
-        for ( var i = 0, len = array.length; i < len; i++ ) { 
-          ret.push(cb(array[i], i));
-        }
-
-        return ret;
-      },
+      } : mapSoft,
 
     // each is a complex one
     each = [].forEach ?
@@ -711,6 +711,7 @@
 
   function eachRun(callback, arg1) {
     var 
+      context = 0,
       ret = [],
       filter;
 
@@ -722,13 +723,18 @@
     }
 
     if(_.isArr(filter)) {
-      ret = map(filter, callback);
+      ret = mapSoft(filter, callback);
     } else {
       ret = {};
 
+      if(_.isArr(callback)) {
+        context = callback[0];
+        callback = callback[1];
+      }
+
       for(var key in filter) {
         if(!_.isFun(filter[key])) {
-          ret[key] = callback.call(0, filter[key]);
+          ret[key] = callback.call(context, filter[key]);
         }
       }
     } 

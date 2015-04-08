@@ -4,7 +4,7 @@
   <title>db.js test suite</title>
   <link rel=stylesheet href=qunit.css>
   <script src="jquery.js"></script>
-  <script src=../db.min.js > </script>
+  <script src=../db.js > </script>
   <script src=qunit.js > </script>
 </head>
 <body>
@@ -1630,6 +1630,22 @@ module('each');
     db.find().each(function(what) {
       equal(!([5,3,7,2].indexOf(what.key) + 1), false, "The function is run");
     });
+  });
+
+  test("Select 4 pairs from a database, run a console.log each of them", function(){
+    var db = DB([
+      {key: 5},
+      {key: 3},
+      {key: 7},
+      {key: 2}
+    ]);
+
+    var my = {
+      func: function(m) {
+        console.log(arguments);
+      }
+    };
+    db.each([my,my.func]);
   });
 
   test("Select 4 values from a database, make sure that it's a one dimensional array", function(){
