@@ -893,6 +893,15 @@ as a return of a find.
 This is a convenience on select for when you do select('one','two')
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
+In some functions, such as `console.log` there has to be a contextualized `thi` pointer established
+in order to map the caller indirectly.  In these cases, you have to do a very crufty version of the call like
+so:
+
+    db.each([console,console.log]);
+
+Passing the object and the function as an arrayed argument ... I know --- I hate it to.  I wish I could find something
+better.
+
 <h3><a name=reduceLeft> [scalar] reduceLeft( memo, lambda | expression )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is a macro lambda for each that implements a traditional functional list-reduction. You can use it like so:
 
