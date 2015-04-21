@@ -1295,6 +1295,22 @@ module('hasKey');
     equal(res.length, 0, "I got zero records");
   });
 
+  test("Find records with a single specific key set (chained partial)", function(){
+    var 
+      db = DB(
+        { key1: 0,
+          key2: 'here'
+        },
+        { key2: 'value2' },
+        { key1: 0 }
+      ),
+      res = db.find({key1: 0}).hasKey('key2');
+
+    equal(res.length, 1, "I got one records");
+    equal(res[0].key2, 'here', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
 module('has');
   test("Search amongst an array", function(){
     var
