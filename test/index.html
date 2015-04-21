@@ -1283,6 +1283,18 @@ module('hasKey');
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find records with a single specific key set (chained)", function(){
+    var 
+      db = DB(
+        { key1: 0 },
+        { key2: 'value2' },
+        { key1: 0 }
+      ),
+      res = db.find({key1: 0}).hasKey('key2');
+
+    equal(res.length, 0, "I got zero records");
+  });
+
 module('has');
   test("Search amongst an array", function(){
     var
