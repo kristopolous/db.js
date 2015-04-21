@@ -281,14 +281,17 @@ module('beforeAdd');
     db.beforeAdd(function(what) {
       equal(true, true, "beforeAdd being run");
       what.key ++;
+      what.newkey = 1;
     });
 
-    db.insert(
-      { key: 1 }
-    );
+    db.insert([
+      { key: 1 },
+      { key: 2 }
+    ]);
 
-    equal(db.__raw__.length, 1, "There's only one item in the database");
+    equal(db.__raw__.length, 2, "There's only one item in the database");
     equal(db.__raw__[0].key, 2, "This item has the right value");
+    equal(db.__raw__[0].newkey, 1, "This item has the right value");
     equal(db.beforeAdd().length, 1, "There is one constraint");
   });
 

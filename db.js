@@ -922,12 +922,16 @@
 
       // hasKey is to get records that have keys defined
       hasKey: function() {
-        return this.find(missing(slice.call(arguments))).invert();
+        var 
+          outer = _.isArr(this) ? this : this.find(),
+          inner = outer.find(missing(slice.call(arguments)));
+
+        return this.invert(inner, outer);
       },
 
       isin: isin,
       like: like,
-      invert: function(list) { return chain(setdiff(raw, list || this)); },
+      invert: function(list, second) { return chain(setdiff(second || raw, list || this)); },
 
       map: eachRun,
 
