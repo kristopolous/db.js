@@ -4,7 +4,7 @@
   <title>db.js test suite</title>
   <link rel=stylesheet href=qunit.css>
   <script src="jquery.js"></script>
-  <script src=../db.min.js > </script>
+  <script src=../db.js > </script>
   <script src=qunit.js > </script>
 </head>
 <body>
@@ -182,7 +182,7 @@ module('transaction');
  });
 
 module('constrain');
-  test("Create a table, constrain by key", function(){
+  test("Create a table, constrain by key - check return", function(){
     var db = DB();
 
     db.constrain('unique', 'key1');
@@ -196,8 +196,49 @@ module('constrain');
     equal(db.__raw__.length, 2, "Two items were inserted");
     equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
     equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
+    /*
     equal(val.length, 3, "Three things were returned");
+    console.log("vv", val);
     equal(val[2].a, 0, "The third thing has the first value");
+    */
+  });
+
+  test("Create a table, constrain by key - remove", function(){
+    var db = DB();
+
+    db.constrain('unique', 'key1');
+
+    var val = db.insert( 
+      { key1: 0, a:0 }, 
+      { key2: 'value2', a:1 }
+    );
+
+    // after this I should be able to
+    // insert a new record.
+    db.remove({key1: 0});
+
+    db.insert({key1: 1, a: 2});
+
+    equal(db.__raw__.length, 2, "Two items were inserted");
+    equal(db.__raw__[1].key1, 1, "The first has an integer value 0");
+    equal(db.__raw__[0].key2, "value2", "The second has a string value 'value2'");
+  });
+
+  test("Create a table, constrain by key - two step", function(){
+    var db = DB();
+
+    db.constrain('unique', 'key1');
+
+    var val = db.insert( 
+      { key1: 0, a:0 }, 
+      { key2: 'value2', a:1 }
+    );
+
+    db.insert({key1: 0, a: 2});
+
+    equal(db.__raw__.length, 2, "Two items were inserted");
+    equal(db.__raw__[0].a, 0, "The first has an integer value 0");
+    equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
   });
 
 module('AddIf');

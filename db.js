@@ -1250,6 +1250,7 @@
     ret.insert = function(param) {
       var 
         ix,
+        unique = constraints.unique,
         existing = [],
         toInsert = [],
         ixList = [];
@@ -1279,15 +1280,15 @@
         // If the unique field has been set then we do
         // a hash search through the constraints to 
         // see if it's there.
-        if(constraints.unique) {
+        if(unique && (unique in which)) {
 
           // If the user had opted for a certain field to be unique,
           // then we find all the matches to that field and create
           // a block list from them.
-          var key = 'c-' + constraints.unique, map_;
+          var key = 'c-' + unique, map_;
           // We create a lazyView 
           if(!_g[key]) {
-            _g[key] = pub.lazyView(constraints.unique);
+            _g[key] = ret.lazyView(unique);
           } else {
             // Only update if a delete has happened
             _g[key]('del');
@@ -1298,16 +1299,20 @@
           // This would mean that the candidate to be inserted
           // should be rejected because it doesn't satisfy the
           // unique constraint established.
-          if(which[constraints.unique] in map_){
+          if(which[unique] in map_){
 
             // Create a reference list so we know what was existing
-            existing.push(map_[which[constraints.unique]]);
+            existing.push(map_[which[unique]]);
 
             // put on the existing value
-            ixList.push(map_[which[constraints.unique]]);
+            ixList.push(map_[which[unique]]);
 
             // Toggle our doAdd over to false.
             doAdd = false;
+          } else {
+            // Otherwise we assume it will be added and
+            // put it in our map for future reference.
+            map_[which[unique]] = which;
           }
         }
 
@@ -1348,7 +1353,7 @@
         try {
           data = new (secret(ix))();
           extend(data, which);
-          raw.push(data);
+          which = data;
         } catch(ex) {
 
           // Embedded objects, like flash controllers
@@ -1357,8 +1362,8 @@
           // that by slightly changing the object;
           // hopefully in a non-destructive way.
           which.constructor = secret(ix);
-          raw.push(which);
         }
+        raw.push(which);
 
         ixList.push(ix);
       });
