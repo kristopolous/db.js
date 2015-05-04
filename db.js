@@ -755,6 +755,7 @@
     'invert',
     'isin',
     'keyBy',
+    'lazyView',
     'like',
     'missing',
     'order',
