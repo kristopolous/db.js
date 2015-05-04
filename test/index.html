@@ -1106,6 +1106,19 @@ module("FindFirst");
     equal(res.key1, 0, "It is the right one");
   });
 
+  test("First element by Object - failure", function(){
+    expect(1);
+    var 
+      db = DB(
+        { key1: 0 }, 
+        { key2: 'value2' }, 
+        { key1: 'value3' }
+      ),
+      res = db.findFirst({key1: 123});
+
+    equal(res, false, "Nothing found so false is returned");
+  });
+
 module("like");
   test("Find records based on KV convention", function(){
     var 
