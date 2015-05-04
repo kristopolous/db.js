@@ -881,6 +881,27 @@ If you pass "ins" you are saying "only update the references if something has be
 
 Since things can be updated out of band, there is no way of internally keeping track of that state effeciently.
 
+Example:
+
+    var db = DB({key: 'a', a: 'apple'}, {key: 'b', a: 'banana'});
+    var lv = db.lazyView('key');
+
+    lv.a.a ==> 'apple'
+    lv.b.a ==> 'banana'
+
+    db.insert({key: 'c', 'a': 'carrot');
+
+    lv('del'); <-- this won't update because the delete counters haven't incremented.
+
+    lv.c.a ==> undefined.
+
+    lv('ins'); <-- now we'll get an update
+
+    lv.c.a ==> 'carrot'
+
+    lv(); <-- this will update things regardless.
+
+
 <h3><a name=indexBy> [void] indexBy( sortConstraint )</a> [ <a href=#toc>top</a> ] </h3>
 
  * Re-orders the raw index for the DB by the specified sort constraint.  For instance:
