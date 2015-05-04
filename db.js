@@ -785,8 +785,17 @@
       constrainCache = {},
       syncList = [],
       syncLock = false,
+      //
+      // This is our atomic counter that
+      // gets moved forward for different
+      // operations
+      //
+      _ix = {ins:0, del:0},
       _template = false,
       ret = expression(),
+
+      // globals with respect to this self.
+      _g = {},
       raw = [];
 
     function sync() {
@@ -869,12 +878,16 @@
         return keys(agg);
       },
 
+      // 
       // This is to constrain the database.  Currently you can enforce a unique
       // key value through something like `db.constrain('unique', 'somekey')`.
       // You should probably run this early, as unlike in RDBMSs, it doesn't do
       // a historical check nor does it create a optimized hash to index by
       // this key ... it just does a lookup every time as of now.
-      constrain: function() { extend(constraints, kvarg(arguments)); },
+      //
+      constrain: function() { 
+        extend(constraints, kvarg(arguments)); 
+      },
       
       // Adds if and only if a function matches a constraint
       addIf: function( lambda ) {
@@ -1146,7 +1159,21 @@
     // on demand with ()
     //
     ret.lazyView = function(field) {
-      function update() {
+      // keep track
+      var myix = {del: _ix.del, ins: _ix.ins};
+
+      function update(whence) {
+        if(whence) {
+          // if we only care about updating our views
+          // on a new delete, then we check our atomic
+          if(whence == 'del' && myix.del == _ix.del) {
+            return;
+          } else if(whence == 'ins' && myix.ins == _ix.ins) {
+            return;
+          }
+        }
+        myix = {del: _ix.del, ins: _ix.ins};
+
         var ref = {};
 
         each(raw, function(row) {
@@ -1161,6 +1188,7 @@
           }
         }
       }
+
       update();
       return update;
     },
@@ -1223,7 +1251,6 @@
       var 
         ix,
         existing = [],
-        constraintMap = {},
         toInsert = [],
         ixList = [];
 
@@ -1247,7 +1274,7 @@
 
       each(toInsert, function(which) {
         // We first check to make sure we *should* be adding this.
-        var doAdd = true;
+        var doAdd = true, data;
 
         // If the unique field has been set then we do
         // a hash search through the constraints to 
@@ -1257,23 +1284,27 @@
           // If the user had opted for a certain field to be unique,
           // then we find all the matches to that field and create
           // a block list from them.
-          constraintMap = {};
+          var key = 'c-' + constraints.unique, map_;
+          // We create a lazyView 
+          if(!_g[key]) {
+            _g[key] = pub.lazyView(constraints.unique);
+          } else {
+            // Only update if a delete has happened
+            _g[key]('del');
+          }
 
-          // TODO: this looks slow.
-          each(raw, function(data, index){
-            constraintMap[data[constraints.unique]] = index;
-          });
+          map_ = _g[key];
 
           // This would mean that the candidate to be inserted
           // should be rejected because it doesn't satisfy the
           // unique constraint established.
-          if(which[constraints.unique] in constraintMap){
+          if(which[constraints.unique] in map_){
 
             // Create a reference list so we know what was existing
-            existing.push(constraintMap[which[constraints.unique]]);
+            existing.push(map_[which[constraints.unique]]);
 
             // put on the existing value
-            ixList.push(constraintMap[which[constraints.unique]]);
+            ixList.push(map_[which[constraints.unique]]);
 
             // Toggle our doAdd over to false.
             doAdd = false;
@@ -1287,11 +1318,13 @@
 
         if(!doAdd) {
           return;
-        }
+        } 
+        // if we got here then we can update 
+        // our dynamic counter.
+        _ix.ins++;
 
         // If we get here, then the data is going in.
         ix = raw.length;
-        var data;
 
         // insert from a template if available
         if(_template) {
@@ -1346,6 +1379,7 @@
     //
     ret.remove = function(arg0, arg1) {
       var 
+        isDirty = false,
         end, start,
         list,
         save = [];
@@ -1365,6 +1399,7 @@
         if(end - (ix + 1)) {
           start = ix + 1;
           raw.splice(start, end - start);
+          isDirty = true;
         }
         end = ix;
       }
@@ -1372,9 +1407,15 @@
       start = ix + 1;
       if(end - start) {
         raw.splice(start, end - start);
+        isDirty = true;
       }
 
-      sync();
+      if(isDirty) {
+        // If we've spliced, then we sync and update our
+        // atomic delete counter
+        _ix.del++;
+        sync();
+      }
       return chain(save.reverse());
     }
 
