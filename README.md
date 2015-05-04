@@ -729,8 +729,10 @@ in the style of find({key: lambda}).  Therein you can have something like
 *Also a top level function*
 
 This is a wrapper of find for when you are only expecting one result.
-**Please note that findFirst ALWAYS returns an object.  If there was no match
-then the returned object is empty.**
+<s>**Please note that findFirst ALWAYS returns an object.  If there was no match
+then the returned object is empty.**</s>
+
+<b>Changed on 2015-05-04</b>. Now findFirst returns the boolean `false` if nothing is found.
 
 <h3><a name=like> [chain] like( string | argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 A macro lambda for find that does a case-insensitive regex search on the values for keys.
