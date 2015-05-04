@@ -926,9 +926,10 @@
       not: not,
     
       // This is a shorthand to find for when you are only expecting one result.
+      // A boolean false is returned if nothing is found
       findFirst: function(){
         var res = ret.find.apply(this, arguments);
-        return res.length ? res[0] : {};
+        return res.length ? res[0] : false;
       },
 
       has: has,
