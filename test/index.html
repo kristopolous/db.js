@@ -1630,6 +1630,23 @@ module('view');
   });
 
 module('lazyView');
+  test("Chained lazyView", function(){
+    var 
+      view = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 'value2',
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 'value3',
+          key: "valuethree" 
+        }).lazyView('index');
+
+    equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
+  });
   test("Create a lazyView", function(){
     var 
       db = DB({ 
