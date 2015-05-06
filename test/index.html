@@ -213,6 +213,7 @@ module('constrain');
       { key2: 'value2', a:1 }
     );
 
+    window.db = db;
     // after this I should be able to
     // insert a new record.
     db.remove({key1: 0});

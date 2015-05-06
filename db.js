@@ -1118,43 +1118,6 @@
     }
 
     //
-    // view 
-    //
-    // Views are an expensive synchronization macro that return 
-    // an object that can be indexed in order to get into the data.
-    //
-    ret.view = function(field) {
-      var obj = {};
-
-      ret.sync(function(data) {
-        var ref = {}, key;
-
-        each(data, function(row) {
-          if(field in row) {
-            ref[row[field]] = row;
-          }
-        });
-
-        for(key in ref) {
-          if( ! ( key in obj ) ) {
-            obj[key] = ref[key];
-          } else if(obj[key] !== ref[key]) {
-            obj[key] = ref[key];
-          }
-        }
-        for(key in obj) {
-          if( ! (key in ref) ) {
-            delete obj[key];
-          }
-        }
-      });
-
-      sync();
-
-      return obj;
-    }
-
-    //
     // lazyView
     //
     // lazyViews are a variation of views that have to be explicitly rebuilt
@@ -1194,6 +1157,18 @@
       update();
       return update;
     },
+
+    //
+    // view 
+    //
+    // Views are an expensive synchronization macro that return 
+    // an object that can be indexed in order to get into the data.
+    //
+    ret.view = function(field) {
+      var fn = ret.lazyView(field);
+      ret.sync(fn);
+      return fn;
+    }
 
     //
     // select
