@@ -1607,6 +1607,26 @@ module('view');
     equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
   });
 
+  test("Create a deep view", function(){
+    var 
+      db = DB({ 
+        index: {a: [0]},
+          key: "one"
+        }, 
+        { 
+          index: {a: ['value2']},
+          key: "valuetwo" 
+        }, 
+        { 
+          index: {a: ['value3']},
+          key: "valuethree" 
+        }),
+
+      view = db.view('index.a[0]');
+
+    equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
+  });
+
   test("Update a view", function(){
     var 
       db = DB({ 
