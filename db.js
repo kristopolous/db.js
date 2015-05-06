@@ -648,6 +648,8 @@
 
         if(_.isStr( arg0 )) {
           expr = arg0;
+
+          //
           // There are TWO types of lambda function here (I'm not using the
           // term 'closure' because that means something else)
           //
@@ -663,7 +665,8 @@
           // No? ok, me either. This seems practical then.
           //
           // The invocation wrapping will also make this work magically, with proper
-          // expreessive usage.
+          // expressive usage.
+          //
           if(arguments.length == 1) {
             if(!cache[expr]) {
 
