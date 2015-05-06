@@ -1044,6 +1044,7 @@
 
     //
     // indexBy is just a sort without a chaining of the args
+    //
     ret.indexBy = function () {
       // alias chain away
       var _chain = chain; 
@@ -1123,9 +1124,25 @@
     // lazyViews are a variation of views that have to be explicitly rebuilt
     // on demand with ()
     //
-    ret.lazyView = function(field) {
+    ret.lazyView = function(field, type) {
       // keep track
-      var myix = {del: _ix.del, ins: _ix.ins};
+      var 
+        myix = {del: _ix.del, ins: _ix.ins},
+        keyer;
+      
+      if(field.charAt(0) !== '[' || field.charAt(0) !== '.') {
+        field = '.' + field;
+      }
+
+      eval(("keyer = " + 
+        (
+          function(r,ref) {
+            if(rREPLACE) {
+              ref[rREPLACE] = update[rREPLACE] = r;
+            }
+          }
+        )).replace(/REPLACE/g, field)
+      );
 
       function update(whence) {
         if(whence) {
@@ -1142,9 +1159,7 @@
         var ref = {};
 
         each(raw, function(row) {
-          if(field in row) {
-            ref[row[field]] = update[row[field]] = row;
-          }
+          keyer(row,ref);
         });
 
         for(var key in update) {
@@ -1164,8 +1179,8 @@
     // Views are an expensive synchronization macro that return 
     // an object that can be indexed in order to get into the data.
     //
-    ret.view = function(field) {
-      var fn = ret.lazyView(field);
+    ret.view = function(field, type) {
+      var fn = ret.lazyView(field, type);
       ret.sync(fn);
       return fn;
     }
