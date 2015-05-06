@@ -1137,9 +1137,9 @@
       eval(("keyer = " + 
         (
           function(r,ref) {
-            if(rREPLACE) {
+            try {
               ref[rREPLACE] = update[rREPLACE] = r;
-            }
+            } catch(ex) { }
           }
         )).replace(/REPLACE/g, field)
       );
@@ -1159,7 +1159,7 @@
         var ref = {};
 
         each(raw, function(row) {
-          keyer(row,ref);
+          keyer(row, ref);
         });
 
         for(var key in update) {

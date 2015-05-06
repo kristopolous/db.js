@@ -1625,6 +1625,8 @@ module('view');
       view = db.view('index.a[0]');
 
     equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
+    equal(view[0].key, 'one', 'view k/v seems to be ok');
+    
   });
 
   test("Update a view", function(){
