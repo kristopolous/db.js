@@ -903,6 +903,20 @@ Example:
 
     lv(); <-- this will update things regardless.
 
+<h4>Deep indexing</h4>
+Views and lazyViews support deep indexing, which means that if you have an db like this:
+
+    var db = DB([
+      { value: [1, 2, 3] },
+      { value: [11, 12, 13] },
+      { value: [21, 22, 23] }
+    ]);
+
+You can do
+
+    var deepIndex = db.view('value[0]');
+
+To get the deep records unraveled to the top.
 
 <h3><a name=indexBy> [void] indexBy( sortConstraint )</a> [ <a href=#toc>top</a> ] </h3>
 
