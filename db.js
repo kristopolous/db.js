@@ -1137,15 +1137,7 @@
         field = '.' + field;
       }
 
-      eval(("keyer = " + 
-        (
-          function(r,ref) {
-            try {
-              ref[rREPLACE] = update[rREPLACE] = r;
-            } catch(ex) { }
-          }
-        )).replace(/REPLACE/g, field)
-      );
+      eval( "keyer = function(r,ref){try{ref[rX] = update[rX] = r;} catch(x){}}".replace(/X/g, field));
 
       function update(whence) {
         if(whence) {
