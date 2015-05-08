@@ -1363,6 +1363,14 @@
       );
     }
 
+    // 
+    // The quickest way to do an insert. 
+    // This checks for absolutely nothing.
+    //
+    ret.flash = function(list) {
+      raw = list;
+    }
+
     //
     // remove
     // 
@@ -1441,6 +1449,7 @@
     values: values,
     isin: isin,
     isArray: isArray,
+
 
     // like expr but for local functions
     local: function(){
