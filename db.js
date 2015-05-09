@@ -1351,7 +1351,7 @@
     // This checks for absolutely nothing.
     //
     ret.flash = function(list) {
-      raw = list;
+      ret.__raw__ = raw = raw.concat(list);
     }
 
     //
