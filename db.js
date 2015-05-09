@@ -42,6 +42,7 @@
 
     // For computing set differences
     _stainID = 0,
+    _stainKey = '_4ab92bf03191c585f182',
 
     // type checking system
     _ = {
@@ -227,6 +228,7 @@
 
     for(var ix = 0, len = larger.length; ix < len; ix++) {
       if (isStained(larger[ix])) { 
+        unstain(larger[ix]);
         continue;
       } 
       ret.push(larger[ix]);
@@ -251,12 +253,16 @@
     _stainID++;
 
     for(var ix = 0, len = list.length; ix < len; ix++) {
-      list[ix].constructor('i', _stainID);
+      list[ix][_stainKey] = _stainID;
     }
   }
 
+  function unstain(obj) {
+    delete obj[_stainKey];
+  }
+
   function isStained(obj) {
-    return obj.constructor('i') == _stainID;
+    return obj[_stainKey] == _stainID;
   }
 
   // The first parameter, if exists, is assumed to be the value in the database,
@@ -567,16 +573,6 @@
     } else {
       return compare;
     }
-  }
-
-  // An encapsulator for hiding internal variables
-  function secret(x) {
-    var cache = {x:x};
-
-    return function(arg0, arg1){
-      if (arguments.length == 2) { cache[arg0] = arg1; }
-      return cache[arg0];
-    };
   }
 
   function update(arg0, arg1) {
@@ -1337,19 +1333,6 @@
           which = extend(instance, which);
         }
 
-        try {
-          data = new (secret(ix))();
-          extend(data, which);
-          which = data;
-        } catch(ex) {
-
-          // Embedded objects, like flash controllers
-          // will bail on extend because the properties 
-          // aren't totally enumerable.  We work around 
-          // that by slightly changing the object;
-          // hopefully in a non-destructive way.
-          which.constructor = secret(ix);
-        }
         raw.push(which);
 
         ixList.push(ix);
@@ -1386,13 +1369,24 @@
 
       if(_.isArr(this)) { list = this; } 
       else if(_.isArr(arg0)) { list = arg0; } 
-      else if(arguments.length > 0){ list = ret.find.apply(this, arguments); } 
+      else if(arguments.length > 0){ 
+        save = ret.find.apply(this, arguments);
+        if(save.length) {
+          ret.__raw__ = raw = ret.invert(save);
+          console.log(raw);
+          _ix.del++;
+          sync();
+        }
+        return chain(save.reverse());
+      } 
+
       else { list = ret.find(); }
 
       stain(list);
 
       for(var ix = raw.length - 1, end = raw.length; ix >= 0; ix--) {
         if (isStained(raw[ix])) { 
+          unstain(raw[ix]);
           save.push(raw[ix]);
           continue;
         }
