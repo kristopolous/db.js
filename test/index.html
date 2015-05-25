@@ -1608,6 +1608,24 @@ module('view');
     equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
   });
 
+  test("Create a function view", function(){
+    var 
+      db = DB(
+        { 
+          index: {a: ['value2']},
+          key: "valuetwo" 
+        }, 
+        { 
+          index: {a: ['value3']},
+          key: "valuethree" 
+        }),
+
+      view = db.view('r.index.a[0].toUpperCase()');
+
+    equal(view.VALUE2.key, 'valuetwo', 'view k/v seems to be ok');
+    
+  });
+
   test("Create a deep view", function(){
     var 
       db = DB({ 
