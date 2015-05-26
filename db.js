@@ -1129,11 +1129,16 @@
         myix = {del: _ix.del, ins: _ix.ins},
         keyer;
       
-      if(field.charAt(0) !== '[' || field.charAt(0) !== '.') {
-        field = '.' + field;
-      }
+      if(field.search(/[()]/) == -1) {
+        if(field.charAt(0) !== '[' || field.charAt(0) !== '.') {
+          field = '.' + field;
+        }
 
-      eval( "keyer = function(r,ref){try{ref[rX] = update[rX] = r;} catch(x){}}".replace(/X/g, field));
+        eval( "keyer = function(r,ref){try{ref[rX] = update[rX] = r;} catch(x){}}".replace(/X/g, field));
+      } else {
+        console.log( "keyer = function(r,ref){var val = X;try{ref[val] = update[val] = r;} catch(x){}}".replace(/X/g, field));
+        eval( "keyer = function(r,ref){var val = X;try{ref[val] = update[val] = r;} catch(x){}}".replace(/X/g, field));
+      }
 
       function update(whence) {
         if(whence) {
