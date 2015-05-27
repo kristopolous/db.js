@@ -891,13 +891,13 @@ first value there from the resulting array.  As in `db.view('_.values(obj)[0]')`
 <h3><a name=lazyView> [function] lazyView( string )</a> [ <a href=#toc-finding>top</a> ] </h3>
 lazyViews are views that don't update automatically.  Their invocation style is the same as views and they return a function with properties that correspond to the view. That means that you can use it the same way but in order to update it you have to call it as a function. Because of this they should be more performant.
 
-The lambda that gets returned accepts one optional argument which can be either "ins" or "del".
+The lambda that gets returned accepts one optional argument which can be either `ins` or `del`.
 
 Internally, there are atomic insert and delete counters on a per-database instance that tells features whether they need to update references or not.
 
-If you pass "ins" you are saying "only update the references if something has been inserted since the last call" ... if you do "del" it's the "delete" version of that.
+If you pass `ins` you are saying "only update the references if something has been inserted since the last call" ... if you do `del` it's the "delete" version of that.
 
-Since things can be updated out of band, there is no way of internally keeping track of that state effeciently.
+**Note:** Since things can be *updated* out of band, there is no way of internally keeping track of updates effeciently.
 
 Example:
 
