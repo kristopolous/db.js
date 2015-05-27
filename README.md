@@ -859,9 +859,25 @@ if db was `[{a: 1}, {a: 2}, {a: 3}]`, doing `db.view('a')` will return an object
       3: {a: 3}
     }
 
-<h3>Notes</h3>
+<h4>Syntax Notes</h4>
+There's two inferred formats for views:
 
- * Unlike the other parts of the api, there's one option, a string, which will be the key for the hash.
+  * keys
+  * functions
+
+Keys get tacked to the end of the reference of the object, so you can have a key such as
+`a[0]` or `a.b.c`.  For the function based format (which is inferred by the existence of a paren, `( )`) this 
+is instead eval'd.  In function style, say you had 
+
+    { obj: {a: 1, b: 2}, }
+    { obj: {c: 3, d: 4}  }
+
+And, with underscore, wanted to take the `_.values` of an object and then take the
+first value there from the resulting array.  As in `db.view('_.values(obj)[0]')` will do the job.
+
+<h4>Other Notes</h4>
+
+ * Unlike the other parts of the api, there's one option, a string.
  * This is similar to a group by, but the values are Not Arrays.
  * The values are direct tie ins to the database.  You can change them silently.  Use caution.
  * Deletion of course only decreases a reference count, so the data doesn't actually get removed from the raw db.
