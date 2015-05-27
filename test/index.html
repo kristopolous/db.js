@@ -1620,7 +1620,7 @@ module('view');
           key: "valuethree" 
         }),
 
-      view = db.view('r.index.a[0].toUpperCase()');
+      view = db.view('index.a[0].toUpperCase()');
 
     equal(view.VALUE2.key, 'valuetwo', 'view k/v seems to be ok');
     
