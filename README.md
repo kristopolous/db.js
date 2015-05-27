@@ -907,7 +907,7 @@ Example:
     lv.a.a ==> 'apple'
     lv.b.a ==> 'banana'
 
-    db.insert({key: 'c', 'a': 'carrot');
+    db.insert({key: 'c', a: 'carrot');
 
     lv('del'); <-- this won't update because the delete counters haven't incremented.
 
