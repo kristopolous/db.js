@@ -1786,6 +1786,7 @@ module('each');
     ]);
 
     db.each(function(what) {
+      console.log(what);
       equal(!([5,3,7,2].indexOf(what.key) + 1), false, "The function is run");
     });
   });
@@ -1816,6 +1817,7 @@ module('each');
     ]);
 
     db.find().select('key').each(function(what) {
+      console.log(what);
       equal(!([5,3,7,2].indexOf(what) + 1), false, "The function is run");
     });
   });

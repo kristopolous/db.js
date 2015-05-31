@@ -66,6 +66,12 @@
       }
     },
 
+    proxy = function(what, caller) {
+      return function() {
+        caller.apply(what, slice.call(arguments));
+      }
+    },
+
     // functions that may have native shortcuts
     indexOf = [].indexOf ? 
       function(array, item) { 
@@ -721,15 +727,15 @@
       filter = this;
     }
 
+    if(_.isArr(callback) && callback.length == 2) {
+      context = callback[0];
+      callback = callback[1];
+    }
+
     if(_.isArr(filter)) {
       ret = mapSoft(filter, callback);
     } else {
       ret = {};
-
-      if(_.isArr(callback)) {
-        context = callback[0];
-        callback = callback[1];
-      }
 
       for(var key in filter) {
         if(!_.isFun(filter[key])) {
@@ -923,6 +929,7 @@
       },
 
       each: eachRun,
+      map: eachRun,
       not: not,
     
       // This is a shorthand to find for when you are only expecting one result.
@@ -946,8 +953,6 @@
       isin: isin,
       like: like,
       invert: function(list, second) { return chain(setdiff(second || raw, list || this)); },
-
-      map: eachRun,
 
       // Missing is to get records that have keys not defined
       missing: function() { 
