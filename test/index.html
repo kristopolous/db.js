@@ -1776,6 +1776,20 @@ module('each');
     });
   });
 
+  test("Select 4 pairs from a database, run an unchained each of them", function(){
+    expect(4);
+    var db = DB([
+      {key: 5},
+      {key: 3},
+      {key: 7},
+      {key: 2}
+    ]);
+
+    db.each(function(what) {
+      equal(!([5,3,7,2].indexOf(what.key) + 1), false, "The function is run");
+    });
+  });
+
   test("Select 4 pairs from a database, run a console.log each of them", function(){
     var db = DB([
       {key: 5},
