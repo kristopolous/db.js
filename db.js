@@ -379,8 +379,7 @@
             }
           }]
         } else {
-          filterComp = map(filter, expression);
-          console.log(filterComp);
+          filterComp = map(filter, expression());
         }
         
         filterComp_len = filterComp.length;
@@ -650,15 +649,35 @@
     }
   }
 
-  function fwrap(str) {
-    return "try{return " + str + "}catch(e){}";
+  var _fCache = {}, _eCache = {};
+  function ewrap(arg, str) {
+    var key = str + ":" + arg;
+    if(!(key in _eCache)) {
+      try {
+        _eCache[key] = eval('(function(' + arg +'){' + str + '})');
+      } catch(ex) {
+        _eCache[key] = false;
+      }
+    }
+    return _eCache[key];
+  }
+
+  function fwrap(arg, str) {
+    var key = str + ":" + arg;
+    if(!(key in _fCache)) {
+      try {
+        _fCache[key] = new Function(arg, "try{return " + str + "}catch(e){}");
+      } catch(ex) {
+        _fCache[key] = false;
+      }
+    }
+    return _fCache[key];
   }
 
   var expression = (function(){
     var 
       regex = /^\s*([=<>!]+)['"]*(.*)$/,
-      canned,
-      cache = {};
+      canned;
 
     // A closure is needed here to avoid mangling pointers
     return function (){
@@ -689,19 +708,15 @@
           //
           if(arguments.length === 2 && _.isStr(arg1)) {
             expr = arg1;
-            ret = new Function("x,rec", fwrap("x." + arg0 + expr));
+            ret = fwrap("x,rec", "x." + arg0 + expr);
 
             // if not, fall back on it 
-            ret[arg0] = new Function("x,rec", fwrap("x " + expr));
+            ret[arg0] = fwrap("x,rec", "x " + expr);
           } else {
-            try {
-              ret = new Function("x,rec", fwrap("x " + expr));
-            } catch(ex) { }
+            ret = fwrap("x,rec", "x " + expr);
 
             if(!ret) {
-              try {
-                ret = new Function("rec", fwrap(arg0));
-              } catch(ex) {}
+              ret = fwrap("rec", arg0);
             }
           }
 
@@ -713,7 +728,7 @@
             cList.push("equal(rec['" + key + "']," + (_.isScalar(arg0[key]) ? arg0[key] : "arg0[" + key +"]")  +")");
           };
 
-          return eval('(function(rec){ return ' + cList.join('&&') + '})');
+          return ewrap('rec','return ' + cList.join('&&'));
         }
       }
     }

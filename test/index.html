@@ -2020,6 +2020,7 @@ module('perf');
       list = [],
       count = 7000,
       step = 20,
+      times = 30,
       myres,
       fun,
       res = {
@@ -2039,27 +2040,27 @@ module('perf');
 
       res.big_find += measure(function(){
         myres = dbBig.find(fun);
-      }, 30);
+      }, times);
 
       res.big_invert += measure(function(){
         myres.invert();
-      }, 30);
+      }, times);
 
       res.big_first += measure(function(){
         dbBig.findFirst(fun);
-      }, 30)
+      }, times)
 
       res.small_find += measure(function(){
         myres = dbSmall.find(fun);
-      }, 200);
+      }, times * 10);
 
       res.small_first += measure(function(){
         dbSmall.findFirst(fun);
-      }, 200)
+      }, times * 10)
 
       res.small_invert += measure(function(){
         myres.invert();
-      }, 200);
+      }, times * 10);
     }
     for(var key in res) {
       localStorage[key] = (res[key] + " " + (localStorage[key] || "")).slice(0, 100);
