@@ -2015,39 +2015,51 @@ function measure(lambda, times) {
 
 module('perf');
   test("Finding", function(){
-    var db = DB(),
+    var dbBig = DB(),
+      dbSmall = DB(),
       list = [],
       count = 7000,
       step = 20,
+      myres,
       fun,
-      res = {find: 0, first: 0, eFind: 0, eFirst: 0},
+      res = {
+        big_find: 0, big_first: 0, big_invert: 0,
+        small_find: 0, small_first: 0, small_invert: 0
+      },
       ix = 0;
 
     for(ix = 0; ix < count; ix++) {
       list.push({ix: Math.floor(Math.random() * step)});
     }
-    db.flash(list);
+    dbBig.flash(list);
+    dbSmall.flash(list.slice(0, Math.sqrt(count)));
 
     for(ix = 0; ix < step; ix++) {
       fun = DB({ix: step});
 
-      res.find += measure(function(){
-        db.find(fun);
+      res.big_find += measure(function(){
+        myres = dbBig.find(fun);
       }, 30);
 
-      res.first += measure(function(){
-        db.findFirst(fun);
-      }, 30)
-
-      fun = DB('ix', '> ' + step);
-
-      res.eFind += measure(function(){
-        db.find(fun);
+      res.big_invert += measure(function(){
+        myres.invert();
       }, 30);
 
-      res.eFirst += measure(function(){
-        db.findFirst(fun);
+      res.big_first += measure(function(){
+        dbBig.findFirst(fun);
       }, 30)
+
+      res.small_find += measure(function(){
+        myres = dbSmall.find(fun);
+      }, 200);
+
+      res.small_first += measure(function(){
+        dbSmall.findFirst(fun);
+      }, 200)
+
+      res.small_invert += measure(function(){
+        myres.invert();
+      }, 200);
     }
     for(var key in res) {
       localStorage[key] = (res[key] + " " + (localStorage[key] || "")).slice(0, 100);

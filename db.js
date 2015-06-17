@@ -87,7 +87,7 @@
         return i;
       },
 
-    keys = ({}).keys || function (obj) {
+    keys = Object.keys || function (obj) {
       var ret = [];
 
       for(var key in obj) {
@@ -258,9 +258,9 @@
   function stain(list) {
     _stainID++;
 
-    for(var ix = 0, len = list.length; ix < len; ix++) {
-      list[ix][_stainKey] = _stainID;
-    }
+    each(list, function(ix, el) {
+      el[_stainKey] = _stainID;
+    });
   }
 
   function unstain(obj) {
