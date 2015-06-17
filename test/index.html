@@ -1776,6 +1776,7 @@ module('each');
     });
   });
 
+  /*
   test("Select 4 pairs from a database, run an unchained each of them", function(){
     expect(4);
     var db = DB([
@@ -1790,6 +1791,7 @@ module('each');
       equal(!([5,3,7,2].indexOf(what.key) + 1), false, "The function is run");
     });
   });
+  */
 
   test("Select 4 pairs from a database, run a console.log each of them", function(){
     var db = DB([
@@ -1995,6 +1997,51 @@ module('group');
     equal(toTest[1].length, 2, "Accounting length is right");
   });
 });
+function measure(lambda, times) {
+  times = times || 10;
+  var ix, start, res = [], sum = 0, dur;
+
+  for(ix = 0; ix < times; ix++) {
+    start = new Date();
+
+    lambda(); 
+
+    dur = (+new Date()) - start;
+    sum += dur;
+    res.push(dur);
+  }
+  return sum;
+}
+
+module('perf');
+  test("Finding", function(){
+    var db = DB(),
+      list = [],
+      count = 5000,
+      step = 10,
+      fun,
+      res = {find: 0, first: 0},
+      ix = 0;
+
+    for(ix = 0; ix < count; ix++) {
+      list.push({ix: Math.floor(Math.random() * step)});
+    }
+    db.flash(list);
+
+    for(ix = 0; ix < step; ix++) {
+      fun = DB({ix: step});
+
+      res.find += measure(function(){
+        db.find(fun);
+      });
+
+      res.first += measure(function(){
+        db.findFirst(fun);
+      })
+    }
+    console.log("Find", res.find);
+    console.log("First", res.first);
+  });
 </script>
 
 

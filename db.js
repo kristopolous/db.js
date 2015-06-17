@@ -132,8 +132,8 @@
     each = [].forEach ?
       function (obj, cb) {
         // Try to return quickly if there's nothing to do.
-        if (obj.length === 0) { return; }
         if (_.isArr(obj)) { 
+          if(obj.length === 0) { return; }
           obj.forEach(cb);
         } else if(_.isStr(obj) || _.isNum(obj) || _.isBool(obj)) {
           cb(obj);
