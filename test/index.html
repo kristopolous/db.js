@@ -2017,10 +2017,10 @@ module('perf');
   test("Finding", function(){
     var db = DB(),
       list = [],
-      count = 5000,
-      step = 10,
+      count = 7000,
+      step = 20,
       fun,
-      res = {find: 0, first: 0},
+      res = {find: 0, first: 0, eFind: 0, eFirst: 0},
       ix = 0;
 
     for(ix = 0; ix < count; ix++) {
@@ -2033,14 +2033,26 @@ module('perf');
 
       res.find += measure(function(){
         db.find(fun);
-      });
+      }, 30);
 
       res.first += measure(function(){
         db.findFirst(fun);
-      })
+      }, 30)
+
+      fun = DB('ix', '> ' + step);
+
+      res.eFind += measure(function(){
+        db.find(fun);
+      }, 30);
+
+      res.eFirst += measure(function(){
+        db.findFirst(fun);
+      }, 30)
     }
-    console.log("Find", res.find);
-    console.log("First", res.first);
+    for(var key in res) {
+      localStorage[key] = (res[key] + " " + (localStorage[key] || "")).slice(0, 100);
+      console.log(key, localStorage[key]);
+    }
   });
 </script>
 
