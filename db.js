@@ -687,33 +687,22 @@
           // The invocation wrapping will also make this work magically, with proper
           // expressive usage.
           //
-          if(arguments.length == 1) {
-            if(!cache[expr]) {
-
-              try {
-                ret = new Function("x,rec", "try { return x " + expr + "} catch(e) {}");
-              } catch(ex) {
-                ret = false;
-              }
-
-              if(!ret) {
-                try {
-                  ret = new Function("rec", "try { return " + arg0 + "} catch(e) {}");
-                } catch(ex) {}
-              }
-
-              cache[expr] = ret;
-            } else {
-              ret = cache[expr];
-            }
-          }
-
           if(arguments.length === 2 && _.isStr(arg1)) {
             expr = arg1;
             ret = new Function("x,rec", fwrap("x." + arg0 + expr));
 
             // if not, fall back on it 
             ret[arg0] = new Function("x,rec", fwrap("x " + expr));
+          } else {
+            try {
+              ret = new Function("x,rec", fwrap("x " + expr));
+            } catch(ex) { }
+
+            if(!ret) {
+              try {
+                ret = new Function("rec", fwrap(arg0));
+              } catch(ex) {}
+            }
           }
 
           return ret;
