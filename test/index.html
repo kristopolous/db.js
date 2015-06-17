@@ -793,7 +793,7 @@ module("Finding");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
-  test("Find using the or operator - empty base case", function(){
+  test("Find using the or operator - empty base case no opts", function(){
     var 
       db = DB(
         {key: 1},

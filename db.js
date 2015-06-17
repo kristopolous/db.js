@@ -50,6 +50,7 @@
       isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
       isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
       isNum: function(obj) { return toString.call(obj) === '[object Number]' },
+      isUndef: function(obj) { return isNaN(obj) || (obj === null) || (obj === undefined) },
       isScalar: function(obj) { return _.isStr(obj) || _.isNum(obj) || _.isBool(obj) },
       isArr: [].isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       isBool: function(obj){
@@ -138,14 +139,16 @@
           if (!fun(this[i])) {
             if(start !== (i - 1)) {
               res = res.concat(this.slice(start + 1, i));
-              console.log(start, i, this, res);
               //res.splice.apply(res, [i,i].concat(t.slice(start, i)));
             }
             start = i;
           }
-        }
+       }
+       if(start !== (i - 1)) {
+         res = res.concat(this.slice(start + 1, i));
+       }
 
-        return res;
+       return res;
       },
 
     // each is a complex one
@@ -362,6 +365,7 @@
       if(_.isArr(filter)) {
         if(_.isScalar(filter[0]) && filterList.length == 2) {
           var 
+            filterComp_len,
             filterkey_list = filter, 
             // remove it from the list so it doesn't get
             // a further comprehension
@@ -376,12 +380,14 @@
           }]
         } else {
           filterComp = map(filter, expression);
+          console.log(filterComp);
         }
         
+        filterComp_len = filterComp.length;
         set = _filter.call(set, function(row) {
           // this satisfies the base case.
           var ret = true;
-          for (var ix = 0; ix < filterComp.length; ix++) {
+          for (var ix = 0; ix < filterComp_len; ix++) {
             if(filterComp[ix](row)) {
               return true;
             }
