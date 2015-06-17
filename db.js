@@ -50,6 +50,7 @@
       isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
       isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
       isNum: function(obj) { return toString.call(obj) === '[object Number]' },
+      isScalar: function(obj) { return _.isStr(obj) || _.isNum(obj) || _.isBool(obj) },
       isArr: [].isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       isBool: function(obj){
         return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
@@ -127,6 +128,25 @@
       function(array, cb) { 
         return array.map(cb) 
       } : mapSoft,
+
+    _filter = function(fun/*, thisArg*/) {
+        'use strict';
+
+        var len = this.length, start = -1, res = [];
+
+        for (var i = 0; i < len; i++) {
+          if (!fun(this[i])) {
+            if(start !== (i - 1)) {
+              res = res.concat(this.slice(start + 1, i));
+              console.log(start, i, this, res);
+              //res.splice.apply(res, [i,i].concat(t.slice(start, i)));
+            }
+            start = i;
+          }
+        }
+
+        return res;
+      },
 
     // each is a complex one
     each = [].forEach ?
@@ -258,7 +278,7 @@
   function stain(list) {
     _stainID++;
 
-    each(list, function(ix, el) {
+    each(list, function(el) {
       el[_stainKey] = _stainID;
     });
   }
@@ -314,6 +334,7 @@
       filterList = slice.call(arguments),
       filter,
       filterIx,
+      filterComp,
 
       which,
       val,
@@ -324,7 +345,7 @@
       ix,
 
       // The dataset to compare against
-      set = copy(_.isArr(this) ? this : filterList.shift());
+      set = (_.isArr(this) ? this : filterList.shift());
 
     if( filterList.length == 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
@@ -339,37 +360,37 @@
       // if we are looking at an array, then this acts as an OR, which means
       // that we just recursively do this.
       if(_.isArr(filter)) {
-        // If we just pass the inner array, this would be wrong because
-        // then it would operate as an AND so we need to do things individually.
-        var 
-          result = [], 
-          remaining = set;
+        if(_.isScalar(filter[0]) && filterList.length == 2) {
+          var 
+            filterkey_list = filter, 
+            // remove it from the list so it doesn't get
+            // a further comprehension
+            filterkey_compare = filterList.pop();
 
-        // TODO: this feels wrong.
-        if (filter.length === 0) {
-          set = remaining;
+          filterComp = [function(row) {
+            for(var ix = 0; ix < filterkey_list.length; ix++) {
+              if(equal(row[filterkey_list[ix]], filterkey_compare)) {
+                return true;
+              }
+            }
+          }]
         } else {
-
-          // Wanting to do DB.find(['field1', 'field2'], condition) 
-          // seems convenient enough.
-          if(
-            !_.isObj(filter[0]) &&
-            filterList.length == 2
-          ) {
-            var _condition = filterList.pop();
-            filter = map(filter, function(row) {
-              return obj(row, _condition);
-            });
-          }
-       
-          for(ix = 0; ix < filter.length; ix++) {
-            result = result.concat(find(remaining, filter[ix]));
-            remaining = setdiff(remaining, result);
-          }
-
-          set = result;
+          filterComp = map(filter, expression);
         }
+        
+        set = _filter.call(set, function(row) {
+          // this satisfies the base case.
+          var ret = true;
+          for (var ix = 0; ix < filterComp.length; ix++) {
+            if(filterComp[ix](row)) {
+              return true;
+            }
+            ret = false;
+          }
+          return ret;
+        });
       } else if(_.isFun(filter)) {
+        /*
         var callback = filter;
 
         for(end = set.length, ix = end - 1; ix >= 0; ix--) {
@@ -387,6 +408,8 @@
         if(end - spliceix) {
           set.splice(spliceix, end - spliceix);
         }
+        */
+        set = _filter.call(set, filter);
       } else {
         each(filter, function(key, value) {
           // this permits mongo-like invocation
@@ -407,9 +430,7 @@
           }
 
           if( _.isFun(value)) {
-            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
-              which = set[ix];
-
+            filterComp = function(which) {
               // Check for existence
               if( key in which ) {
                 val = which[key];
@@ -417,42 +438,20 @@
                 // Permit mutator events
                 if( _.isFun(val) ) { val = val(); }
 
-                if( ! value(val, which) ) { continue }
-
-                if(end - (ix + 1)) {
-                  spliceix = ix + 1;
-                  set.splice(spliceix, end - spliceix);
-                }
-
-                end = ix;
+                return value(val, which);
               }
             }
-
           } else {
-            for(end = set.length, ix = end - 1; ix >= 0; ix--) {
-              which = set[ix];
-
+            filterComp = function(which) {
               val = which[key];
 
               if( _.isFun(val) ) { val = val(); }
 
               // Check for existence
-              if( ! (key in which && val === value ) ) {
-                continue;
-              }
-
-              if(end - (ix + 1)) {
-                spliceix = ix + 1;
-                set.splice(spliceix, end - spliceix);
-              }
-              end = ix;
-            }
+              return (key in which && val === value );
+            };
           }
-
-          spliceix = ix + 1;
-          if(end - spliceix) {
-            set.splice(spliceix, end - spliceix);
-          }
+          set = _filter.call(set, filterComp);
         });
       }
     }
@@ -535,6 +534,15 @@
     }
   })();
 
+  function equal(lhs, rhs) {
+    return (lhs === rhs) || (
+        !_.isUndef(lhs) && (
+          (lhs.join && rhs.join) &&
+          (lhs.sort().toString() === rhs.sort().toString())
+        ) || 
+        (JSON.stringify(lhs) === JSON.stringify(rhs)
+      ));
+  }
   function isArray(what) {
     var asString = what.sort().join('');
     return function(param) {
