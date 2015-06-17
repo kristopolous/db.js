@@ -650,6 +650,10 @@
     }
   }
 
+  function fwrap(str) {
+    return "try{return " + str + "}catch(e){}";
+  }
+
   var expression = (function(){
     var 
       regex = /^\s*([=<>!]+)['"]*(.*)$/,
@@ -704,26 +708,24 @@
             }
           }
 
-          if(arguments.length == 2 && _.isStr(arg1)) {
-            ret = {};
+          if(arguments.length === 2 && _.isStr(arg1)) {
             expr = arg1;
+            ret = new Function("x,rec", fwrap("x." + arg0 + expr));
 
-            // See if we've seen this function before
-            if(!cache[expr]) {
-
-              // If we haven't, see if we can avoid an eval
-              if((canned = expr.match(regex)) !== null) {
-                cache[expr] = _compProto[canned[1]](canned[2].replace(/['"]$/, ''));
-              } else {      
-                // if not, fall back on it 
-                cache[expr] = new Function("x,rec", "try { return x " + expr + "} catch(e) {}");
-              }
-            } 
-            ret[arg0] = cache[expr];
+            // if not, fall back on it 
+            ret[arg0] = new Function("x,rec", fwrap("x " + expr));
           }
 
           return ret;
-        } 
+        } else if (_.isObj( arg0 )) {
+
+          var cList = [];
+          for(var key in arg0) {
+            cList.push("equal(rec['" + key + "']," + (_.isScalar(arg0[key]) ? arg0[key] : "arg0[" + key +"]")  +")");
+          };
+
+          return eval('(function(rec){ return ' + cList.join('&&') + '})');
+        }
       }
     }
   })();
