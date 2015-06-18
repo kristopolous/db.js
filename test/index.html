@@ -2032,11 +2032,12 @@ module('perf');
     for(ix = 0; ix < count; ix++) {
       list.push({ix: Math.floor(Math.random() * step)});
     }
+    self.dbBig = dbBig;
     dbBig.flash(list);
     dbSmall.flash(list.slice(0, Math.sqrt(count)));
 
     for(ix = 0; ix < step; ix++) {
-      fun = DB({ix: step});
+      fun = {ix: step};
 
       res.big_find += measure(function(){
         myres = dbBig.find(fun);

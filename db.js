@@ -130,26 +130,37 @@
         return array.map(cb) 
       } : mapSoft,
 
+    _filterThrow = function(fun/*, thisArg*/) {
+      'use strict';
+
+      var len = this.length; 
+      for (var i = 0; i < len; i++) {
+        if (fun(this[i])) {
+          throw this[i];
+        }
+      }
+    },
+
     _filter = function(fun/*, thisArg*/) {
-        'use strict';
+      'use strict';
 
-        var len = this.length, start = -1, res = [];
+      var len = this.length, start = -1, res = [];
 
-        for (var i = 0; i < len; i++) {
-          if (!fun(this[i])) {
-            if(start !== (i - 1)) {
-              res = res.concat(this.slice(start + 1, i));
-              //res.splice.apply(res, [i,i].concat(t.slice(start, i)));
-            }
-            start = i;
+      for (var i = 0; i < len; i++) {
+        if (!fun(this[i])) {
+          if(start !== (i - 1)) {
+            res = res.concat(this.slice(start + 1, i));
+            //res.splice.apply(res, [i,i].concat(t.slice(start, i)));
           }
-       }
-       if(start !== (i - 1)) {
-         res = res.concat(this.slice(start + 1, i));
-       }
+          start = i;
+        }
+     }
+     if(start !== (i - 1)) {
+       res = res.concat(this.slice(start + 1, i));
+     }
 
-       return res;
-      },
+     return res;
+    },
 
     // each is a complex one
     each = [].forEach ?
@@ -725,7 +736,11 @@
 
           var cList = [];
           for(var key in arg0) {
-            cList.push("equal(rec['" + key + "']," + (_.isScalar(arg0[key]) ? arg0[key] : "arg0[" + key +"]")  +")");
+            if(_.isScalar(arg0[key])) {
+              cList.push("rec['" + key + "']==="+arg0[key]);
+            } else {
+              cList.push("equal(rec['" + key + "'],arg0[" + key + "])");
+            }
           };
 
           return ewrap('rec','return ' + cList.join('&&'));
@@ -955,8 +970,15 @@
       // This is a shorthand to find for when you are only expecting one result.
       // A boolean false is returned if nothing is found
       findFirst: function(){
-        var res = ret.find.apply(this, arguments);
-        return res.length ? res[0] : false;
+        var realFilter = _filter, res = false;
+        _filter = _filterThrow;
+        try { 
+          ret.find.apply(this, arguments);
+        } catch(ex) {
+          res = ex;
+        }
+        _filter = realFilter;
+        return res;
       },
 
       has: has,
@@ -1402,7 +1424,6 @@
         save = ret.find.apply(this, arguments);
         if(save.length) {
           ret.__raw__ = raw = ret.invert(save);
-          console.log(raw);
           _ix.del++;
           sync();
         }
@@ -1464,6 +1485,7 @@
   extend(DB, {
     all: [],
     find: find,
+    expr: expression(),
     diff: setdiff,
     each: eachRun,
     not: not,
@@ -1472,7 +1494,6 @@
     values: values,
     isin: isin,
     isArray: isArray,
-
 
     // like expr but for local functions
     local: function(){
