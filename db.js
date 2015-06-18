@@ -139,27 +139,28 @@
           throw this[i];
         }
       }
+      return [];
     },
 
     _filter = function(fun/*, thisArg*/) {
       'use strict';
 
-      var len = this.length, start = -1, res = [];
+      var len = this.length, start = 0, res = [];
 
       for (var i = 0; i < len; i++) {
         if (!fun(this[i])) {
-          if(start !== (i - 1)) {
-            res = res.concat(this.slice(start + 1, i));
-            //res.splice.apply(res, [i,i].concat(t.slice(start, i)));
+          if(start !== i) {
+            //res = res.concat(this.slice(start, i));
+            res.splice.apply(res, [i,i].concat(this.slice(start, i)));
           }
-          start = i;
+          start = i + 1;
         }
-     }
-     if(start !== (i - 1)) {
-       res = res.concat(this.slice(start + 1, i));
-     }
+      }
+      if(start !== i) {
+        res.splice.apply(res, [i,i].concat(this.slice(start, i)));
+      }
 
-     return res;
+      return res;
     },
 
     // each is a complex one
@@ -406,25 +407,6 @@
           return ret;
         });
       } else if(_.isFun(filter)) {
-        /*
-        var callback = filter;
-
-        for(end = set.length, ix = end - 1; ix >= 0; ix--) {
-          which = set[ix];
-          if(!callback(which)) { continue }
-
-          if(end - (ix + 1)) {
-            spliceix = ix + 1;
-            set.splice(spliceix, end - spliceix);
-          }
-          end = ix;
-        }
-
-        spliceix = ix + 1;
-        if(end - spliceix) {
-          set.splice(spliceix, end - spliceix);
-        }
-        */
         set = _filter.call(set, filter);
       } else {
         each(filter, function(key, value) {
@@ -685,69 +667,62 @@
     return _fCache[key];
   }
 
-  var expression = (function(){
-    var 
-      regex = /^\s*([=<>!]+)['"]*(.*)$/,
-      canned;
+  var expression = function () {
 
-    // A closure is needed here to avoid mangling pointers
-    return function (){
+    return function(arg0, arg1) {
+      var ret, expr;
 
-      return function(arg0, arg1) {
-        var ret, expr;
+      if(_.isStr( arg0 )) {
+        expr = arg0;
 
-        if(_.isStr( arg0 )) {
-          expr = arg0;
+        //
+        // There are TWO types of lambda function here (I'm not using the
+        // term 'closure' because that means something else)
+        //
+        // We can have one that is sensitive to a specific record member and 
+        // one that is local to a record and not a specific member.  
+        //
+        // As it turns out, we can derive the kind of function intended simply
+        // because they won't ever syntactically both be valid in real use cases.
+        //
+        // I mean sure, the empty string, space, semicolon etc is valid for both, 
+        // alright sure, thanks smarty pants.  But is that what you are using? really?
+        //
+        // No? ok, me either. This seems practical then.
+        //
+        // The invocation wrapping will also make this work magically, with proper
+        // expressive usage.
+        //
+        if(arguments.length === 2 && _.isStr(arg1)) {
+          expr = arg1;
+          ret = fwrap("x,rec", "x." + arg0 + expr);
 
-          //
-          // There are TWO types of lambda function here (I'm not using the
-          // term 'closure' because that means something else)
-          //
-          // We can have one that is sensitive to a specific record member and 
-          // one that is local to a record and not a specific member.  
-          //
-          // As it turns out, we can derive the kind of function intended simply
-          // because they won't ever syntactically both be valid in real use cases.
-          //
-          // I mean sure, the empty string, space, semicolon etc is valid for both, 
-          // alright sure, thanks smarty pants.  But is that what you are using? really?
-          //
-          // No? ok, me either. This seems practical then.
-          //
-          // The invocation wrapping will also make this work magically, with proper
-          // expressive usage.
-          //
-          if(arguments.length === 2 && _.isStr(arg1)) {
-            expr = arg1;
-            ret = fwrap("x,rec", "x." + arg0 + expr);
+          // if not, fall back on it 
+          ret[arg0] = fwrap("x,rec", "x " + expr);
+        } else {
+          ret = fwrap("x,rec", "x " + expr);
 
-            // if not, fall back on it 
-            ret[arg0] = fwrap("x,rec", "x " + expr);
-          } else {
-            ret = fwrap("x,rec", "x " + expr);
-
-            if(!ret) {
-              ret = fwrap("rec", arg0);
-            }
+          if(!ret) {
+            ret = fwrap("rec", arg0);
           }
-
-          return ret;
-        } else if (_.isObj( arg0 )) {
-
-          var cList = [];
-          for(var key in arg0) {
-            if(_.isScalar(arg0[key])) {
-              cList.push("rec['" + key + "']==="+arg0[key]);
-            } else {
-              cList.push("equal(rec['" + key + "'],arg0[" + key + "])");
-            }
-          };
-
-          return ewrap('rec','return ' + cList.join('&&'));
         }
+
+        return ret;
+      } else if (_.isObj( arg0 )) {
+
+        var cList = [];
+        for(var key in arg0) {
+          if(_.isScalar(arg0[key])) {
+            cList.push("rec['" + key + "']==="+arg0[key]);
+          } else {
+            cList.push("equal(rec['" + key + "'],arg0[" + key + "])");
+          }
+        };
+
+        return ewrap('rec','return ' + cList.join('&&'));
       }
     }
-  })();
+  }
 
   function eachRun(callback, arg1) {
     var 
@@ -973,7 +948,7 @@
         var realFilter = _filter, res = false;
         _filter = _filterThrow;
         try { 
-          ret.find.apply(this, arguments);
+          res = ret.find.apply(this, arguments);
         } catch(ex) {
           res = ex;
         }
@@ -1523,11 +1498,6 @@
       });
 
       return obj; 
-    },
-
-    findFirst: function(){
-      var res = find.apply(this, arguments);
-      return res.length ? res[0] : {};
     },
 
     // This does a traditional left-reduction on a list

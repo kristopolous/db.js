@@ -1118,6 +1118,7 @@ module("FindFirst");
       ),
       res = db.findFirst({key1: 123});
 
+    console.log(res);
     equal(res, false, "Nothing found so false is returned");
   });
 
