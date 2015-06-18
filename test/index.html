@@ -2037,7 +2037,7 @@ module('perf');
     dbSmall.flash(list.slice(0, Math.sqrt(count)));
 
     for(ix = 0; ix < step; ix++) {
-      fun = {ix: step};
+      fun = {ix: ix};
 
       res.big_find += measure(function(){
         myres = dbBig.find(fun);
