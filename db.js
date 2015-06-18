@@ -26,7 +26,6 @@
 //    outward, plus a few other inline ones that don't get
 //    used internally.
 (function(){
-
   var 
     // undefined
     _u,
@@ -54,7 +53,7 @@
       isScalar: function(obj) { return _.isStr(obj) || _.isNum(obj) || _.isBool(obj) },
       isArr: [].isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       isBool: function(obj){
-        return obj === true || obj === false || toString.call(obj) == '[object Boolean]';
+        return obj === true || obj === false || toString.call(obj) === '[object Boolean]';
       },
       // } end underscore.js
       // from jquery 1.5.2's type
@@ -63,7 +62,7 @@
           return false;
         }
         return obj == null ? 
-          String( obj ) == 'object' : 
+          String( obj ) === 'object' : 
           toString.call(obj) === '[object Object]' || true ;
       }
     },
@@ -82,7 +81,7 @@
 
       function(array, item) {
         for(var i = array.length - 1; 
-          (i != -1) && (item != array[i]);
+          (i !== -1) && (item !== array[i]);
           i--
         ) {};
 
@@ -116,6 +115,7 @@
     },
 
     mapSoft = function(array, cb) {
+      'use strict';
       var ret = [];
 
       for ( var i = 0, len = array.length; i < len; i++ ) { 
@@ -166,6 +166,7 @@
     // each is a complex one
     each = [].forEach ?
       function (obj, cb) {
+        'use strict';
         // Try to return quickly if there's nothing to do.
         if (_.isArr(obj)) { 
           if(obj.length === 0) { return; }
@@ -200,6 +201,7 @@
 
   // This is from underscore. It's a <<shallow>> object merge.
   function extend(obj) {
+    'use strict';
     each(slice.call(arguments, 1), function(source) {
       if (source) {
         for (var prop in source) {
@@ -355,8 +357,6 @@
       val,
 
       // The indices
-      end,
-      spliceix,
       ix,
 
       // The dataset to compare against
@@ -1101,9 +1101,9 @@
       } else if(_.isStr(arg0)) {
         key = arg0;
 
-        if(len == 1) {
+        if(len === 1) {
           order = 'x-y';
-        } else if(len == 2) {
+        } else if(len === 2) {
 
           if(_.isStr(arg1)) {
             order = {
@@ -1151,7 +1151,7 @@
         myix = {del: _ix.del, ins: _ix.ins},
         keyer;
       
-      if(field.search(/[()]/) == -1) {
+      if(field.search(/[()]/) === -1) {
         if(field.charAt(0) !== '[' || field.charAt(0) !== '.') {
           field = '.' + field;
         }
@@ -1165,9 +1165,9 @@
         if(whence) {
           // if we only care about updating our views
           // on a new delete, then we check our atomic
-          if(whence == 'del' && myix.del == _ix.del) {
+          if(whence === 'del' && myix.del === _ix.del) {
             return;
-          } else if(whence == 'ins' && myix.ins == _ix.ins) {
+          } else if(whence === 'ins' && myix.ins === _ix.ins) {
             return;
           }
         }
@@ -1227,7 +1227,7 @@
       fieldCount = field.length;
       
       each(field, function(column, iy) {
-        if(column == '*') {
+        if(column === '*') {
           resultList = map(filter, values);
         } else {
           for(var ix = 0, len = filter.length; ix < len; ix++) {
@@ -1439,7 +1439,7 @@
     }
 
     // The ability to import a database from somewhere
-    if (arguments.length == 1) {
+    if (arguments.length === 1) {
       if(_.isArr(arg0)) { ret.insert(arg0) }
       else if(_.isFun(arg0)) { ret.insert(arg0()) }
       else if(_.isStr(arg0)) { return ret.apply(this, arguments) }
