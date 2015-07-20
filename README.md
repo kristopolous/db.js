@@ -54,7 +54,6 @@
 ### <a href=#example>Examples</a>
  
  * <a href=#ex-creation>Creating and Inserting</a>
- * <a href=#ex-sql>SQL to DB example</a>
  * <a href=#ex-more>More</a>
 
 ### Miscellaneous non-awesome stuff
@@ -414,7 +413,7 @@ the data you insert.  This allows you to have a function like:
 In the function above you have a generic function that inserts data
 and puts in some type of record keeping information and accounting.
 
-Instead of doing a JQuery $.extend or other magic, you can simply insert
+Instead of doing a JQuery `$.extend` or other magic, you can simply insert
 the data you want, then update it with more data.
 
 #### Inserting on a database with constraints
@@ -493,7 +492,7 @@ Semantically, the update will now pass in a value, as mentioned above.  So if yo
 
     db.update({key: 4});
 
-Now the value in the closure will be "4" and a db.find({key: 4}) will return.
+Now the value in the closure will be "4" and a `db.find({key: 4})` will return.
 
 <h3><a name=template> Templates </a> [ <a href=#toc-inserting>top</a> ] </h3>
 Templates permit you to have a set of K/V pairs or K/lambda pairs that act as a baseline for record insertion.  You can create, update, get, and destroy templates.  They are not retroactive and only affect insertions that are done after the template is created.
@@ -717,8 +716,8 @@ you'd like to look for the array `['v1', 'v2', 'v3']` use `DB.isArray`, for inst
 
 <h3>About the callback function style</h3>
 The arguments passed in for the functional style are either the whole record if invoked
-in the style of find( lambda ) or the key being argument 0 and the record being argument 1
-in the style of find({key: lambda}).  Therein you can have something like 
+in the style of `find( lambda )` or the key being argument 0 and the record being argument 1
+in the style of `find({key: lambda})`.  Therein you can have something like 
 
     find(function(record) {
        return record.key1 > record.key2;
@@ -751,11 +750,11 @@ This is similar to the SQL like command and it takes the value and does
 A wrapper function that returns the boolean inverse of the function passed in.  You can use it in combination with many
 other function like so:
 
-  db.find({
-    a: db.not(
-      db.isin([ 1, 2, 3 ])
-    )
-  })
+    db.find({
+      a: db.not(
+        db.isin([ 1, 2, 3 ])
+      )
+    })
 
 <h3><a name=isin> [chain] isin( array | lambda  )</a> [ <a href=#toc-finding>top</a> ] </h3>
 *Also a top level function*
@@ -951,7 +950,7 @@ Or, any other style that sorting and orderBy support
 The arguments for the lambda for each is either the return of a select as an array or the record
 as a return of a find.
 
-This is a convenience on select for when you do select('one','two')
+This is a convenience on select for when you do `select('one', 'two')`
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
 In some functions, such as `console.log` there has to be a contextualized `thi` pointer established
@@ -1113,29 +1112,9 @@ both fields in.  We can do this a few ways:
 3. Or even chained: `db.insert({key: value}).insert({one: 1, two: 2});`
 
 
-<h3><a name=ex-sql> SQL => DB examples </a> [ <a href=#toc>top</a> ] </h3>
-
-<table>
-  <thead>
-    <tr>
-      <th>SQL</th>
-      <th>db.js</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>delete from users where lastlogin = false</td>
-      <td>users.find({lastlogin: false}).remove()</td>
-    </tr>
-    <tr>
-      <td>select * from people where id in ( select id from addresses where city like 'los angeles') order by income asc limit 10 offset 1</td>
-      <td>people.find({ id: DB.isin( addresses.find( DB.like('city', 'los angeles') ).select('id') }).order('income').slice(1, 10)</td>
-  </tbody>
-</table>
-
 <h3><a name=ex-more> More </a> [ <a href=#toc>top</a> ] </h3>
 
-More examples can be found in the index.html in git repository.
+Refer to the test suite for more examples.
 
 <h3><a name=buzzword>Buzzword Compliance</a> [ <a href=#toc>top</a> ] </h3>
 
