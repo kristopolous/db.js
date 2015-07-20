@@ -834,7 +834,7 @@ it's the way it is. Sorry.
 Invert a set of results.
 
 <h3><a name=slice> [chain] slice( [Array.prototype.slice options] )</a> [ <a href=#toc-finding>top</a> ] </h3>
-This is a direct map of slice from Array.prototype with the addition of permitting a chaining of events after the slice.
+This is a direct map of slice from `Array.prototype` with the addition of permitting a chaining of events after the slice.
 This is useful if for example, you want to apply a function to only the first 10 results of a find.
 
 <h4>Example:</h4>
