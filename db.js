@@ -945,7 +945,7 @@
       // This is a shorthand to find for when you are only expecting one result.
       // A boolean false is returned if nothing is found
       findFirst: function(){
-        var realFilter = _filter, res = false;
+        var realFilter = _filter, res;
         _filter = _filterThrow;
         try { 
           res = ret.find.apply(this, arguments);

@@ -4,7 +4,7 @@
   <title>db.js test suite</title>
   <link rel=stylesheet href=qunit.css>
   <script src="jquery.js"></script>
-  <script src=../db.js > </script>
+  <script src=../db.min.js > </script>
   <script src=qunit.js > </script>
 </head>
 <body>
@@ -1607,6 +1607,7 @@ module('view');
       view = db.view('index');
 
     equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
+    equal(view.length, 3, 'view k/v seems to be ok');
   });
 
   test("Create a function view", function(){
@@ -2058,7 +2059,7 @@ module('perf');
 
       res.small_first += measure(function(){
         dbSmall.findFirst(fun);
-      }, times * 10)
+      }, times * 10);
 
       res.small_invert += measure(function(){
         myres.invert();
