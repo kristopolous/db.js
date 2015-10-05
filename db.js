@@ -1184,6 +1184,7 @@
             delete update[key];
           }
         }
+        update.length = Object.keys(update).length;
       }
 
       update();
