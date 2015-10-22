@@ -1302,7 +1302,7 @@
             _g[key] = ret.lazyView(unique);
           } else {
             // Only update if a delete has happened
-            _g[key]('del');
+            _g[key].update('del');
           }
 
           map_ = _g[key];

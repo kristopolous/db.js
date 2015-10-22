@@ -1732,7 +1732,7 @@ module('lazyView');
     db.find({index: 'value2'}).update({index: 'value4'});
 
     equal(view.value2.key, 'valuetwo', 'No synchronization was run so view is out of date');
-    view();
+    view.update();
 
     equal(view.value2, undefined, 'Old index was deleted');
     equal(view.value4.key, 'valuetwo', 'new index was created');
