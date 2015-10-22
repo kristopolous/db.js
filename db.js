@@ -1157,9 +1157,9 @@
           field = '.' + field;
         }
 
-        eval( "keyer = function(r,ref){try{ref[rX] = update[rX] = r;} catch(x){}}".replace(/X/g, field));
+        eval( "keyer = function(r,ref){try{ref[rX] = res[rX] = r;} catch(x){}}".replace(/X/g, field));
       } else {
-        eval( "keyer = function(r,ref){with(r) { var val = X };try{ref[val] = update[val] = r;} catch(x){}}".replace(/X/g, field));
+        eval( "keyer = function(r,ref){with(r) { var val = X };try{ref[val] = res[val] = r;} catch(x){}}".replace(/X/g, field));
       }
 
       res.update = function(whence) {
@@ -1181,11 +1181,11 @@
         });
 
         for(var key in res) {
-          if( ! (key in ref) ) {
+          if( ! (key in ref) && key != 'update') {
             delete res[key];
           }
         }
-        res.length = Object.keys(update).length - 1;
+        res.length = Object.keys(res).length - 1;
       }
 
       res.update();
@@ -1200,7 +1200,7 @@
     //
     ret.view = function(field, type) {
       var fn = ret.lazyView(field, type);
-      ret.sync(fn);
+      ret.sync(fn.update);
       return fn;
     }
 
