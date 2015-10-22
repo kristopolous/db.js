@@ -1149,6 +1149,7 @@
       // keep track
       var 
         myix = {del: _ix.del, ins: _ix.ins},
+        res = {},
         keyer;
       
       if(field.search(/[()]/) === -1) {
@@ -1161,7 +1162,7 @@
         eval( "keyer = function(r,ref){with(r) { var val = X };try{ref[val] = update[val] = r;} catch(x){}}".replace(/X/g, field));
       }
 
-      function update(whence) {
+      res.update = function(whence) {
         if(whence) {
           // if we only care about updating our views
           // on a new delete, then we check our atomic
@@ -1179,16 +1180,16 @@
           keyer(row, ref);
         });
 
-        for(var key in update) {
+        for(var key in res) {
           if( ! (key in ref) ) {
-            delete update[key];
+            delete res[key];
           }
         }
-        update.length = Object.keys(update).length;
+        res.length = Object.keys(update).length - 1;
       }
 
-      update();
-      return update;
+      res.update();
+      return res;
     },
 
     //
