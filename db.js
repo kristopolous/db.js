@@ -2,7 +2,7 @@
 // db.js Javascript Database 
 // https://github.com/kristopolous/db.js
 //
-// Copyright 2011 - 2014, Chris McKenzie
+// Copyright 2011 - 2015, Chris McKenzie
 // Dual licensed under the MIT or GPL Version 2 licenses.
 //
 // Looking under the hood are you? What a fun place to be.
@@ -393,6 +393,8 @@
         } else {
           filterComp = map(filter, expression());
         }
+        //self.fComp = filterComp;
+        //console.log(filterComp);
         
         filterComp_len = filterComp.length;
         set = _filter.call(set, function(row) {
@@ -710,16 +712,22 @@
         return ret;
       } else if (_.isObj( arg0 )) {
 
-        var cList = [];
+        var 
+          cList = [], 
+          val;
         for(var key in arg0) {
           if(_.isScalar(arg0[key])) {
-            cList.push("rec['" + key + "']==="+arg0[key]);
+            val = arg0[key];
+            if(_.isStr(val)) {
+              val = '"' + val + '"';
+            }
+            cList.push("rec['" + key + "']===" + val);
           } else {
-            cList.push("equal(rec['" + key + "'],arg0[" + key + "])");
+            cList.push("equal(rec['" + key + "'],arg0['" + key + "'])");
           }
         };
 
-        return ewrap('rec','return ' + cList.join('&&'));
+        return ewrap('rec', 'return ' + cList.join('&&'));
       }
     }
   }

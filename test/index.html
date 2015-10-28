@@ -821,6 +821,19 @@ module("Finding");
     equal(res[1].key, 3, "It is the right last");
   });
 
+  test("Find using the or operator - string two cases", function(){
+    var 
+      db = DB(
+        {key: '1'},
+        {key: '2'},
+        {key: '3'}
+      ),
+      res = db.find([{key: '1'}]);
+
+    equal(res.length, 1, "I got two record");
+    equal(res[0].key, '1', "It is the right first");
+  });
+
   test("Find using the OR operator with an AND operation - base", function(){
     var 
       db = DB(
