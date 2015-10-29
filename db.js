@@ -1199,7 +1199,7 @@
           }
 
           Object.defineProperty(res, 'length', {
-            enumerable: true,
+            enumerable: false,
             configurable: false,
             writable: true,
             value: Object.keys(res).length
