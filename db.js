@@ -1170,31 +1170,36 @@
         eval( "keyer = function(r,ref){with(r) { var val = X };try{ref[val] = res[val] = r;} catch(x){}}".replace(/X/g, field));
       }
 
-      res.update = function(whence) {
-        if(whence) {
-          // if we only care about updating our views
-          // on a new delete, then we check our atomic
-          if(whence === 'del' && myix.del === _ix.del) {
-            return;
-          } else if(whence === 'ins' && myix.ins === _ix.ins) {
-            return;
+      Object.defineProperty(res, 'update', {
+        enumerable: false,
+        configurable: false,
+        writable: false,
+        value: function(whence) {
+          if(whence) {
+            // if we only care about updating our views
+            // on a new delete, then we check our atomic
+            if(whence === 'del' && myix.del === _ix.del) {
+              return;
+            } else if(whence === 'ins' && myix.ins === _ix.ins) {
+              return;
+            }
           }
-        }
-        myix = {del: _ix.del, ins: _ix.ins};
+          myix = {del: _ix.del, ins: _ix.ins};
 
-        var ref = {};
+          var ref = {};
 
-        each(raw, function(row) {
-          keyer(row, ref);
-        });
+          each(raw, function(row) {
+            keyer(row, ref);
+          });
 
-        for(var key in res) {
-          if( ! (key in ref) && key != 'update') {
-            delete res[key];
+          for(var key in res) {
+            if( ! (key in ref) && key != 'update') {
+              delete res[key];
+            }
           }
+          res.length = Object.keys(res).length;
         }
-        res.length = Object.keys(res).length - 1;
-      }
+      });
 
       res.update();
       return res;
