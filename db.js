@@ -1197,7 +1197,13 @@
               delete res[key];
             }
           }
-          res.length = Object.keys(res).length;
+
+          Object.defineProperty(res, 'length', {
+            enumerable: true,
+            configurable: false,
+            writable: true,
+            value: Object.keys(res).length
+          });
         }
       });
 
