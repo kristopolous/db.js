@@ -12,7 +12,7 @@ remove
 reduceRight
 reduceLeft
 order
-objectify
+objectify (column names, data)
 not
 missing
 like
