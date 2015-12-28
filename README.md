@@ -393,6 +393,10 @@ So you can combine these two and then do an insertion:
 
     var myDB = DB( DB.objectify(FlatData[0], FlatData.slice(1)) );
 
+It's worth noting that objectify **does not create** a database but simply returns an array of objects which 
+can be inserted into a database. In [bracket](https://github.com/kristopolous/bracket) this distinction doesn't
+matter as much any more.
+
 <h3><a name=insert> insert( arguments | object | array ) </a> [ <a href=#toc-inserting>top</a> ] </h3>
 This is to insert data into the database.  You can either insert
 data as a list of arguments, as an array, or as a single object.
