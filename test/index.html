@@ -117,6 +117,13 @@ module("Insertion");
     equal(true, true, "Got past");
   });
 
+module('objectify');
+test('simple object', function(){
+  var db = DB(DB.objectify(['key1', 'key2'], [['value1', 'value2']]));
+  equal(db.find().length, 1, "There's one element");
+  equal(db.find()[0].key1, 'value1', "It has the right value");
+});
+
 module('copy');
   test("Trivial copy", function(){
     var 
