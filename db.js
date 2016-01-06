@@ -1033,9 +1033,10 @@
     // return them as a hash where the keys are the field values and the results are an array
     // of the rows that match that value.
     //
-    ret.group = function(field) {
+    ret.group = function() {
       var 
         args = slice.call(arguments || []),
+        field = args.shift(),
         groupMap = {},
         filter = _.isArr(this) ? this : ret.find();                 
 
@@ -1051,6 +1052,12 @@
           groupMap[what].push(which);
         });
       });
+
+      if(args.length) {
+        each(groupMap, function(key, value) {
+          groupMap[key] = ret.group.apply(value, args);
+        });
+      }
       
       return groupMap;
     } 
