@@ -1035,21 +1035,21 @@
     //
     ret.group = function(field) {
       var 
+        args = slice.call(arguments || []),
         groupMap = {},
         filter = _.isArr(this) ? this : ret.find();                 
 
       each(filter, function(which) {
-        if(field in which) {
-          each(which[field], function(what) {
-            // if it's an array, then we do each one.
+        // undefined is a valid thing.
+        each(which[field], function(what) {
+          // if it's an array, then we do each one.
 
-            if(! (what in groupMap) ) {
-              groupMap[what] = chain([]);
-            }
+          if(! (what in groupMap) ) {
+            groupMap[what] = [];
+          }
 
-            groupMap[what].push(which);
-          });
-        }
+          groupMap[what].push(which);
+        });
       });
       
       return groupMap;
@@ -1139,7 +1139,7 @@
     ret.where = ret.find = function() {
       var args = slice.call(arguments || []);
 
-      // Addresses test 23 (Finding: Find all elements cascarded, 3 times)
+      // Addresses test 23 (Finding: Find all elements cascaded, 3 times)
       if(!_.isArr(this)) {
         args = [raw].concat(args);
       }
