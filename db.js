@@ -1042,7 +1042,7 @@
 
       each(filter, function(which) {
         // undefined is a valid thing.
-        each(which[field], function(what) {
+        each(which[field] || [undefined], function(what) {
           // if it's an array, then we do each one.
 
           if(! (what in groupMap) ) {
