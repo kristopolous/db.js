@@ -224,7 +224,6 @@ module('constrain');
     // after this I should be able to
     // insert a new record.
     db.remove({key1: 0});
-    console.log(db.find()[0]);
 
     db.insert({key1: 1, a: 2});
 
@@ -1138,7 +1137,6 @@ module("FindFirst");
       ),
       res = db.findFirst({key1: 123});
 
-    console.log(res);
     equal(res, false, "Nothing found so false is returned");
   });
 
@@ -1625,7 +1623,6 @@ module('view');
         }),
 
       view = db.view('index');
-    console.log(view);
 
     equal(view.value2.key, 'valuetwo', 'view k/v seems to be ok');
     equal(view.length, 3, 'view k/v seems to be ok');
@@ -1690,7 +1687,6 @@ module('view');
 
     db.find({index: 'value2'}).update({index: 'value4'});
 
-    console.log(view);
     equal(view.value2, undefined, 'Old index was deleted');
     equal(view.value4.key, 'valuetwo', 'new index was created');
   });
@@ -1811,7 +1807,6 @@ module('each');
     ]);
 
     db.each(function(what) {
-      console.log(what);
       equal(!([5,3,7,2].indexOf(what.key) + 1), false, "The function is run");
     });
   });
@@ -1827,7 +1822,6 @@ module('each');
 
     var my = {
       func: function(m) {
-        console.log(arguments);
       }
     };
     db.each([my,my.func]);
@@ -1843,7 +1837,6 @@ module('each');
     ]);
 
     db.find().select('key').each(function(what) {
-      console.log(what);
       equal(!([5,3,7,2].indexOf(what) + 1), false, "The function is run");
     });
   });
@@ -2007,6 +2000,7 @@ module('group');
     equal(toTest.accounting.length, 2, "Accounting length is right");
     equal(toTest.IT.length, 1, "IT length is right");
   });
+
   test("Grouping by number", function(){
     expect(2);
 
@@ -2020,7 +2014,49 @@ module('group');
     equal(Object.keys(toTest).sort().join(' '), '1', "Keys are right");
     equal(toTest[1].length, 2, "Accounting length is right");
   });
+
+  test("Group cascade", function(){
+    expect(4);
+
+    var db = DB(
+      { department: 'hr', name: "Alice", location: 'Atlanta' },
+      { department: 'hr', name: "Bob",   location: 'Detroit' },
+      { department: 'hr', name: "Carol", location: 'Atlanta' },
+      { department: 'sales', name: "Dave",  location: 'Detroit' },
+      { department: 'sales', name: "Eve",   location: 'Atlanta' },
+      { department: 'sales', name: "Frank", location: 'Detroit' }
+    );
+
+    var toTest = db.group('department', 'location');
+
+    equal(Object.keys(toTest).sort().join(' '), 'hr sales', "Keys are right");
+    equal(Object.keys(toTest.hr).sort().join(' '), 'Atlanta Detroit', "subKeys are right");
+    equal(Object.keys(toTest.sales).sort().join(' '), 'Atlanta Detroit', "subKeys are right");
+    equal(toTest.hr.Atlanta.length, 2, "lengths are right");
+  });
+  test("Group undefined cascade", function(){
+    expect(3);
+
+    var db = DB(
+      { department: 'hr', name: "Alice", location: 'Atlanta' },
+      { department: 'hr', name: "Bob",   location: 'Detroit' },
+      { department: 'hr', name: "Carol"  },
+      { department: 'sales', name: "Dave",  location: 'Detroit' },
+      { department: 'sales', name: "Eve",   location: 'Atlanta' },
+      { department: 'sales', name: "Frank" },
+      { name: "Gale", location: 'Atlanta' },
+      { department: 'marketing', name: "Henry" },
+      { name: "Iris"  }
+    );
+
+    var toTest = db.group('department', 'location');
+
+    equal(toTest[undefined][undefined][0].name, 'Iris', "undefined cascaded right");
+    equal(toTest.hr[undefined][0].name, 'Carol', "undefined partially cascaded right");
+    equal(toTest[undefined].Atlanta[0].name, 'Gale', "undefined partially cascaded left");
+  });
 });
+
 function measure(lambda, times) {
   times = times || 10;
   var ix, start, res = [], sum = 0, dur;
