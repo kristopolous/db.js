@@ -1010,7 +1010,7 @@ You can also do callback based sorting like so:
 It's worth noting that if you are using the last invocation style, the
 first parameter is going to be x and the second one, y.
 
-<h3><a name=group> [map] group( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
+<h3><a name=group> [map] group( field, [ field, ... ] )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is like SQLs groupby function. It will take results from any other function and then
 return them as a hash where the keys are the field values and the results are a chained array
 of the rows that match that value; each one supporting all the usual functions.
@@ -1045,7 +1045,65 @@ Example:
 If the values of the field are an array, then the keys of the array are respected as the
 values.
 
-There's another example in the test.html file at around line 414
+This function also cascades.  That is to say that if you have the data 
+
+    { department: hr, name: Alice, location: Atlanta },
+    { department: hr, name: Bob,   location: Detroit },
+    { department: hr, name: Carol, location: Atlanta },
+    { department: sales, name: Dave,  location: Detroit },
+    { department: sales, name: Eve,   location: Atlanta },
+    { department: sales, name: Frank, location: Detroit }
+
+You can do
+
+    db.group('department', 'location');
+
+To get:
+
+    {
+      hr: {
+        Atlanta: [
+          { department: hr, name: Alice, location: Atlanta },
+          { department: hr, name: Carol, location: Atlanta }
+        ],
+        Detroit: [
+          { department: hr, name: Bob,   location: Detroit }
+        ]
+      },
+      sales: {
+        Atlanta: [
+          { department: sales, name: Eve,   location: Atlanta }
+        ],
+        Detroit: [
+          { department: sales, name: Dave,  location: Detroit },
+          { department: sales, name: Frank, location: Detroit }
+        ]
+      }
+    }
+
+Also, if a field is not defined for a record, then that record gets tossed into
+a catchall 'undefined' container of the Javscript `undefined` type..  For instance, if instead the data was:
+
+    { department: hr, name: Alice, location: Atlanta },
+    { department: hr, name: Bob,   location: Detroit },
+    { department: hr, name: Carol}
+
+Then we'd have 
+    {
+      hr: {
+        "Atlanta": [
+          { department: hr, name: Alice, location: Atlanta },
+        ],
+        "Detroit": [
+          { department: hr, name: Bob,   location: Detroit }
+        ]
+        undefined: [
+          { department: hr, name: Carol}
+        ]
+      }
+    }
+
+This ensures you maintain data fidelity and records don't just dissappear.
 
 <h3><a name=keyBy> [map] keyBy( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is similar to the <a href=#group>group</a> feature except that the values are never
