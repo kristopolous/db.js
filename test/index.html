@@ -2055,6 +2055,23 @@ module('group');
     equal(toTest.hr[undefined][0].name, 'Carol', "undefined partially cascaded right");
     equal(toTest[undefined].Atlanta[0].name, 'Gale', "undefined partially cascaded left");
   });
+
+  test("Group string versus undefined cascade", function(){
+    expect(3);
+
+    var db = DB(
+      { department: 'hr', name: "Alice", location: 'Atlanta' },
+      { department: 'hr', name: "Bob",   location: 'Detroit' },
+      { department: 'hr', name: "Carol", location: ''  },
+      { department: '', name: "Dave",  location: '' }
+    );
+
+    var toTest = db.group('department', 'location');
+
+    equal(toTest[''][''][0].name, 'Dave', "empty string cascaded right");
+    equal(Object.keys(toTest).length, '2', "Right number of keys");
+    equal(toTest.hr[''][0].name, 'Carol', "empty string partially cascaded right");
+  });
 });
 
 function measure(lambda, times) {
