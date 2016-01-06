@@ -1089,6 +1089,7 @@ a catchall 'undefined' container of the Javscript `undefined` type..  For instan
     { department: hr, name: Carol}
 
 Then we'd have 
+
     {
       hr: {
         "Atlanta": [
