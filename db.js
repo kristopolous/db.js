@@ -1472,7 +1472,19 @@
       if(_.isArr(arg0)) { ret.insert(arg0) }
       else if(_.isFun(arg0)) { ret.insert(arg0()) }
       else if(_.isStr(arg0)) { return ret.apply(this, arguments) }
-      else if(_.isObj(arg0)) { ret.insert(arg0) }
+      else if(_.isObj(arg0)) { 
+        // This is so hokey...
+        var fails = false;
+        each(arg0, function(what, args) {
+          if(!ret[what]) { fails = true }
+          if(!fails) {
+            ret[what](args); 
+          }
+        });
+        if(fails) {
+          ret.insert(arg0);
+        }
+      }
     } else if(arguments.length > 1) {
       ret.insert(slice.call(arguments));
     }
