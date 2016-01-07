@@ -127,11 +127,51 @@ test('simple object', function(){
 module('template');
 test('simple template', function(){
   expect(3);
-  var db = DB().template({'key0': 'value0'}).insert({'key1': 'value1'});
+  var db = DB()
+
+  db.template({'key0': 'value0'}).insert({'key1': 'value1'});
+
   equal(db.find().length, 1, "There's one element");
   equal(db.find()[0].key1, 'value1', "It has the right value");
-  equal(db.find()[0].key0, 'value1', "It has the right value");
+  equal(db.find()[0].key0, 'value0', "It has the right value");
 });
+test('two templates', function(){
+  expect(5);
+  var db = DB();
+  
+  db.template({'key0': 'value0'}).insert({'key1': 'value1'});
+  db.template({'key0': 'value2'}).insert({'key1': 'value2'});
+
+  equal(db.find().length, 2, "There's two elements");
+  equal(db.find()[0].key1, 'value1', "It has the right value");
+  equal(db.find()[0].key0, 'value0', "It has the right value");
+  equal(db.find()[1].key1, 'value2', "It has the right value");
+  equal(db.find()[1].key0, 'value2', "It has the right value");
+});
+test('template update', function(){
+  expect(3);
+  var db = DB()
+
+  db.template({key0: 'value0'})
+    .template.update({key0: 'value1'})
+    .insert({'key1': 'value1'});
+
+  equal(db.find().length, 1, "There's one element");
+  equal(db.find()[0].key1, 'value1', "It has the right value");
+  equal(db.find()[0].key0, 'value1', "Template has the right value");
+});
+test('template destroy', function(){
+  expect(2);
+  var db = DB()
+
+  db.template({key0: 'value0'});
+  db.template.destroy();
+  db.insert({'key1': 'value1'});
+
+  equal(Object.keys(db.find()[0]).length, 1, "Template was destroyed");
+  equal(db.template.get(), false, "get returned false");
+});
+
 module('copy');
   test("Trivial copy", function(){
     var 
