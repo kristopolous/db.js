@@ -124,6 +124,14 @@ test('simple object', function(){
   equal(db.find()[0].key1, 'value1', "It has the right value");
 });
 
+module('template');
+test('simple template', function(){
+  expect(3);
+  var db = DB().template({'key0': 'value0'}).insert({'key1': 'value1'});
+  equal(db.find().length, 1, "There's one element");
+  equal(db.find()[0].key1, 'value1', "It has the right value");
+  equal(db.find()[0].key0, 'value1', "It has the right value");
+});
 module('copy');
   test("Trivial copy", function(){
     var 
