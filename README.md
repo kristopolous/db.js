@@ -507,26 +507,34 @@ Pretend we had three types of data which were mostly similar but slightly differ
 be the best design, but it may be the quickest.  So for instance, you could do:
 
     db
-      .template.create({ type: 'interest' })
+      .template({ type: 'interest' })
       .insert(data.interest)
-      .template.create({ type: 'buy' })
+      .template({ type: 'buy' })
       .insert(data.buy)
  
-<h5> [chain] template.create( kv )</h5>
+This allows you to find distinct `column` values across the `tables` while at the still time querying the `sub-tables`.  
+As a performance caveat, a `find()` still does a full table search although you can either create a subsearch like
+`var buy_subtable = db.find({type: 'buy'});` or use groups.
 
-To create a template use `db.template.create( fields )`
+The implementation is straight forward and it incurs a small insertion cost.  If you want something more elaborate
+than a static key/value to be inserted, there's <a href=#beforeadd>beforeAdd</a>.
+
+<h5> [chain] template.create( kv ) or template( kv )</h5>
+
+Creates a template.  These are initial seeded values for every insert. Note that you can use either
+`template.create()` or a less wordy form `template()` to get the job done.
 
 <h5> [chain] template.update( kv )</h5>
 
-Updates overwrite previous values as specified whilst retaining the old values of those which are not. It performs an object merge.
+Updates (overwrite) previous values as specified whilst retaining the old values of those which are not. It performs an object merge.
 
-<h5>Getting</h5>
+<h5> [chain] template.get()</h5>
 
-You can get the current template with `db.template.get()`
+Returns the current template.
 
-<h5>Destroy</h5>
+<h5> [chain] template.destroy()</h5>
 
-You can destroy a template with `db.template.destroy()`
+Unsets a template if one currently exists.
 
 <h3><a name=update> [chain] update( object | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all parameters matching a constraint.  
