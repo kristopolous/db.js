@@ -503,22 +503,24 @@ Templates permit you to have a set of K/V pairs or K/lambda pairs that act as a 
 
 The template itself is implicit and modal; applying to all insertions until it is modified or removed.
 
+Pretend we had three types of data which were mostly similar but slightly different but we wanted to toss them into the same "table".  This may not
+be the best design, but it may be the quickest.  
  
 <h5>Creation</h5>
 
-To create a template use `template.create( fields )`
+To create a template use `db.template.create( fields )`
 
 <h5>Update</h5>
 
-Updating overwrite previous values as specified whilst retaining the old values of those which are not.  To update a template use `template.update( fields )`
+Updating overwrite previous values as specified whilst retaining the old values of those which are not.  To update a template use `db.template.update( fields )`
 
 <h5>Getting</h5>
 
-You can get the current template with `template.get()`
+You can get the current template with `db.template.get()`
 
 <h5>Destroy</h5>
 
-You can destroy a template with `template.destroy()`
+You can destroy a template with `db.template.destroy()`
 
 <h3><a name=update> [chain] update( object | lambda | [ key, value ] )</a> [ <a href=#toc-inserting>top</a> ] </h3>
 Update allows you to set newvalue to all parameters matching a constraint.  
