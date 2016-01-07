@@ -506,11 +506,8 @@ The template itself is implicit and modal; applying to all insertions until it i
 Pretend we had three types of data which were mostly similar but slightly different but we wanted to toss them into the same "table".  This may not
 be the best design, but it may be the quickest.  So for instance, you could do:
 
-    db
-      .template({ type: 'interest' })
-      .insert(data.interest)
-      .template({ type: 'buy' })
-      .insert(data.buy)
+    db.template({ type: 'interest' }).insert(data.interest)
+    db.template({ type: 'buy' }).insert(data.buy)
  
 This allows you to find distinct `column` values across the `tables` while at the still time querying the `sub-tables`.  
 As a performance caveat, a `find()` still does a full table search although you can either create a subsearch like
