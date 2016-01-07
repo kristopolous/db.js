@@ -1001,7 +1001,7 @@
         return ret;
       },
 
-      template: function() {
+      template: function(opt) {
         _template = opt; 
         return ret; 
       },
