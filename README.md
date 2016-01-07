@@ -504,15 +504,21 @@ Templates permit you to have a set of K/V pairs or K/lambda pairs that act as a 
 The template itself is implicit and modal; applying to all insertions until it is modified or removed.
 
 Pretend we had three types of data which were mostly similar but slightly different but we wanted to toss them into the same "table".  This may not
-be the best design, but it may be the quickest.  
+be the best design, but it may be the quickest.  So for instance, you could do:
+
+    db
+      .template.create({ type: 'interest' })
+      .insert(data.interest)
+      .template.create({ type: 'buy' })
+      .insert(data.buy)
  
-<h5>Creation</h5>
+<h5> [chain] template.create( kv )</h5>
 
 To create a template use `db.template.create( fields )`
 
-<h5>Update</h5>
+<h5> [chain] template.update( kv )</h5>
 
-Updating overwrite previous values as specified whilst retaining the old values of those which are not.  To update a template use `db.template.update( fields )`
+Updates overwrite previous values as specified whilst retaining the old values of those which are not. It performs an object merge.
 
 <h5>Getting</h5>
 

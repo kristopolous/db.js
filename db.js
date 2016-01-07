@@ -1001,11 +1001,9 @@
         return ret;
       },
 
-      template: {
-        create: function(opt) { _template = opt; return ret; },
-        update: function(opt) { extend(_template || {}, opt); return ret; },
-        get: function() { return _template },
-        destroy: function() { _template = false; return ret; }
+      template: function() {
+        _template = opt; 
+        return ret; 
       },
 
       // Update allows you to set newvalue to all
@@ -1024,6 +1022,13 @@
         return chain (list);
       }
 
+    });
+
+    extend(ret.template, {
+      create: ret.template,
+      update: function(opt) { extend(_template || {}, opt); return ret; },
+      get: function() { return _template },
+      destroy: function() { _template = false; return ret; }
     });
 
     //
