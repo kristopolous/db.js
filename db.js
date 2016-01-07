@@ -1002,10 +1002,10 @@
       },
 
       template: {
-        create: function(opt) { _template = opt; },
-        update: function(opt) { extend(_template || {}, opt); },
+        create: function(opt) { _template = opt; return ret; },
+        update: function(opt) { extend(_template || {}, opt); return ret; },
         get: function() { return _template },
-        destroy: function() { _template = false }
+        destroy: function() { _template = false; return ret; }
       },
 
       // Update allows you to set newvalue to all
