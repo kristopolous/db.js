@@ -765,8 +765,9 @@
     return ret;
   }
 
-  // the list of functions to chain
+  // The list of functions to chain
   var chainList = hash([
+    'distinct',
     'each',
     'find',
     'findFirst',
