@@ -1085,6 +1085,15 @@
     } 
 
     //
+    // distinct
+    //
+    // get an array of the distinct values for a particular key.
+    //
+    ret.distinct = function(field) {
+      return keys(ret.keyBy(field));
+    }
+
+    //
     // indexBy is just a sort without a chaining of the args
     //
     ret.indexBy = function () {
