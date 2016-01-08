@@ -1550,7 +1550,7 @@
     // as popular in list comprehension suites common in 
     // functional programming.
     reduceLeft: function(memo, callback) {
-      if(argument.length == 1) {
+      if(arguments.length == 1) {
         callback = memo;
         memo = 0;
       }
@@ -1574,7 +1574,7 @@
     // functional programming.
     //
     reduceRight: function(memo, callback) {
-      if(argument.length == 1) {
+      if(arguments.length == 1) {
         callback = memo;
         memo = 0;
       }
