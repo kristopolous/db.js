@@ -2121,6 +2121,50 @@ module('group');
     equal(toTest.hr[''][0].name, 'Carol', "empty string partially cascaded right");
   });
 });
+module('distinct');
+  test('one key', function(){
+    expect(2);
+    var db = DB({key: 'value'}),
+        d = db.distinct('key');
+
+    equal(d.length, 1, "One entry for a valid key");
+    equal(d[0], 'value', "It's the right value");
+  });
+
+  test('invalid key', function(){
+    expect(1);
+
+    var db = DB(),
+        d = db.distinct('key');
+
+    equal(d.length, 0, "No entries for an invalid key");
+  });
+
+  test('multiple keys', function(){
+    expect(1);
+
+    var db = DB([
+        {key: 'value0'},
+        {key: 'value1'}
+      ]),
+        d = db.distinct('key');
+
+    equal(d.length, 2, "Two entries for key0 and key1");
+  });
+
+  test('multiple keys', function(){
+    expect(1);
+    var ix = 0, db = DB([
+        {key: 'value0'},
+        {key: 'value1'},
+        {key: 'value0'},
+        {key: 'value1'}
+      ]),
+        d = db.distinct('key');
+
+    equal(d.length, 2, "Two entries for key0 and key1");
+  });
+
 module('reduce');
   test('generic sum', function(){
     expect(1);
