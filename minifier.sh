@@ -1,5 +1,5 @@
-in=db.js
-out=db.min.js
+in=$1.js
+out=$1.min.js
 
 before=`stat -c %s $out`
 beforeCompress=`gzip -c $out | wc -c`
