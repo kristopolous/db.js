@@ -44,7 +44,8 @@
  * <a href=#order>order</a> or <a href=#order>sort</a> results given some function or expression
  * <a href=#group>group</a> results by some key
  * <a href=#keyBy>keyBy</a> a certain key to make a 1-to-1 map
- * <a href=#indexBy>indexBy</a> to re-index the database by a sort constraint.
+ * <a href=#distinct>distinct</a> values for a certain key
+ * <a href=#indexBy>indexBy</a> to re-index the database by a sort constraint
 
 ### <a href=#storage>Storage</a> options to importing and expoting data
 
@@ -1154,6 +1155,10 @@ This ensures you maintain data fidelity and records don't just dissappear.
 This is similar to the <a href=#group>group</a> feature except that the values are never
 arrays and are instead just a single entry.  If there are multiple values, then the first
 one acts as the value.  This should probably be done on unique keys (or columns if you will)
+
+<h3><a name=distinct> [array] distinct( field )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
+This is similar to the SQL `distinct` keyword.  For a given key, it will return a list of the distinct
+values without any particular order on those values.
 
 <h2><a name=storage> Storage </a> [ <a href=#toc>top</a> ] </h2>
 What if you have an existing database from somewhere and you want to import
