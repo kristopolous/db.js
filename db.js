@@ -1519,6 +1519,7 @@
     expr: expression(),
     diff: setdiff,
     each: eachRun,
+    map: map,
     not: not,
     like: like,
     trace: trace,
