@@ -2121,6 +2121,23 @@ module('group');
     equal(toTest.hr[''][0].name, 'Carol', "empty string partially cascaded right");
   });
 });
+module('reduce');
+  test('generic sum', function(){
+    expect(1);
+    var sum = DB.reduceLeft(function(total, row, field) {
+      return total + row[field];
+    });
+   
+    var data = [
+      { count: 4, user: 'alice' },
+      { count: 3, user: 'bob' },
+      { count: 2, user: 'carol' },
+    ];
+    
+    var total = sum(data, 'count');
+ 
+    equal(total, 9, 'Sum function completed with the right value');
+  });
 
 function measure(lambda, times) {
   times = times || 10;
