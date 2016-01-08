@@ -1015,7 +1015,17 @@ I can run:
 
     var total = sum(data, 'count');
 
-<h3><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
+You can also do other SQL like functions:
+
+    var 
+      max = DB.reduceLeft(Number.MIN_VALUE, function(max, row, field) { 
+        return row[field] > max ? row[field] : max; 
+      }),
+      min = DB.reduceLeft(Number.MAX_VALUE, function(min, row, field) { 
+        return row[field] < min ? row[field] : min;
+      });
+
+<h3><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
 This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
 
 <h3><a name=order> [array] order( multi ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
