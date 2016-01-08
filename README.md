@@ -310,6 +310,76 @@ Now they are getting somewhere they say:
 
 They become quite pleased with how easy it is to do things.
 
+<h2>Creating tabular data from unstructured document objects</h2>
+
+To help motivate this library even more, here's a generic function called `tabular`.
+
+The idea is that we have a number of documents:
+
+    var data = [
+      {department: 'hr',    cost: 99,  location: 'ny', month: 'january'},
+      {department: 'hr',    cost: 200, location: 'sf', month: 'january'},
+      {department: 'hr',    cost: 80,  location: 'ny', month: 'february'},
+      {department: 'hr',    cost: 180, location: 'sf', month: 'february'},
+      {department: 'sales', cost: 10, location: 'ny', month: 'january'},
+      {department: 'sales', cost: 90, location: 'sf', month: 'january'},
+      {department: 'sales', cost: 20, location: 'ny', month: 'february'},
+      {department: 'sales', cost: 20, location: 'sf', month: 'february'}
+    ]
+
+Now you want a very simple table where 
+
+  * the rows are the department
+  * the columns are the month
+  * the cell values are the sum of the costs in all locations
+
+Here's a function, tabular, that is generically made to do that:
+
+    function tabular(db, row_key, col_key, cell_key, agg) {
+      agg = agg || DB.reduceLeft(function(total, row, what) {
+        return total + row[what];
+      });
+
+      var 
+        row_values = db.distinct(row_key),
+        col_values = db.distinct(col_key),
+        header = [[row_key].concat(col_values)];
+
+      return header.concat(
+        DB.map(row_values, function(row) {
+          var sub_db = db.find(row_key, row);
+
+          return [row].concat(
+            DB.map(col_values, function(col) {
+              return agg( sub_db.find(col_key, col), cell_key ) || 0;
+            })
+          );
+
+        })
+      );
+    }
+ 
+Where  
+
+ * `db` is the database instance to work with
+ * `row_key` is the breakdown for each row
+ * `col_key` is the breakdown for each column
+ * `cell_key` is the value to put there
+ * `agg` is an optional argument about how to deal with multiple entries (such as a cost in NY AND SF for a given month and department).
+
+So that means that we can do this:
+
+    var tabular_data = tabular(DB(data), 'department', 'month', 'cost'));
+    console.table(tabular_data);
+
+And get an array of arrays that look like this:
+
+<img src=http://i.imgur.com/1szb6FS.png>
+
+As you can see, there's no other libraries or dependencies used in the implementation of `tabular()` although you are free to use `_.map` if you wanted it. Or, since db.js internally already needs this generic functionality and it's been simply exposed to be used generally, you could just use that.
+
+You can also see that sub dbs are used to avoid unnecessary table scans.  The other features used above are <a href=#reduceLeft>reduceLeft</a>, <a href=#find>find</a>, and <a href=#distinct>distinct</a> - all documented with examples below.
+
 <!--
 <h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
