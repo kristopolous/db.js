@@ -57,7 +57,7 @@
  * <a href=#ex-more>More</a>
 
 ### Miscellaneous non-awesome stuff
- * <a href=#buzzword>Buzzword Compliance</a>
+ * <a href=#buzzword>Advanced Usage</a>
  * <a href=#syntax>Syntax notes</a>
  * <a href=#support>Supported Platforms</a>
  * <a href=#dependencies>Dependencies</a>
@@ -1039,17 +1039,17 @@ You can also supply a second parameter of a case insensitive "asc" and "desc" li
 
 Summary:
 
- * order('key')
- * order('key', 'asc')
- * order('key', 'desc')
+ * `order('key')`
+ * `order('key', 'asc')`
+ * `order('key', 'desc')`
 
 **Note that the invocation styles above don't work on String values by default as of now.**
 #### Callback based ordering
 You can also do callback based sorting like so:
 
- * order('key', function(x, y) { return x - y } )
- * order(function(a, b) { return a[key] - b[key] })
- * order('key', 'x - y') *see below*
+ * `order('key', function(x, y) { return x - y } )`
+ * `order(function(a, b) { return a[key] - b[key] })`
+ * `order('key', 'x - y')` *see below*
 
 It's worth noting that if you are using the last invocation style, the
 first parameter is going to be x and the second one, y.
@@ -1223,7 +1223,7 @@ both fields in.  We can do this a few ways:
 
 Refer to the test suite for more examples.
 
-<h3><a name=buzzword>Buzzword Compliance</a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=buzzword>Advanced discussion</a> [ <a href=#toc>top</a> ] </h3>
 
 #### Visitor Pattern
 So there's quite a bit of [that](http://en.wikipedia.org/wiki/Visitor_pattern) here.
