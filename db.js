@@ -1550,14 +1550,18 @@
     // as popular in list comprehension suites common in 
     // functional programming.
     reduceLeft: function(memo, callback) {
+      if(argument.length == 1) {
+        callback = memo;
+        memo = 0;
+      }
       var lambda = _.isStr(callback) ? new Function("y,x", "return y " + callback) : callback;
 
-      return function(list) {
+      return function(list, opt) {
         var reduced = memo;
 
         for(var ix = 0, len = list.length; ix < len; ix++) {
           if(list[ix]) {
-            reduced = lambda(reduced, list[ix]);
+            reduced = lambda(reduced, list[ix], opt);
           }
         }
 
@@ -1570,7 +1574,11 @@
     // functional programming.
     //
     reduceRight: function(memo, callback) {
-      var callback = DB.reduceLeft(memo, callback);
+      if(argument.length == 1) {
+        callback = memo;
+        memo = 0;
+      }
+      callback = DB.reduceLeft(memo, callback);
 
       return function(list) {
         return callback(list.reverse());
