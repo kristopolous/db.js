@@ -1052,7 +1052,7 @@
           // if it's an array, then we do each one.
 
           if(! (what in groupMap) ) {
-            groupMap[what] = [];
+            groupMap[what] = chain([]);
           }
 
           groupMap[what].push(which);
