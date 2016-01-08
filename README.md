@@ -979,7 +979,7 @@ so:
 Passing the object and the function as an arrayed argument ... I know --- I hate it to.  I wish I could find something
 better.
 
-<h3><a name=reduceLeft> [scalar] reduceLeft( memo, lambda | expression )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
+<h3><a name=reduceLeft> [scalar] reduceLeft( [memo], lambda | expression )</a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is a macro lambda for each that implements a traditional functional list-reduction. You can use it like so:
 
     db.each( DB.reduceLeft(0, ' += x.value');
@@ -988,11 +988,32 @@ The y parameter is the iterated reduction and the x parameter is the record to r
 lambda function can either be a partial expression which will be evaluated to ('y = ' + expression) or it can
 be a passed in lambda.
 
+If only one argument is supplied, then we presume that the initial value is 0. This can make things a bit briefer.
+
 Example:
 
-    DB.reduceLeft(0, '+x.time')(dbLog);
+    DB.reduceLeft('+x.time')(dbLog);
 
 In the above example, the `reduceLeft` returns a function which then takes the parameter `dbLog` as its argument, summing the `.time` over the set.
+
+<h4>Advanced Example: Generic sum function</h4>
+Pretend I wanted a generic `sum` function similar to SQL. I can do this with `reduceLeft`:
+
+    var sum = DB.reduceLeft(function(total, row, field) {
+      return total + row[field];
+    });
+
+Then, over any array of objects, say
+
+    data = [
+      { count: 4, user: 'alice' },
+      { count: 3, user: 'bob' },
+      { count: 2, user: 'carol' },
+    ]
+
+I can run:
+
+    var total = sum(data, 'count');
 
 <h3><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
 This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
