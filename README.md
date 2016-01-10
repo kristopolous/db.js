@@ -380,6 +380,8 @@ As you can see, there's no other libraries or dependencies used in the implement
 
 You can also see that sub dbs are used to avoid unnecessary table scans.  The other features used above are <a href=#reduceLeft>reduceLeft</a>, <a href=#find>find</a>, and <a href=#distinct>distinct</a> - all documented with examples below.
 
+This routine is included in the `db-helper.js` along with a number of other routines that are built on top of the generics that this library provides.  This is designed to deal with data in an *intentionally different* way in order to create a specific class of things which are hard to build in things such as jquery and underscore easy.  An overlap is necessary but intended to be minimal.
+
 <!--
 <h3><a name=magic>Magical updating hash maps</a>[ <a href=#toc>top</a> ] </h3>
 
