@@ -742,7 +742,7 @@
       filter = callback;
       callback = arg1;
     } else {
-      filter = this;
+      filter = _.isArr(this) ? this : this.find();
     }
 
     if(_.isArr(callback) && callback.length == 2) {
