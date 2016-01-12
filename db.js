@@ -948,6 +948,8 @@
       },
 
       each: eachRun,
+      isFunction: _.isFun,
+      isString: _.isStr,
       map: eachRun,
       not: not,
     
