@@ -270,10 +270,9 @@
               "level": level
             }); 
           } else {
-            console.log([
-              new Array(level - 1).join('.'),
-              func 
-            ].join(' '), args);
+            console.log(func, map(args, function(m) {
+              return _.isFun(m) ? m.toString() : JSON.stringify(m);
+            }));
           }
 
           var res = obj.__trace__[func].apply(this, args);
@@ -1637,4 +1636,4 @@
   });
 
 })();
-DB.__version__='0.0.2-reorg-14-ge1adc14';
+DB.__version__='0.0.2-reorg-16-g053022c';
