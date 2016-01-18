@@ -1426,6 +1426,11 @@
       ret.__raw__ = raw = raw.concat(list);
     }
 
+    // trace self.
+    ret.trace = function() {
+      DB.trace(ret);
+    }
+
     //
     // remove
     // 
