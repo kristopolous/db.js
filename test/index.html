@@ -2186,7 +2186,26 @@ module('trace');
     var db = DB();
     DB.trace(db);
 
-    DB.insert({key: 'value'});
+    db.insert({key: 'value'});
+  });
+
+  test('custom callback', function(){
+    expect(2);
+    var db = DB();
+
+    db.trace(function(opts) {
+      equal(opts.func, 'insert', 'function insert called for tracing');
+      equal(opts.args[0].key, 'value', 'right values passed');
+    });
+
+    db.insert({key: 'value'});
+  });
+
+  test('simple trace - self invoked', function(){
+    var db = DB();
+    db.trace();
+
+    db.insert({key: 'value'});
   });
 
 function measure(lambda, times) {
