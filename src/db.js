@@ -1446,8 +1446,8 @@
     }
 
     // trace self.
-    ret.trace = function() {
-      DB.trace(ret);
+    ret.trace = function(cb) {
+      DB.trace(ret, cb);
     }
 
     //
