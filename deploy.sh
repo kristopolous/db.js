@@ -1,9 +1,12 @@
 #!/bin/bash
-set +x
-cp db.js db-tmp.js
-cp db.min.js db-tmp.min.js
-echo "DB.__version__='`git describe`';" >> db-tmp.js
-./minifier.sh db-tmp
-mv db-tmp.min.js db.min.js
-rm db-tmp.js
-./minifier.sh db-helper
+
+for file in db db-helper; do
+  cp src/$file.js $file.js
+done
+
+echo "DB.__version__='`git describe`';" >> $file.js
+
+for file in db db-helper; do
+  ./minifier.sh $file
+done
+
