@@ -245,14 +245,28 @@
 
   function trace(obj, cb) {
     obj.__trace__ = {};
+    var level = 0;
 
     each(obj, function(key, value) {
       if(_.isFun(value)) {
         obj.__trace__[key] = value;
+
         obj[key] = function() {
-          console.log([key + ":" ].concat(slice.call(arguments)));
-          if(cb) { cb.apply(this, arguments); }
-          return obj.__trace__[key].apply(this, arguments);
+          level ++;
+          if(cb) { 
+            cb({
+              "this": this, 
+              "args": arguments,
+              "func": key,
+              "level": level
+            }); 
+          } else {
+            console.log([key].concat(slice.call(arguments)));
+          }
+          var res = obj.__trace__[key].apply(this, arguments);
+
+          level --;
+          return res;
         }
       }
     });
