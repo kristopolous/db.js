@@ -247,23 +247,28 @@
     obj.__trace__ = {};
     var level = 0;
 
-    each(obj, function(key, value) {
+    each(obj, function(func, value) {
       if(_.isFun(value)) {
         obj.__trace__[key] = value;
 
-        obj[key] = function() {
+        obj[func] = function() {
           level ++;
+          var args = slice.call(arguments);
           if(cb) { 
             cb({
               "this": this, 
-              "args": arguments,
+              "args": args,
               "func": key,
               "level": level
             }); 
           } else {
-            console.log([key].concat(slice.call(arguments)));
+            console.log([
+              new Array(level - 1).join('.'),
+              func 
+            ].join(' '), args);
           }
-          var res = obj.__trace__[key].apply(this, arguments);
+
+          var res = obj.__trace__[func].apply(this, args);
 
           level --;
           return res;
