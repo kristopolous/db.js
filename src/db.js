@@ -249,7 +249,7 @@
 
     each(obj, function(func, value) {
       if(_.isFun(value)) {
-        obj.__trace__[key] = value;
+        obj.__trace__[func] = value;
 
         obj[func] = function() {
           level ++;
@@ -258,7 +258,7 @@
             cb({
               "this": this, 
               "args": args,
-              "func": key,
+              "func": func,
               "level": level
             }); 
           } else {
