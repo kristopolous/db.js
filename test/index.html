@@ -4,7 +4,7 @@
   <title>db.js test suite</title>
   <link rel=stylesheet href=qunit.css>
   <script src="jquery.js"></script>
-  <script src=../db.js > </script>
+  <script src=../release/db.js > </script>
   <script src=qunit.js > </script>
 </head>
 <body>
@@ -2179,6 +2179,14 @@ module('reduce');
     var total = sum(data, 'count');
  
     equal(total, 9, 'Sum function completed with the right value');
+  });
+
+module('trace');
+  test('simple trace', function(){
+    var db = DB();
+    DB.trace(db);
+
+    DB.insert({key: 'value'});
   });
 
 function measure(lambda, times) {
