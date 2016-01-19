@@ -1,7 +1,7 @@
 if [ $# -eq 0 ]; then
   echo 'Needs a command line argument. Did you mean to run deploy?'
   echo 'running that instead'
-  ./deploy.sh
+  ./tools/deploy.sh
   exit 1
 fi
 

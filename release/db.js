@@ -249,7 +249,7 @@
 
     each(obj, function(func, value) {
       if(_.isFun(value)) {
-        obj.__trace__[key] = value;
+        obj.__trace__[func] = value;
 
         obj[func] = function() {
           level ++;
@@ -258,7 +258,7 @@
             cb({
               "this": this, 
               "args": args,
-              "func": key,
+              "func": func,
               "level": level
             }); 
           } else {
@@ -1446,8 +1446,8 @@
     }
 
     // trace self.
-    ret.trace = function() {
-      DB.trace(ret);
+    ret.trace = function(cb) {
+      DB.trace(ret, cb);
     }
 
     //
@@ -1624,4 +1624,4 @@
   });
 
 })();
-DB.__version__='0.0.2-reorg-5-g77891ab';
+DB.__version__='0.0.2-reorg-10-gb84fcbb';
