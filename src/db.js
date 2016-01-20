@@ -1544,6 +1544,8 @@
     // Register this instance.
     DB.all.push(ret);
 
+    ret.__ix__ = DB.all.length;
+
     return ret;
   }
 
