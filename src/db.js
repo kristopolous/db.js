@@ -244,6 +244,14 @@
   });
 
   function trace(obj, cb) {
+    // if no parameters are provided, then trace all the 
+    // databases which have been registered.
+    if(!obj) {
+      each(DB.all, function(which) {
+        trace(which);
+      });
+      return true;
+    }
     obj.__trace__ = {};
     var level = 0;
 
