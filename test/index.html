@@ -653,13 +653,10 @@ module("update");
   });
 
 module("Finding");
+  var findObj = [ { key1: 0 }, { key2: 'value2' }, { key1: 'value3' } ];
   test("Find all elements", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find();
 
     equal(res.length, 3, "I got three records");
@@ -669,11 +666,7 @@ module("Finding");
 
   test("Find all elements cascaded, 3 times", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find();
 
     res = res.find();
@@ -686,11 +679,7 @@ module("Finding");
 
   test("Find an empty set, then do a second find", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find({something: 'invalid'});
 
     equal(res.length, 0, "I got zero records");
@@ -701,11 +690,7 @@ module("Finding");
 
   test("Find one element by Object", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find({key1: 0});
 
     equal(res.length, 1, "I got one record");
@@ -715,11 +700,7 @@ module("Finding");
 
   test("Find one element by argList", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find('key1', 0);
 
     equal(res.length, 1, "I got one record");
@@ -729,11 +710,7 @@ module("Finding");
 
   test("Find one element by record function", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find(function(record) {
         return record.key1 === 0;
       });
@@ -745,11 +722,7 @@ module("Finding");
 
   test("Find one element by key function", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find({key1: function(value) {
         return value === 0;
       }});
@@ -761,11 +734,7 @@ module("Finding");
 
   test("Find one element by key expression", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find({key1: db('=== 0')});
 
     equal(res.length, 1, "I got one record");
@@ -775,11 +744,7 @@ module("Finding");
 
   test("Find one element by anonymous expression", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find(db('key1', '=== 0'));
 
     equal(res.length, 1, "I got one record");
@@ -789,11 +754,7 @@ module("Finding");
 
   test("Find one element by argList", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find('key1', 0);
 
     equal(res.length, 1, "I got one record");
@@ -803,11 +764,7 @@ module("Finding");
 
   test("Find one element by record function", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find(function(record) {
         return record.key1 === 0;
       });
@@ -819,11 +776,7 @@ module("Finding");
 
   test("Find one element by key function", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find({key1: function(value) {
         return value === 0;
       }});
@@ -835,11 +788,7 @@ module("Finding");
 
   test("Find one element by expression", function(){
     var 
-      db = DB(
-        { key1: 0 }, 
-        { key2: 'value2' }, 
-        { key1: 'value3' }
-      ),
+      db = DB(findObj),
       res = db.find({key1: db('=== 0')});
 
     equal(res.length, 1, "I got one record");
