@@ -244,6 +244,14 @@
   });
 
   function trace(obj, cb) {
+    // if no parameters are provided, then trace all the 
+    // databases which have been registered.
+    if(!obj) {
+      each(DB.all, function(which) {
+        trace(which);
+      });
+      return true;
+    }
     obj.__trace__ = {};
     var level = 0;
 
@@ -1532,6 +1540,7 @@
 
     // Assign this after initialization
     ret.__raw__ = raw;
+    ret.__ix__ = DB.all.length;
     
     // Register this instance.
     DB.all.push(ret);
@@ -1558,6 +1567,10 @@
       return '(function(){ return ' + 
         DB.apply(this, arguments).toString() + 
       ';})()';
+    },
+
+    unregister: function(which) {
+      DB.all.splice(which.__ix__, 1);
     },
 
     // expensive basic full depth copying.
@@ -1624,4 +1637,4 @@
   });
 
 })();
-DB.__version__='0.0.2-reorg-10-gb84fcbb';
+DB.__version__='0.0.2-reorg-14-ge1adc14';
