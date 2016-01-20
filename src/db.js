@@ -270,9 +270,10 @@
               "level": level
             }); 
           } else {
-            console.log(func, map(args, function(m) {
-              return _.isFun(m) ? m.toString() : JSON.stringify(m);
-            }));
+            // trying to deperately make useful output
+            console.log.apply(this, [func].concat(map(args, function(m) {
+              return _.isFun(m) ? m.toString() : m;
+            })));
           }
 
           var res = obj.__trace__[func].apply(this, args);
