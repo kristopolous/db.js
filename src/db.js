@@ -1540,11 +1540,10 @@
 
     // Assign this after initialization
     ret.__raw__ = raw;
+    ret.__ix__ = DB.all.length;
     
     // Register this instance.
     DB.all.push(ret);
-
-    ret.__ix__ = DB.all.length;
 
     return ret;
   }
@@ -1568,6 +1567,10 @@
       return '(function(){ return ' + 
         DB.apply(this, arguments).toString() + 
       ';})()';
+    },
+
+    unregister: function(which) {
+      DB.all.splice(which.__ix__, 1);
     },
 
     // expensive basic full depth copying.
