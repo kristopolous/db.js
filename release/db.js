@@ -261,7 +261,8 @@
 
         obj[func] = function() {
           level ++;
-          var args = slice.call(arguments);
+
+          var args = slice.call(arguments), log = [func].concat(args);
           if(cb) { 
             cb({
               "this": this, 
@@ -271,9 +272,8 @@
             }); 
           } else {
             // trying to deperately make useful output
-            console.log.apply(this, [func].concat(map(args, function(m) {
-              return _.isFun(m) ? m.toString() : m;
-            })));
+            console.log(trace.l, log);
+            trace[trace.l++] = log;
           }
 
           var res = obj.__trace__[func].apply(this, args);
@@ -284,6 +284,7 @@
       }
     });
   }
+  trace.l = 0;
 
   function copy(obj) {
     // we need to call slice for array-like objects, such as the dom
@@ -1637,4 +1638,4 @@
   });
 
 })();
-DB.__version__='0.0.2-reorg-18-g8179b46';
+DB.__version__='0.0.2-reorg-20-gbd92ebc';
