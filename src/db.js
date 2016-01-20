@@ -215,12 +215,12 @@
   function kvarg(which){
     var ret = {};
 
-    if(which.length == 2) {
+    if(which.length === 2) {
       ret[which[0]] = which[1];
       return ret;
     }
 
-    if(which.length == 1) {
+    if(which.length === 1) {
       return which[0];
     }
   }
@@ -333,7 +333,7 @@
   }
 
   function isStained(obj) {
-    return obj[_stainKey] == _stainID;
+    return obj[_stainKey] === _stainID;
   }
 
   // The first parameter, if exists, is assumed to be the value in the database,
@@ -342,7 +342,7 @@
   function has(param1, param2) {
     var 
       len = arguments.length,
-      compare = len == 1 ? param1 : param2,
+      compare = len === 1 ? param1 : param2,
       callback,
       obj = {};
 
@@ -365,7 +365,7 @@
       }
     }
 
-    if(len == 2) {
+    if(len === 2) {
       obj = {};
       obj[param1] = callback;
       return obj;
@@ -390,7 +390,7 @@
       // The dataset to compare against
       set = (_.isArr(this) ? this : filterList.shift());
 
-    if( filterList.length == 2 && _.isStr( filterList[0] )) {
+    if( filterList.length === 2 && _.isStr( filterList[0] )) {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -1607,7 +1607,7 @@
     // as popular in list comprehension suites common in 
     // functional programming.
     reduceLeft: function(memo, callback) {
-      if(arguments.length == 1) {
+      if(arguments.length === 1) {
         callback = memo;
         memo = 0;
       }
@@ -1631,7 +1631,7 @@
     // functional programming.
     //
     reduceRight: function(memo, callback) {
-      if(arguments.length == 1) {
+      if(arguments.length === 1) {
         callback = memo;
         memo = 0;
       }
