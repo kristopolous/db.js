@@ -403,7 +403,8 @@
       // if we are looking at an array, then this acts as an OR, which means
       // that we just recursively do this.
       if(_.isArr(filter)) {
-        if(_.isScalar(filter[0]) && filterList.length == 2) {
+        // If there are two arguments, and the first one isn't a function
+        if(_.isScalar(filter[0]) && filterList.length === 2) {
           var 
             filterComp_len,
             filterkey_list = filter, 
@@ -519,7 +520,7 @@
       var 
         callback,
         len = arguments.length,
-        compare = len == 1 ? param1 : (param2 || []),
+        compare = len === 1 ? param1 : (param2 || []),
         dynamicList = [],
         staticList = [],
         obj = {};
@@ -552,7 +553,7 @@
         callback = compare;
       }
 
-      if(len == 2) {
+      if(len === 2) {
         obj = {};
         obj[param1] = callback;
         return obj;
@@ -563,13 +564,18 @@
   })();
 
   function equal(lhs, rhs) {
+    // If they are strictly equal or
     return (lhs === rhs) || (
-        !_.isUndef(lhs) && (
-          (lhs.join && rhs.join) &&
-          (lhs.sort().toString() === rhs.sort().toString())
-        ) || 
-        (JSON.stringify(lhs) === JSON.stringify(rhs)
-      ));
+        // if it's a function and using the parameter of
+        // lhs makes the rhs function return true
+           (_.isFun(rhs) && rhs(lhs))
+        // or if they are arrays and equal
+        || !_.isUndef(lhs) && (
+            (lhs.join && rhs.join) &&
+            (lhs.sort().toString() === rhs.sort().toString())
+          ) 
+        || (JSON.stringify(lhs) === JSON.stringify(rhs))
+      );
   }
   function isArray(what) {
     var asString = what.sort().join('');
@@ -586,9 +592,9 @@
       queryRE,
       obj = {};
 
-    if(len == 1) {
+    if(len === 1) {
       query = param1;
-    } else if(len == 2){
+    } else if(len === 2){
       query = param2;
     } 
 
@@ -608,7 +614,7 @@
       return x.toString().search(queryRE) > -1;
     }
 
-    if(len == 2) {
+    if(len === 2) {
       obj = {};
       obj[param1] = compare;
       return obj;
@@ -766,14 +772,14 @@
       ret = [],
       filter;
 
-    if(arguments.length == 2) {
+    if(arguments.length === 2) {
       filter = callback;
       callback = arg1;
     } else {
       filter = _.isArr(this) ? this : this.find();
     }
 
-    if(_.isArr(callback) && callback.length == 2) {
+    if(_.isArr(callback) && callback.length === 2) {
       context = callback[0];
       callback = callback[1];
     }
