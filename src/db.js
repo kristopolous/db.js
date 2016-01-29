@@ -871,7 +871,6 @@
         list[func] = ret[func];
       }
 
-      list.first = list[0];
       list.last = list[list.length - 1];
 
       return list;
@@ -991,15 +990,22 @@
       // This is a shorthand to find for when you are only expecting one result.
       // A boolean false is returned if nothing is found
       findFirst: function(){
-        var realFilter = _filter, res;
+        var 
+          realFilter = _filter, 
+          matched = false,
+          res;
         _filter = _filterThrow;
         try { 
           res = ret.find.apply(this, arguments);
         } catch(ex) {
           res = ex;
+          matched = true;
         }
         _filter = realFilter;
-        return res;
+
+        // If we matched, then we did an assignment,
+        // otherwise we can assume that we got an array back.
+        return matched ? res : res[0];
       },
 
       has: has,
