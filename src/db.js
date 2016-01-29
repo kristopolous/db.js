@@ -805,6 +805,7 @@
     'each',
     'find',
     'findFirst',
+    'first',
     'group',
     'has',
     'hasKey',
@@ -1067,6 +1068,8 @@
       get: function() { return _template },
       destroy: function() { _template = false; return ret; }
     });
+
+    ret.first = ret.findFirst;
 
     //
     // group
