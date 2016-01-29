@@ -745,11 +745,7 @@ can invoke it one of the following ways:
 
 <h4>Return value</h4>
 
-find returns a reference to the objects in the table in an array.  As a convenience two additional
-properties are always set:
-
- * first: corresponding to the first result, ie, `[0]`
- * last: corresponding to the last result, ie, `slice(-1)[0]`
+find returns a reference to the objects in the table in an array.  As a convenience, a `last` property is set corresponding to the last result, ie, `slice(-1)[0]`.  `first` is not set as it is trivial to type in `[0]` and as not to clobber, or make an exception for, the alias function `first` which is to `findFirst` with respect to chaining rules.
 
 <h4>Booleans</h4>
 
@@ -838,7 +834,7 @@ This is similar to the SQL like command and it takes the value and does
       ) > -1
 
 <h3><a name=first> [chain] first( object | lambda | [key, value] )</a> [ <a href=#toc-finding>top</a> ] </h3>
-An alias to <a href="#findFirst">findFirst</a>.
+An alias to <a href="#findFirst">findFirst</a>.  
 
 <h3><a name=not> [chain] not( lambda )</a> [ <a href=#toc-finding>top</a> ] </h3>
 A wrapper function that returns the boolean inverse of the function passed in.  You can use it in combination with many
