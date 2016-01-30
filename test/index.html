@@ -1030,8 +1030,7 @@ module("FindFirst");
         { key2: 'value2' }, 
         { key1: 'value3' }
       ),
-      res = db.find().first();//{key: 0});
-    console.log(res);
+      res = db.find().first({key1: 0});
 
     equal(res.key1, 0, "It is the right one");
   });
