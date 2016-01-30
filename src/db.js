@@ -247,11 +247,19 @@
     // if no parameters are provided, then trace all the 
     // databases which have been registered.
     if(!obj) {
+      trace.active = true;
       each(DB.all, function(which) {
-        trace(which);
+        trace(which, cb);
       });
       return true;
     }
+    // This prevents trace from being called on
+    // one object twice, which would lead to infinite
+    // recursion.
+    if(obj.__trace__) {
+      return;
+    }
+
     obj.__trace__ = {};
     var level = 0;
 
@@ -271,7 +279,8 @@
               "level": level
             }); 
           } else {
-            // trying to deperately make useful output
+            // trying to desperately make useful output
+            trace.l %= 500;
             console.log(trace.l, log);
             trace[trace.l++] = log;
           }
@@ -285,6 +294,8 @@
     });
   }
   trace.l = 0;
+  trace.ix = 0;
+  trace.active = false;
 
   function copy(obj) {
     // we need to call slice for array-like objects, such as the dom
@@ -1556,16 +1567,25 @@
 
     // Assign this after initialization
     ret.__raw__ = raw;
-    ret.__ix__ = DB.all.length;
-    
-    // Register this instance.
-    DB.all.push(ret);
+
+    // we don't register this instance unless
+    // we are tracing. The reason is because it's
+    // convenient to use DB as a powerful filtering
+    // syntax.  There shouldn't be a memory cost
+    // for that convenience.
+    if(trace.active) {
+      ret.__ix__ = trace.ix;
+      
+      // Register this instance.
+      DB.all[trace.ix] = ret;
+      trace.ix++;
+    }
 
     return ret;
   }
 
   extend(DB, {
-    all: [],
+    all: {},
     find: find,
     expr: expression(),
     diff: setdiff,
@@ -1583,10 +1603,6 @@
       return '(function(){ return ' + 
         DB.apply(this, arguments).toString() + 
       ';})()';
-    },
-
-    unregister: function(which) {
-      DB.all.splice(which.__ix__, 1);
     },
 
     // expensive basic full depth copying.
