@@ -295,7 +295,6 @@
     });
   }
   trace.l = 0;
-  trace.ix = 0;
   trace.active = false;
 
   function copy(obj) {
@@ -1582,7 +1581,6 @@
   }
 
   extend(DB, {
-    all: {},
     find: find,
     expr: expression(),
     diff: setdiff,
