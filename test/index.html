@@ -2178,6 +2178,27 @@ module('trace');
 
     db.insert({key: 'value'});
   });
+  test('simple trace -- incorrectly done twice', function(){
+    var db = DB();
+    DB.trace(db);
+    DB.trace(db);
+
+    db.insert({key: 'value'});
+  });
+
+  test('global trace - pre-register', function(){
+    expect(3);
+
+    DB.trace(false, function(opts) {
+      equal(opts.func, 'insert', 'function insert called for tracing');
+      equal(opts.args[0].key, 'value', 'right values passed');
+    });
+
+    var db = DB();
+    equal(DB.trace.active, true, 'Trace is active');
+    db.insert({key: 'value'});
+    DB.trace.active = false;
+  });
 
   test('custom callback', function(){
     expect(2);
