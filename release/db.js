@@ -805,6 +805,7 @@
     'each',
     'find',
     'findFirst',
+    'first',
     'group',
     'has',
     'hasKey',
@@ -870,7 +871,6 @@
         list[func] = ret[func];
       }
 
-      list.first = list[0];
       list.last = list[list.length - 1];
 
       return list;
@@ -990,15 +990,22 @@
       // This is a shorthand to find for when you are only expecting one result.
       // A boolean false is returned if nothing is found
       findFirst: function(){
-        var realFilter = _filter, res;
+        var 
+          realFilter = _filter, 
+          matched = false,
+          res;
         _filter = _filterThrow;
         try { 
           res = ret.find.apply(this, arguments);
         } catch(ex) {
           res = ex;
+          matched = true;
         }
         _filter = realFilter;
-        return res;
+
+        // If we matched, then we did an assignment,
+        // otherwise we can assume that we got an array back.
+        return matched ? res : (res.length ? res[0] : false);
       },
 
       has: has,
@@ -1067,6 +1074,8 @@
       get: function() { return _template },
       destroy: function() { _template = false; return ret; }
     });
+
+    ret.first = ret.findFirst;
 
     //
     // group
@@ -1644,4 +1653,4 @@
   });
 
 })();
-DB.__version__='0.0.2-reorg-25-g6c45e7c';
+DB.__version__='0.0.2-reorg-34-g95a7faf';
