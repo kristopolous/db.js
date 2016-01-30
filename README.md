@@ -1100,6 +1100,32 @@ You can also do other SQL like functions:
         return row[field] < min ? row[field] : min;
       });
 
+<h4>Simulationg sum/count(*) group by x</h4>
+A simple implementation to get a sum or a count is close at hand.
+
+    function sum(db, group, field) {
+      var 
+        map = db.group(group),
+        agg = DB.reduceLeft("+x." + field);
+
+      for(var key in map) {
+        map[key] = agg(map[key]);
+      }
+
+      return map;
+    }
+
+
+    function count(db, group) {
+      var map = db.group(group);
+
+      for(var key in map) {
+        map[key] = map[key].length;
+      }
+
+      return map;
+    }
+
 <h3><a name=reduceRight> [scalar] reduceRight( memo, lambda | expression ) </a> [ <a href=#toc-manipulating>top</a> ] </h4>
 This is a right-wise reduction.  It is simply a left-wise with the input list being reversed.
 
