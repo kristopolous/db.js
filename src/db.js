@@ -1005,7 +1005,7 @@
 
         // If we matched, then we did an assignment,
         // otherwise we can assume that we got an array back.
-        return matched ? res : res[0];
+        return matched ? res : (res.length ? res[0] : false);
       },
 
       has: has,
