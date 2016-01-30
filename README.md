@@ -1279,20 +1279,55 @@ This is a binary system. That is to say that transactions can't be nested.
 
 <h2><a name=inspection> Inspect</a> [ <a href=#toc>top</a> ] </h2>
 
-<h3><a name=trace> .trace( [instance, cb] ) </a> [ <a href=#toc>top</a> ] </h3>
+<h3><a name=trace> DB.trace( [instance | boolean, cb] ) </a> [ <a href=#toc>top</a> ] </h3>
 *Also a top level function*
 
+#### When used Globally
 When called at the global level with no arguments, such as 
 
     DB.trace()
 
-This enables a registrar of db instances, called `DB.all`.  Every instance has their
-location in this registrar with `instance.__ix__`. 
+This toggles a global flag (`DB.trace.active`) so that all db instances created after that is called are traced. If a boolean
+is called, then this sets the flag.  `DB.trace(true)` turns global trace **registration** on and `DB.trace(false)` turns it off.
 
+The boolean as to whether the global registrar is active is stored in `DB.trace.active`. 
+
+#### Default callback
 When a chained function is called and no callback is provided, a `console.log` is executed on the names, the call depth,
-and the arguments.
+and the arguments along with a counter, which currently resets at 500.  
 
-> There is a substantial memory impact with a global trace if you have many temporary databases. The registrar ensures that the reference count is always non-zero, so the garbage collector will never free the database's memory - regardless of scope rules.  You can `delete DB.all[index]` if you want to alleviate this - but generally speaking, like all diagnostic solutions, `.trace()` is not meant to be run in a performant-required way.
+The number corresponds to a cache of the content sent to the console.log, this is accessible by using `DB.trace` as an array.
+This can allow for perhaps easier inspection into the arguments and a more thorough manipulation of them for debugging.
+
+For instance, in the `tests/` directory, trace is enabled for some basic inputs.  The Firefox developer console obscures
+the second argument as "object".  We could click through and find the values, but it can be easy to get lost in that tool.
+The `DB.trace` facility as an array enables us to do something like follows:
+
+<img src=http://i.imgur.com/c6hYCeQ.png>
+
+#### Custom Callback
+If a `callback` is provided, it is passed the following object:
+
+    {
+      this: The context of the call
+      args: The arguments to the function
+      func: The function name
+      level: The call depth (execution strategy).
+    }
+
+In order to use a callback but specify all the databases, you can supply a boolean as the first argument.  For instance,
+
+    DB.trace(true, my_callback);
+
+Turns global tracing on, and assigns it to a callback, `my_callback`. The current default callback is defined as `DB.trace.cb`. You can set that equal to the boolean `false` to fallback to the default system callback (explained above) for future registration(s).
+ 
+#### When used locally in an instance
+As a local instance function, the signature chages to:
+
+   .trace([ cb ])
+
+As the scope of the trace is implied.  
+
 
 <h2><a name=example> Examples</a> [ <a href=#toc>top</a> ] </h2>
 
