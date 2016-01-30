@@ -251,11 +251,6 @@ module('constrain');
     equal(db.__raw__.length, 2, "Two items were inserted");
     equal(db.__raw__[0].key1, 0, "The first has an integer value 0");
     equal(db.__raw__[1].key2, "value2", "The second has a string value 'value2'");
-    /*
-    equal(val.length, 3, "Three things were returned");
-    console.log("vv", val);
-    equal(val[2].a, 0, "The third thing has the first value");
-    */
   });
 
   test("Create a table, constrain by key - remove", function(){
@@ -939,7 +934,6 @@ module("Finding");
         { key1: 3, key2: 2 }
       ),
       res = db.find(['key1', 'key2'], function(m) {
-        console.log(Array.prototype.slice.call(arguments));
         return m === 1;
       });
 
@@ -2189,7 +2183,7 @@ module('trace');
   test('global trace - pre-register', function(){
     expect(3);
 
-    DB.trace(false, function(opts) {
+    DB.trace(true, function(opts) {
       equal(opts.func, 'insert', 'function insert called for tracing');
       equal(opts.args[0].key, 'value', 'right values passed');
     });
@@ -2197,7 +2191,7 @@ module('trace');
     var db = DB();
     equal(DB.trace.active, true, 'Trace is active');
     db.insert({key: 'value'});
-    DB.trace.active = false;
+    DB.trace(false);
   });
 
   test('custom callback', function(){
