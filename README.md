@@ -53,6 +53,10 @@
  * <a href=#sync>sync</a> the database when things are modified
  * <a href=#transaction>transaction</a> to help reduce expensive indexing
 
+### <a href=#inspection>Inspect</a> execution and various data
+
+ * <a href=#trace>trace</a> the database when things are modified
+
 ### <a href=#example>Examples</a>
  
  * <a href=#ex-creation>Creating and Inserting</a>
@@ -1272,6 +1276,23 @@ This is a binary system. That is to say that transactions can't be nested.
         db.insert({k: i});
       }
     } db.transaction.end(); 
+
+<h2><a name=inspection> Inspect</a> [ <a href=#toc>top</a> ] </h2>
+
+<h3><a name=trace> .trace( [instance, cb] ) </a> [ <a href=#toc>top</a> ] </h3>
+*Also a top level function*
+
+When called at the global level with no arguments, such as 
+
+    DB.trace()
+
+This enables a registrar of db instances, called `DB.all`.  Every instance has their
+location in this registrar with `instance.__ix__`. 
+
+When a chained function is called and no callback is provided, a `console.log` is executed on the names, the call depth,
+and the arguments.
+
+> There is a substantial memory impact with a global trace if you have many temporary databases. The registrar ensures that the reference count is always non-zero, so the garbage collector will never free the database's memory - regardless of scope rules.  You can `delete DB.all[index]` if you want to alleviate this - but generally speaking, like all diagnostic solutions, `.trace()` is not meant to be run in a performant-required way.
 
 <h2><a name=example> Examples</a> [ <a href=#toc>top</a> ] </h2>
 
