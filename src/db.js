@@ -246,10 +246,12 @@
   function trace(obj, cb) {
     // if no parameters are provided, then trace all the 
     // databases from this point onward.
-    if(!obj) {
-      trace.active = true;
-      trace.cb = cb || false;
-      return true;
+    if(!obj || _.isBool(obj)) {
+      trace.active = (arguments.length === 0) ? !trace.active : obj;
+      if(cb) {
+        trace.cb = cb;
+      }
+      return trace.active;
     }
     // This prevents trace from being called on
     // one object twice, which would lead to infinite
