@@ -245,12 +245,10 @@
 
   function trace(obj, cb) {
     // if no parameters are provided, then trace all the 
-    // databases which have been registered.
+    // databases from this point onward.
     if(!obj) {
       trace.active = true;
-      each(DB.all, function(which) {
-        trace(which, cb);
-      });
+      trace.cb = cb || false;
       return true;
     }
     // This prevents trace from being called on
@@ -270,7 +268,10 @@
         obj[func] = function() {
           level ++;
 
-          var args = slice.call(arguments), log = [func].concat(args);
+          var 
+            args = slice.call(arguments), 
+            log = [func].concat(args);
+
           if(cb) { 
             cb({
               "this": this, 
@@ -1574,11 +1575,7 @@
     // syntax.  There shouldn't be a memory cost
     // for that convenience.
     if(trace.active) {
-      ret.__ix__ = trace.ix;
-      
-      // Register this instance.
-      DB.all[trace.ix] = ret;
-      trace.ix++;
+      ret.trace(trace.cb);
     }
 
     return ret;
