@@ -397,9 +397,6 @@
       which,
       val,
 
-      // The indices
-      ix,
-
       // The dataset to compare against
       set = (_.isArr(this) ? this : filterList.shift());
 
@@ -525,8 +522,6 @@
   // This is like the SQL "in" operator, which is a reserved JS word.  You can invoke it either
   // with a static array or a callback
   var isin = (function() {
-    // It has a cache for optimization
-    var cache = {};
 
     // todo: typecheck each element and then extract functions 
     return function (param1, param2) {
@@ -1386,7 +1381,7 @@
 
       each(toInsert, function(which) {
         // We first check to make sure we *should* be adding this.
-        var doAdd = true, data;
+        var doAdd = true;
 
         // If the unique field has been set then we do
         // a hash search through the constraints to 
@@ -1666,4 +1661,4 @@
   });
 
 })();
-DB.__version__='0.0.2-reorg-43-g27139bd';
+DB.__version__='0.0.2-reorg-45-g0a63c25';
