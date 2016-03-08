@@ -1128,7 +1128,7 @@
     // This is like group above but it just maps as a K/V tuple, with 
     // the duplication policy of the first match being preferred.
     //
-    ret.keyBy = function(field) {
+    ret.keyBy = function() {
       var groupResult = ret.group.apply(this, arguments);
 
       each(groupResult, function(key, value) {
@@ -1328,7 +1328,7 @@
           resultList = map(filter, values);
         } else {
           for(var ix = 0, len = filter.length; ix < len; ix++) {
-            row = filter[ix];
+            var row = filter[ix];
 
             if(column in row){
               if(fieldCount > 1) {
@@ -1488,7 +1488,7 @@
     // This will remove the entries from the database but also return them if
     // you want to manipulate them.  You can invoke this with a constraint.
     //
-    ret.remove = function(arg0, arg1) {
+    ret.remove = function(arg0) {
       var 
         isDirty = false,
         end, start,
