@@ -7,18 +7,13 @@ fi
 
 in=$1.js
 out=$1.min.js
+map=$1.map.js
 
 echo "--[ $in ]--"
 before=`stat -c %s $out`
 beforeCompress=`gzip -c $out | wc -c`
 
-curl -s \
-        -d compilation_level=SIMPLE_OPTIMIZATIONS \
-        -d output_format=text \
-        -d output_info=compiled_code \
-        --data-urlencode "js_code@${in}" \
-        http://marijnhaverbeke.nl/uglifyjs \
-        > $out
+uglifyjs --source-map $map -c -m -- $in > $out
 
 after=`stat -c %s $out`
 afterCompress=`gzip -c $out | wc -c`
