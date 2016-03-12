@@ -2,7 +2,7 @@
 // db.js Javascript Database 
 // https://github.com/kristopolous/db.js
 //
-// Copyright 2011 - 2015, Chris McKenzie
+// Copyright 2011 - 2016, Chris McKenzie
 // Dual licensed under the MIT or GPL Version 2 licenses.
 //
 // Looking under the hood are you? What a fun place to be.
@@ -25,7 +25,8 @@
 // 6. Finally a hook that exposes the internal functions
 //    outward, plus a few other inline ones that don't get
 //    used internally.
-(function(){
+var module = module || {},
+    DB = module.exports = (function(){
   'use strict';
   var 
     // undefined
@@ -581,6 +582,7 @@
         || (JSON.stringify(lhs) === JSON.stringify(rhs))
       );
   }
+
   function isArray(what) {
     var asString = what.sort().join('');
     return function(param) {
@@ -843,7 +845,7 @@
   // in a language such as Java or C++ should
   // go above!!!!
   //
-  self.DB = function(arg0, arg1){
+  function DB(arg0, arg1){
     var 
       constraints = {addIf:[]},
       constrainCache = {},
@@ -1655,6 +1657,6 @@
       }
     }
   });
-
+  return DB;
 })();
-DB.__version__='0.0.2-reorg-52-g12fd715';
+DB.__version__='0.0.2-reorg-54-gab0a47b';
