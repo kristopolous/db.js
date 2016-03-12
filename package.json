@@ -1,5 +1,5 @@
 {
-  "name": "db.js",
+  "name": "flexidble",
   "version": "1.0.0",
   "description": "A server-less in-memory document store with expressive syntax",
   "main": "release/db.js",
