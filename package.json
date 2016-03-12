@@ -1,0 +1,28 @@
+{
+  "name": "db.js",
+  "version": "1.0.0",
+  "description": "A server-less in-memory document store with expressive syntax",
+  "main": "release/db.js",
+  "directories": {
+    "doc": "doc",
+    "example": "examples",
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kristopolous/db.js.git"
+  },
+  "keywords": [
+    "database",
+    "document-store"
+  ],
+  "author": "Chris McKenzie <kristopolous@yahoo.com> (http://9ol.es)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/kristopolous/db.js/issues"
+  },
+  "homepage": "https://github.com/kristopolous/db.js#readme"
+}
