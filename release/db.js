@@ -1659,4 +1659,4 @@ var module = module || {},
   });
   return DB;
 })();
-DB.version='0.0.2.58-20160423';
+DB.version='0.0.2.61-20160423';
