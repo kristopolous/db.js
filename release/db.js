@@ -1587,6 +1587,8 @@ var module = module || {},
     values: values,
     isin: isin,
     isArray: isArray,
+    isString: _.isStr,
+    isFunction: _.isFun,
 
     // like expr but for local functions
     local: function(){
@@ -1659,4 +1661,4 @@ var module = module || {},
   });
   return DB;
 })();
-DB.version='0.0.2.61-20160423';
+DB.version='0.0.2.63-20160423';
