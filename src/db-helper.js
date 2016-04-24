@@ -26,7 +26,6 @@ DB.min = DB.reduceLeft(Number.MAX_VALUE, function(min, row, field) {
 //    header - a complete custom header
 //
 DB.tabular = function tabular(db, opts) {
-  agg = agg || DB.sum;
 
   var 
     rows,
@@ -34,6 +33,7 @@ DB.tabular = function tabular(db, opts) {
     row_key = opts.row_key,
     col_key = opts.col_key,
     cell_key = opts.cell_key,
+    agg = opts.agg || DB.sum,
     row_values = opts.row_order || db.distinct(row_key),
     col_values = opts.col_order || db.distinct(col_key),
     cell_key_list = {},
