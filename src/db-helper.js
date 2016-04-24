@@ -26,6 +26,7 @@ DB.min = DB.reduceLeft(Number.MAX_VALUE, function(min, row, field) {
 //    header - a complete custom header
 //
 DB.tabular = function tabular(db, opts) {
+  opts = opts || {};
 
   var 
     rows,
