@@ -1659,4 +1659,4 @@ var module = module || {},
   });
   return DB;
 })();
-DB.__version__='0.0.2-reorg-54-gab0a47b';
+DB.version='0.0.2.58-20160423';
