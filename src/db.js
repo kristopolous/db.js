@@ -1587,6 +1587,8 @@ var module = module || {},
     values: values,
     isin: isin,
     isArray: isArray,
+    isString: _.isStr,
+    isFunction: _.isFun,
 
     // like expr but for local functions
     local: function(){
