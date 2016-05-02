@@ -1248,6 +1248,19 @@ module("isin");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find records with a value in a list based on KV convention (empty case)", function(){
+    expect(1);
+    var 
+      db = DB(
+        { key: 0 }, 
+        { key: 1 }, 
+        { key: 2 }
+      ),
+      res = db.find({key: db.isin([])});
+
+    equal(res.length, 0, "I got zero records");
+  });
+
   test("Find records with a value in a list based on KV convention using the short syntax", function(){
     var 
       db = DB(
