@@ -855,12 +855,26 @@ module("Finding");
         {key: 3}
       ),
       res = db.find([
-        {key: [1,2,3]}
+        {key: [4,5,6]}
       ]);
 
     equal(res.length, 0, "I got zero records");
   });
 
+  test("Find using the or operator - full set + valid (4)", function(){
+    expect(1);
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([
+        {key: [1,2,3]}
+      ]);
+
+    equal(res.length, 3, "I got three records");
+  });
   test("Find using the or operator - string two cases", function(){
     var 
       db = DB(
