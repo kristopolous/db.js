@@ -427,11 +427,9 @@ var module = module || {},
             }
           }]
         } else {
-          console.log(filter);
           filterComp = map(filter, expression());
         }
         //self.fComp = filterComp;
-        //console.log(filterComp);
         
         filterComp_len = filterComp.length;
         set = _filter.call(set, function(row) {
@@ -713,7 +711,6 @@ var module = module || {},
   var expression = function () {
 
     return function(arg0, arg1) {
-      console.log(">>", arguments);
       var ret, expr;
 
       if(_.isStr( arg0 )) {
@@ -767,13 +764,34 @@ var module = module || {},
             }
             cList.push("rec['" + key + "']===" + val);
           } else if(_.isArr(val)) {
-            fnList.push(isin(val));
+            fnList.push(isin(key, val));
           } else {
             cList.push("equal(rec['" + key + "'],arg0['" + key + "'])");
           }
         };
 
-        return ewrap('rec', 'return ' + cList.join('&&'));
+        if(cList.length) {
+          fnList.push(ewrap('rec,arg0', 'return ' + cList.join('&&')));
+        }
+
+        return function(rec,arg0) {
+          var val, key;
+
+          for(var ix = 0; ix < fnList.length; ix++) {
+            val = fnList[ix];
+
+            if(_.isObj(val)) {
+              key = keys(val)[0];
+              if(!val[key](rec[key])) {
+                return false;
+              }
+            } else if(!val(rec,arg0)) {
+              return false;
+            }
+          }
+
+          return true;
+        }
       }
     }
   }
