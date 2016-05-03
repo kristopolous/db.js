@@ -427,6 +427,7 @@ var module = module || {},
             }
           }]
         } else {
+          console.log(filter);
           filterComp = map(filter, expression());
         }
         //self.fComp = filterComp;
@@ -712,6 +713,7 @@ var module = module || {},
   var expression = function () {
 
     return function(arg0, arg1) {
+      console.log(">>", arguments);
       var ret, expr;
 
       if(_.isStr( arg0 )) {
@@ -754,14 +756,18 @@ var module = module || {},
 
         var 
           cList = [], 
+          fnList = [],
           val;
+
         for(var key in arg0) {
-          if(_.isScalar(arg0[key])) {
-            val = arg0[key];
+          val = arg0[key];
+          if(_.isScalar(val)) {
             if(_.isStr(val)) {
               val = '"' + val + '"';
             }
             cList.push("rec['" + key + "']===" + val);
+          } else if(_.isArr(val)) {
+            fnList.push(isin(val));
           } else {
             cList.push("equal(rec['" + key + "'],arg0['" + key + "'])");
           }

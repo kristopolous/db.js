@@ -855,7 +855,7 @@ module("Finding");
         {key: 3}
       ),
       res = db.find([
-        {key: []}
+        {key: [1,2,3]}
       ]);
 
     equal(res.length, 0, "I got zero records");
