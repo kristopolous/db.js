@@ -775,14 +775,20 @@ var module = module || {},
         }
 
         return function(rec,arg0) {
-          var val, key;
+          var val, key, fn;
 
           for(var ix = 0; ix < fnList.length; ix++) {
             val = fnList[ix];
 
             if(_.isObj(val)) {
               key = keys(val)[0];
-              if(!val[key](rec[key])) {
+              fn = val[key]; 
+
+              if(_.isArr(fn)) {
+                if (indexOf(fn, rec[key]) === -1) {
+                  return false;
+                }
+              } else if(!fn(rec[key])) {
                 return false;
               }
             } else if(!val(rec,arg0)) {
