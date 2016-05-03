@@ -860,6 +860,36 @@ module("Finding");
 
     equal(res.length, 0, "I got zero records");
   });
+
+  test("Find using the or operator - empty set + invalid (6)", function(){
+    expect(1);
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([
+        {key: DB.isin([])}, {key:1}
+      ]);
+
+    equal(res.length, 1, "I got one records");
+  });
+
+  test("Find using the or operator - empty set + invalid (7)", function(){
+    expect(1);
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([
+        {key: DB.isin([])}, {key:1}
+      ]);
+
+    equal(res.length, 1, "I got one records");
+  });
   test("Find using the or operator - empty set + valid (3)", function(){
     expect(1);
     var 
@@ -884,7 +914,7 @@ module("Finding");
         {key: 3}
       ),
       res = db.find([
-        {key: [1,2,3]}
+        {key: DB.isin([1,2,3])}
       ]);
 
     equal(res.length, 3, "I got three records");
