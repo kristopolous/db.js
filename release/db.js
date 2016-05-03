@@ -430,7 +430,6 @@ var module = module || {},
           filterComp = map(filter, expression());
         }
         //self.fComp = filterComp;
-        //console.log(filterComp);
         
         filterComp_len = filterComp.length;
         set = _filter.call(set, function(row) {
@@ -754,20 +753,45 @@ var module = module || {},
 
         var 
           cList = [], 
+          fnList = [],
           val;
+
         for(var key in arg0) {
-          if(_.isScalar(arg0[key])) {
-            val = arg0[key];
+          val = arg0[key];
+          if(_.isScalar(val)) {
             if(_.isStr(val)) {
               val = '"' + val + '"';
             }
             cList.push("rec['" + key + "']===" + val);
+          } else if(_.isArr(val)) {
+            fnList.push(isin(key, val));
           } else {
             cList.push("equal(rec['" + key + "'],arg0['" + key + "'])");
           }
         };
 
-        return ewrap('rec', 'return ' + cList.join('&&'));
+        if(cList.length) {
+          fnList.push(ewrap('rec,arg0', 'return ' + cList.join('&&')));
+        }
+
+        return function(rec,arg0) {
+          var val, key;
+
+          for(var ix = 0; ix < fnList.length; ix++) {
+            val = fnList[ix];
+
+            if(_.isObj(val)) {
+              key = keys(val)[0];
+              if(!val[key](rec[key])) {
+                return false;
+              }
+            } else if(!val(rec,arg0)) {
+              return false;
+            }
+          }
+
+          return true;
+        }
       }
     }
   }
@@ -1661,4 +1685,4 @@ var module = module || {},
   });
   return DB;
 })();
-DB.version='0.0.2.65-20160502';
+DB.version='0.0.2.71-20160502';
