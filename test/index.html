@@ -846,6 +846,20 @@ module("Finding");
     equal(res.length, 1, "I got one record");
     equal(res[0].key, 3, "It is the right one");
   });
+  test("Find using the or operator - empty set + valid (3)", function(){
+    expect(1);
+    var 
+      db = DB(
+        {key: 1},
+        {key: 2},
+        {key: 3}
+      ),
+      res = db.find([
+        {key: []}
+      ]);
+
+    equal(res.length, 0, "I got zero records");
+  });
 
   test("Find using the or operator - string two cases", function(){
     var 
