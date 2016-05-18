@@ -51,7 +51,7 @@ var module = module || {},
       isFun: function(obj) { return !!(obj && obj.constructor && obj.call && obj.apply) },
       isStr: function(obj) { return !!(obj === '' || (obj && obj.charCodeAt && obj.substr)) },
       isNum: function(obj) { return toString.call(obj) === '[object Number]' },
-      isUndef: function(obj) { return isNaN(obj) || (obj === null) || (obj === undefined) },
+      isUndef: function(obj) { return isNaN(obj) || (obj === null) || (obj === _u) },
       isScalar: function(obj) { return _.isStr(obj) || _.isNum(obj) || _.isBool(obj) },
       isArr: [].isArray || function(obj) { return toString.call(obj) === '[object Array]' },
       isBool: function(obj){
@@ -1136,7 +1136,7 @@ var module = module || {},
 
       each(filter, function(which) {
         // undefined is a valid thing.
-        var entry = (field in which) ? which[field] : [undefined];
+        var entry = (field in which) ? which[field] : [_u];
         each(entry, function(what) {
           // if it's an array, then we do each one.
 
@@ -1226,8 +1226,8 @@ var module = module || {},
 
           if(_.isStr(arg1)) {
             order = {
-              'asc': 'x-y',
-              'desc': 'y-x'
+              asc: 'x-y',
+              desc: 'y-x'
             }[arg1.toLowerCase()];
           } else {
             order = arg1;
