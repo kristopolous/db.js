@@ -1848,7 +1848,7 @@ module('view');
     
   });
 
-  test("Update a view", function(){
+  test("Update a view p1", function(){
     var 
       db = DB({ 
           index: 0,
@@ -1869,6 +1869,55 @@ module('view');
 
     equal(view.value2, undefined, 'Old index was deleted');
     equal(view.value4.key, 'valuetwo', 'new index was created');
+  });
+
+  test("Update a view p2", function(){
+    var 
+      db = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 'value2',
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 'value3',
+          key: "valuethree" 
+        }),
+
+      view = db.view('index');
+
+    view['value2'].a = 'value4';
+    equal(view.value2.a, 'value4', 'value is set right');
+    equal(view.value2.key, 'valuetwo', 'value is set right');
+    var res = db.first({index: 'value2'});
+
+    equal(res.a, 'value4', 'value was propagated down');
+  });
+
+  test("Update a view p3", function(){
+    var 
+      db = DB({ 
+          index: 0,
+          key: "one"
+        }, 
+        { 
+          index: 1,
+          key: "valuetwo" 
+        }, 
+        { 
+          index: 2,
+          key: "valuethree" 
+        }),
+
+      view = db.view('index');
+
+    view[1].a = 'value4';
+    equal(view[1].key, 'valuetwo', 'value is set right');
+    var res = db.first({index: 1});
+
+    equal(res.a, 'value4', 'value was propagated down');
   });
 
 module('lazyView');
