@@ -387,6 +387,7 @@ var module = module || {},
   function find() {
     var 
       filterList = slice.call(arguments),
+      twoArgs = filterList.length === 2,
       filter,
       filterIx,
       filterComp,
@@ -397,7 +398,7 @@ var module = module || {},
       // The dataset to compare against
       set = (_.isArr(this) ? this : filterList.shift());
 
-    if( filterList.length === 2 && _.isStr( filterList[0] )) {
+    if( twoArgs  && _.isStr( filterList[0] )) {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -411,7 +412,12 @@ var module = module || {},
       // that we just recursively do this.
       if(_.isArr(filter)) {
         // If there are two arguments, and the first one isn't a function
-        if(_.isScalar(filter[0]) && filterList.length === 2) {
+        // then it acts as a comparison of multiple keys, such as 
+        //
+        // (['key1', 'key2', 'key3'], 'any of them can equal this')
+        //
+        if(_.isScalar(filter[0]) && twoArgs) {
+          console.log('2 args');
           var 
             filterComp_len,
             filterkey_list = filter, 
