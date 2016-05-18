@@ -387,7 +387,7 @@ var module = module || {},
   function find() {
     var 
       filterList = slice.call(arguments),
-      twoArgs = filterList.length === 2,
+      filterComp_len,
       filter,
       filterIx,
       filterComp,
@@ -398,7 +398,7 @@ var module = module || {},
       // The dataset to compare against
       set = (_.isArr(this) ? this : filterList.shift());
 
-    if( twoArgs  && _.isStr( filterList[0] )) {
+    if( filterList.length === 2  && _.isStr( filterList[0] )) {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -416,22 +416,19 @@ var module = module || {},
         //
         // (['key1', 'key2', 'key3'], 'any of them can equal this')
         //
-        if(_.isScalar(filter[0]) && twoArgs) {
+        if(_.isScalar(filter[0]) && filterList.length === 2) {
           console.log('2 args');
-          var 
-            filterComp_len,
-            filterkey_list = filter, 
-            // remove it from the list so it doesn't get
-            // a further comprehension
-            filterkey_compare = filterList.pop();
+          // remove it from the list so it doesn't get
+          // a further comprehension
+          var filterkey_compare = filterList.pop();
 
           filterComp = [function(row) {
-            for(var ix = 0; ix < filterkey_list.length; ix++) {
-              if(equal(row[filterkey_list[ix]], filterkey_compare)) {
+            for(var ix = 0; ix < filter.length; ix++) {
+              if(equal(row[filter[ix]], filterkey_compare)) {
                 return true;
               }
             }
-          }]
+          }];
         } else {
           filterComp = map(filter, expression());
         }
