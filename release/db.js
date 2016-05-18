@@ -383,10 +383,31 @@ var module = module || {},
       return callback;
     }
   }
+  function val_comprehension(value) {
+    // this permits mongo-like invocation
+    if( _.isObj(value)) {
+      var 
+        _key = keys(value)[0],
+        _fn = _key.slice(1);
+
+      // see if the routine asked for exists
+      try { 
+        value = DB[_fn](value[_key]);
+      } catch(ex) {
+        throw new Error(_fn + " is an unknown function");
+      }
+    } else if( _.isArr(value)) {
+    // a convenience isin short-hand.
+      value = isin(value);
+    }
+
+    return value;
+  }
 
   function find() {
     var 
       filterList = slice.call(arguments),
+      filterComp_len,
       filter,
       filterIx,
       filterComp,
@@ -397,7 +418,7 @@ var module = module || {},
       // The dataset to compare against
       set = (_.isArr(this) ? this : filterList.shift());
 
-    if( filterList.length === 2 && _.isStr( filterList[0] )) {
+    if( filterList.length === 2  && _.isStr( filterList[0] )) {
       // This permits find(key, value)
       which = {};
       which[filterList[0]] = filterList[1];
@@ -411,21 +432,22 @@ var module = module || {},
       // that we just recursively do this.
       if(_.isArr(filter)) {
         // If there are two arguments, and the first one isn't a function
+        // then it acts as a comparison of multiple keys, such as 
+        //
+        // (['key1', 'key2', 'key3'], 'any of them can equal this')
+        //
         if(_.isScalar(filter[0]) && filterList.length === 2) {
-          var 
-            filterComp_len,
-            filterkey_list = filter, 
-            // remove it from the list so it doesn't get
-            // a further comprehension
-            filterkey_compare = filterList.pop();
+          // remove it from the list so it doesn't get
+          // a further comprehension
+          var filterkey_compare = val_comprehension(filterList.pop());
 
           filterComp = [function(row) {
-            for(var ix = 0; ix < filterkey_list.length; ix++) {
-              if(equal(row[filterkey_list[ix]], filterkey_compare)) {
+            for(var ix = 0; ix < filter.length; ix++) {
+              if(equal(row[filter[ix]], filterkey_compare)) {
                 return true;
               }
             }
-          }]
+          }];
         } else {
           filterComp = map(filter, expression());
         }
@@ -447,22 +469,7 @@ var module = module || {},
         set = _filter.call(set, filter);
       } else {
         each(filter, function(key, value) {
-          // this permits mongo-like invocation
-          if( _.isObj(value)) {
-            var 
-              _key = keys(value)[0],
-              _fn = _key.slice(1);
-
-            // see if the routine asked for exists
-            if(_fn in DB) {
-              value = DB[_fn](value[_key]);
-            } else {
-              throw new Error(_fn + " is an unknown function");
-            }
-          } else if( _.isArr(value)) {
-          // a convenience isin short-hand.
-            value = isin(value);
-          }
+          value = val_comprehension(value);
 
           if( _.isFun(value)) {
             filterComp = function(which) {
@@ -1691,4 +1698,4 @@ var module = module || {},
   });
   return DB;
 })();
-DB.version='0.0.2.73-20160502';
+DB.version='0.0.2.78-20160518';
