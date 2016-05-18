@@ -905,6 +905,7 @@ module("Finding");
     equal(res.length, 0, "I got zero records");
   });
 
+/*
   test("Find using the or operator - full set + valid (4)", function(){
     expect(1);
     var 
@@ -919,6 +920,8 @@ module("Finding");
 
     equal(res.length, 3, "I got three records");
   });
+
+  */
 
   test("Find using the or operator - string two cases", function(){
     var 
@@ -1028,6 +1031,7 @@ module("Finding");
   });
 
   test("Find using the or operator with like condition", function(){
+    expect(3);
     var 
       db = DB(
         { key1: 'aa', key2: 'ba' },
@@ -1035,6 +1039,21 @@ module("Finding");
         { key1: 'ac', key2: 'bb' }
       ),
       res = db.find(['key1', 'key2'], {$like: 'c'});
+
+    equal(res.length, 2, "I got two record");
+    equal(res[0].key1, 'ab', "It is the right first");
+    equal(res[1].key2, 'bb', "It is the right last");
+  });
+
+  test("Find using the or operator with isin condition", function(){
+    expect(3);
+    var 
+      db = DB(
+        { key1: 'aa', key2: 'ba' },
+        { key1: 'ab', key2: 'bc' },
+        { key1: 'ac', key2: 'bb' }
+      ),
+      res = db.find(['key1', 'key2'], ['bb','bc']);
 
     equal(res.length, 2, "I got two record");
     equal(res[0].key1, 'ab', "It is the right first");

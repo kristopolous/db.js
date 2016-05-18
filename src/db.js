@@ -383,6 +383,26 @@ var module = module || {},
       return callback;
     }
   }
+  function val_comprehension(value) {
+    // this permits mongo-like invocation
+    if( _.isObj(value)) {
+      var 
+        _key = keys(value)[0],
+        _fn = _key.slice(1);
+
+      // see if the routine asked for exists
+      try { 
+        value = DB[_fn](value[_key]);
+      } catch(ex) {
+        throw new Error(_fn + " is an unknown function");
+      }
+    } else if( _.isArr(value)) {
+    // a convenience isin short-hand.
+      value = isin(value);
+    }
+
+    return value;
+  }
 
   function find() {
     var 
@@ -417,10 +437,9 @@ var module = module || {},
         // (['key1', 'key2', 'key3'], 'any of them can equal this')
         //
         if(_.isScalar(filter[0]) && filterList.length === 2) {
-          console.log('2 args');
           // remove it from the list so it doesn't get
           // a further comprehension
-          var filterkey_compare = filterList.pop();
+          var filterkey_compare = val_comprehension(filterList.pop());
 
           filterComp = [function(row) {
             for(var ix = 0; ix < filter.length; ix++) {
@@ -450,22 +469,7 @@ var module = module || {},
         set = _filter.call(set, filter);
       } else {
         each(filter, function(key, value) {
-          // this permits mongo-like invocation
-          if( _.isObj(value)) {
-            var 
-              _key = keys(value)[0],
-              _fn = _key.slice(1);
-
-            // see if the routine asked for exists
-            if(_fn in DB) {
-              value = DB[_fn](value[_key]);
-            } else {
-              throw new Error(_fn + " is an unknown function");
-            }
-          } else if( _.isArr(value)) {
-          // a convenience isin short-hand.
-            value = isin(value);
-          }
+          value = val_comprehension(value);
 
           if( _.isFun(value)) {
             filterComp = function(which) {
