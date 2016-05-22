@@ -1309,6 +1309,7 @@ module("FindFirst");
 
 module("like");
   test("Find records based on KV convention", function(){
+    expect(3);
     var 
       db = DB(
         { key: 'abcde' }, 
@@ -1321,6 +1322,24 @@ module("like");
     equal(res.length, 2, "I got two records");
     equal(res[1].key, 'cdefg', "It is the right one");
     equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
+  test("Find records with weirdo funky syntax", function(){
+    expect(4);
+    var 
+      db = DB(
+        { key: 'a::b::c::d', v: 'a' }, 
+        { key: '[(a)][^b][!c](?:d)', v: 'b' }
+      ),
+      res = [
+        db.find({key: db.like('a::b')}),
+        db.find({key: db.like('a)][^b')})
+      ];
+
+    equal(res[0].length, 1, "I got one record for the first query");
+    equal(res[0][0].v, 'a', "First record is correct");
+    equal(res[1].length, 1, "I got one record for the second query");
+    equal(res[1][0].v, 'b', "Second record is correct");
   });
 
   test("Find records based on KV convention - malformed regex", function(){
