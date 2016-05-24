@@ -649,6 +649,17 @@ module("update");
 
 module("Finding");
   var findObj = [ { key1: 0 }, { key2: 'value2' }, { key1: 'value3' } ];
+  test("Find elements using array function search", function(){
+    var 
+      db = DB(findObj),
+      nub = function() { return true; },
+      res = db.find({key1: [ nub, nub ]});
+
+    equal(res.length, 3, "I got three records");
+    equal(res[0].key1, 0, "They are the right ones");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
   test("Find all elements", function(){
     var 
       db = DB(findObj),
