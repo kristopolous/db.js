@@ -1386,6 +1386,21 @@ module("like");
     equal(typeof res.find, 'function', "It looks to be chained");
   });
 
+  test("Find records based on array args", function(){
+    var 
+      db = DB(
+        { key: 'abcde' }, 
+        { key: 'cdefg' }, 
+        { key: 'efgh' }, 
+        { key: 'aceg' }
+      ),
+      res = db.find(db.like('key', ['ef', 'cd']));
+
+    equal(res.length, 2, "I got two records");
+    equal(res[1].key, 'cdefg', "It is the right one");
+    equal(typeof res.find, 'function', "It looks to be chained");
+  });
+
 module("isin");
   test("Find records with a value in a list based on KV convention", function(){
     var 
