@@ -1272,7 +1272,7 @@ var module = module || {},
             _res = Array.prototype.concat.apply([], _args);
           
           if (order === 'y-x') {
-            _res = _res.reversed();
+            _res = _res.reverse();
           }
           return _res;
           
@@ -1672,6 +1672,9 @@ var module = module || {},
     isString: _.isStr,
     isFunction: _.isFun,
 
+    sort: function() {
+      return DB(arguments[0]).sort.apply(0, slice.call(arguments, 1));
+    },
     // like expr but for local functions
     local: function(){
       return '(function(){ return ' + 
@@ -1746,4 +1749,4 @@ var module = module || {},
 
   return DB;
 })();
-DB.version='0.0.2.86-20161020';
+DB.version='0.0.2.90-20161021';
