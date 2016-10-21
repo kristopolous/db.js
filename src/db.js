@@ -116,11 +116,23 @@ var module = module || {},
       return ret;
     },
 
-    mapSoft = function(array, cb) {
+    mapArity = function(array, cb) {
       var ret = [];
 
       for ( var i = 0, len = array.length; i < len; i++ ) { 
-        ret.push(cb(array[i], i));
+        ret.push(cb.call(0, array[i]));
+      }
+
+      return ret;
+    },
+
+    mapSoft = function(array, cb, onearg) {
+      var ret = [];
+
+      for ( var i = 0, len = array.length; i < len; i++ ) { 
+        ret.push(
+          onearg ? cb(array[i]) : cb(array[i], i)
+        );
       }
 
       return ret;
@@ -609,6 +621,16 @@ var module = module || {},
     } else if(len === 2){
       query = param2;
     } 
+
+    if(_.isArr(query)) {
+      for(var i = 0; i < query.length; i++) {
+        console.log(param1, query[i]);
+        if(like(param1, query[i])) {
+          return true;
+        }
+      }
+      return false;
+    }
 
     query = query.toString();
 
@@ -1207,13 +1229,16 @@ var module = module || {},
     //
     // You can also supply a second parameter of a case insensitive "asc" and "desc" like in SQL.
     //
+    // Lexical sorting needs a few tricks since there is no differece operator for strings.
+    //
     ret.order = ret.sort = ret.orderBy = function (arg0, arg1) {
       var 
         key, 
         fnSort,
         len = arguments.length,
         order,
-        filter = _.isArr(this) ? this : ret.find();                 
+        filter = _.isArr(this) ? this : ret.find(),
+        list = slice.call(filter);
 
       if(_.isFun(arg0)) {
         fnSort = arg0;
@@ -1234,17 +1259,37 @@ var module = module || {},
           }
         }
 
-        if(_.isStr(order)) {
-          if(! _orderCache[order]) {
-            order = _orderCache[order] = new Function('x,y', 'return ' + order);
-          } else {
-            order = _orderCache[order];
+        // we need to figure out if we are dealing with numerical 
+        // values or not. We will act in terrible faith and sample
+        // the first value.
+        if(_.isStr(list[0][key])) {
+          // ok we are dealing with strings ... what a pain.
+          // First we group by the key
+          var 
+            _group = ret.group.call(list, key),
+            _sorted = keys(_group).sort(),
+            _args = map(_sorted, function(_key) { return _group[_key]; }),
+            _res = Array.prototype.concat.apply([], _args);
+          
+          if (order === 'y-x') {
+            _res = _res.reversed();
+          }
+          return _res;
+          
+        } else {
+
+          if(_.isStr(order)) {
+            if(! _orderCache[order]) {
+              order = _orderCache[order] = new Function('x,y', 'return ' + order);
+            } else {
+              order = _orderCache[order];
+            }
           }
         }
 
         eval('fnSort=function(a,b){return order(a.' + key + ', b.' + key + ')}');
       }
-      return chain(slice.call(filter).sort(fnSort));
+      return chain(list.sort(fnSort));
     }
 
     ret.where = ret.find = function() {
@@ -1696,5 +1741,8 @@ var module = module || {},
       }
     }
   });
+
+  var any = DB.reduceLeft(0, function(a, b) { return a || b });
+
   return DB;
 })();
