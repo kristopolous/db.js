@@ -1,4 +1,4 @@
-<h1><a name=toc> Javascript `Databank`</a>
+<h1><a name=toc> Javascript `Databank`</a></h1>
 
 ### <a href=#introduction>The adventures of Agnes and Frederick</a>
  * <a href=#expressions>Expressions</a>
@@ -1144,7 +1144,17 @@ Summary:
  * `order('key', 'asc')`
  * `order('key', 'desc')`
 
-**Note that the invocation styles above don't work on String values by default as of now.**
+#### Note on Strings
+For strings, a little bit of acrobatics is done since javascript doesn't support comparing
+strings through mathematical operators.  Technically things are grouped by the key, then the keys of the map are sorted, then the values are concated together. If a "desc" is specificed then a `reverse()` is run.  This means that there isn't a very expressive way of doing this. 
+
+There's simple hacks if you want to have things like case insensitive sorting as long as you are willing to put up with a little overhead. (presuming that I want to sort by a case insensitive version of `key`):
+
+    DB.sort(
+      _db.update('_lckey', DB('.key.toLowerCase()')), 
+      '_lckey'
+    );
+
 #### Callback based ordering
 You can also do callback based sorting like so:
 
