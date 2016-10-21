@@ -2208,6 +2208,25 @@ module('order');
     }
   });
 
+  test("Sorting by a alphabetic key", function(){
+    var 
+      db = DB([
+      {id:'d',order:3},
+      {id:'b',order:1},
+      {id:'a',order:0},
+      {id:'c',order:2}
+    ]);
+
+    // Try to sort the new db by the key, ascending
+    var validate = db.sort('id', 'asc');
+
+    // we start at 1 for a relative comparator
+    for(ix = 1; ix < validate.length; ix++) {
+      // Assert that each index is one more then the previous
+      equal(validate[ix].order, ix, "in-order successful")
+    }
+  });
+
 module('schema');
   test('Getting a schema with 20 records', function(){
     var 
