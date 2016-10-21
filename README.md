@@ -1360,7 +1360,7 @@ Turns global tracing on, and assigns it to a callback, `my_callback`. The curren
 #### When used locally in an instance
 As a local instance function, the signature chages to:
 
-   .trace([ cb ])
+    .trace([ cb ])
 
 As the scope of the trace is implied.  
 
