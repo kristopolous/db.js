@@ -1749,4 +1749,4 @@ var module = module || {},
 
   return DB;
 })();
-DB.version='0.0.2.90-20161021';
+DB.version='0.0.2.92-20161021';
