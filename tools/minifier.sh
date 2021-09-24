@@ -13,7 +13,7 @@ echo "--[ $in ]--"
 before=`stat -c %s $out`
 beforeCompress=`gzip -c $out | wc -c`
 
-uglifyjs --source-map $map -c -m -- $in > $out
+cat $in | uglifyjs -c -m -o $out
 
 after=`stat -c %s $out`
 afterCompress=`gzip -c $out | wc -c`
