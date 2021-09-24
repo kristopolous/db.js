@@ -872,6 +872,7 @@ var module = module || {},
     'findFirst',
     'first',
     'group',
+    'groupBy',
     'has',
     'hasKey',
     'indexBy',
@@ -1149,7 +1150,7 @@ var module = module || {},
     // return them as a hash where the keys are the field values and the results are an array
     // of the rows that match that value.
     //
-    ret.group = function() {
+    ret.groupBy = ret.group = function() {
       var 
         args = slice.call(arguments || []),
         field = args.shift(),
@@ -1749,4 +1750,4 @@ var module = module || {},
 
   return DB;
 })();
-DB.version='0.0.2.92-20161021';
+DB.version='0.0.1.403-20210924';
