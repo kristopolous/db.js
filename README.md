@@ -1237,7 +1237,7 @@ To get:
     }
 
 Also, if a field is not defined for a record, then that record gets tossed into
-a catchall 'undefined' container of the Javscript `undefined` type..  For instance, if instead the data was:
+a catchall 'undefined' container of the Javascript `undefined` type..  For instance, if instead the data was:
 
     { department: hr, name: Alice, location: Atlanta },
     { department: hr, name: Bob,   location: Detroit },
