@@ -1,3 +1,5 @@
+<blockquote>Please note, this project is not "dead". It's been feature-complete and stable for years. If you find a bug, file it.</blockquote>
+
 <h1><a name=toc> Javascript `Databank`</a></h1>
 
 ### <a href=#introduction>The adventures of Agnes and Frederick</a>
