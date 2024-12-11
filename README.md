@@ -828,7 +828,12 @@ findFirst returns the boolean `false` if nothing is found.
 An alias to <a href="#findFirst">findFirst</a>.  
 
 <h3><a name=like> [chain] like( string | argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
-A macro lambda for find that does a case-insensitive regex search on the values for keys.
+Examples: 
+ * `db.find(db.like('key','value'))`
+ * `db.find('key', db.like('value'))`
+ * `db.find({key: db.like('value')})`
+
+This is not a find commmand, it's a macro lambda to be put into find that does a case-insensitive regex search on the values for keys.
 This is similar to the SQL like command and it takes the value and does
 
     value
