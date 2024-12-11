@@ -829,6 +829,7 @@ An alias to <a href="#findFirst">findFirst</a>.
 
 <h3><a name=like> [chain] like( string | argList )</a> [ <a href=#toc-finding>top</a> ] </h3>
 Examples: 
+ 
  * `db.find(db.like('key','value'))`
  * `db.find('key', db.like('value'))`
  * `db.find({key: db.like('value')})`
