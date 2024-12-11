@@ -1044,8 +1044,9 @@ Or, any other style that sorting and orderBy support
 <h2><a name=manipulating> Manipulating </a> [ <a href=#toc>top</a> ] </h2>
 
 <h3><a name=each> [array] each( lambda ) </a> [ <a href=#toc-manipulating>top</a> ] </h3>
- *Aliased to map*
-*Also a top level function*
+ 
+ * Aliased to map
+ * Also a top level function
 
 The arguments for the lambda for each is either the return of a select as an array or the record
 as a return of a find.
@@ -1053,7 +1054,7 @@ as a return of a find.
 This is a convenience on select for when you do `select('one', 'two')`
 and then you want to format those fields.  The example file included in the git repo has a usage of this.
 
-In some functions, such as `console.log` there has to be a contextualized `thi` pointer established
+In some functions, such as `console.log` there has to be a contextualized `this` pointer established
 in order to map the caller indirectly.  In these cases, you have to do a very crufty version of the call like
 so:
 
